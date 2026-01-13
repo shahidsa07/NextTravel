@@ -1,98 +1,98 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView, FlatList, Image, TouchableOpacity, Alert } from 'react-native';
+import { COLORS, FONTS, SIZES } from '../../constants/theme';
+import { useRouter } from 'expo-router';
+import Search from '../../components/Search';
 
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+const MOCK_FEATURED = [
+  { id: '1', name: 'Weekend in the Hills', image: require('../../assets/images/featured1.png'), price: '$150' },
+  { id: '2', name: 'Beach Getaway', image: require('../../assets/images/featured2.png'), price: '$250' },
+];
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+const HomeScreen = () => {
+  const router = useRouter();
+
+  const handleSearch = (query) => {
+    router.push(`/search/results?query=${query}`);
+  };
+
+  const renderFeaturedItem = ({ item }) => (
+    <TouchableOpacity style={styles.featuredItem} onPress={() => router.push(`/services/${item.id}`)}>
+      <Image source={item.image} style={styles.featuredImage} />
+      <Text style={styles.featuredTitle}>{item.name}</Text>
+      <Text style={styles.featuredPrice}>{item.price}</Text>
+    </TouchableOpacity>
   );
-}
+
+  return (
+    <ScrollView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Welcome Back!</Text>
+        <Text style={styles.headerSubtitle}>Where do you want to go today?</Text>
+      </View>
+
+      <View style={styles.section}>
+        <Search onSearch={handleSearch} />
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Featured Trips</Text>
+        <FlatList
+          data={MOCK_FEATURED}
+          renderItem={renderFeaturedItem}
+          keyExtractor={item => item.id}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+        />
+      </View>
+
+      {/* Add more sections like 'Categories' or 'Top Rated' here */}
+    </ScrollView>
+  );
+};
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  header: {
+    padding: SIZES.padding,
+    backgroundColor: COLORS.primary,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  headerTitle: {
+    ...FONTS.h2,
+    color: COLORS.white,
+  },
+  headerSubtitle: {
+    ...FONTS.body3,
+    color: COLORS.white,
+  },
+  section: {
+    padding: SIZES.padding,
+  },
+  sectionTitle: {
+    ...FONTS.h3,
+    marginBottom: SIZES.padding,
+  },
+  featuredItem: {
+    marginRight: SIZES.padding,
+    width: SIZES.width * 0.7,
+  },
+  featuredImage: {
+    width: '100%',
+    height: 150,
+    borderRadius: SIZES.radius,
+  },
+  featuredTitle: {
+    ...FONTS.h4,
+    marginTop: SIZES.base,
+  },
+  featuredPrice: {
+    ...FONTS.body4,
+    color: COLORS.primary,
   },
 });
+
+export default HomeScreen;
