@@ -15,40 +15,44 @@ const HomeScreen = () => {
       <View style={styles.card}>
         <View style={styles.tabs}>
           <TouchableOpacity style={[styles.tab, styles.activeTab]}>
-            <Ionicons name="airplane" size={24} color={COLORS.white} />
-            <Text style={styles.tabText}>Flight</Text>
+            <Ionicons name="bus" size={24} color={COLORS.white} />
+            <Text style={[styles.tabText, { color: COLORS.white }]}>Bus/Traveller</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.tab}>
-            <Ionicons name="train" size={24} color={COLORS.primary} />
-            <Text style={styles.tabText}>Train</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.tab}>
-            <Ionicons name="bed" size={24} color={COLORS.primary} />
-            <Text style={styles.tabText}>Hotels</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.tab}>
-            <Ionicons name="car" size={24} color={COLORS.primary} />
-            <Text style={styles.tabText}>Car</Text>
+            <Ionicons name="briefcase" size={24} color={COLORS.primary} />
+            <Text style={styles.tabText}>Packages</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.form}>
           <View style={styles.inputGroup}>
             <Text style={styles.label}>From</Text>
-            <TextInput style={styles.input} placeholder="Dallas" />
+            <View style={styles.inputContainer}>
+              <Ionicons name="location-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
+              <TextInput style={styles.input} placeholder="Dallas" placeholderTextColor={COLORS.gray} />
+            </View>
           </View>
           <View style={styles.inputGroup}>
             <Text style={styles.label}>To</Text>
-            <TextInput style={styles.input} placeholder="Texas City" />
+            <View style={styles.inputContainer}>
+              <Ionicons name="location-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
+              <TextInput style={styles.input} placeholder="Texas City" placeholderTextColor={COLORS.gray} />
+            </View>
           </View>
           <View style={styles.row}>
             <View style={[styles.inputGroup, { flex: 1 }]}>
               <Text style={styles.label}>Departure</Text>
-              <TextInput style={styles.input} placeholder="March 10, 2022" />
+              <View style={styles.inputContainer}>
+                <Ionicons name="calendar-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
+                <TextInput style={styles.input} placeholder="March 10, 2022" placeholderTextColor={COLORS.gray} />
+              </View>
             </View>
             <View style={[styles.inputGroup, { flex: 1, marginLeft: SIZES.padding }]}>
               <Text style={styles.label}>Return</Text>
-              <TextInput style={styles.input} placeholder="March 30, 2022" />
+              <View style={styles.inputContainer}>
+                <Ionicons name="calendar-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
+                <TextInput style={styles.input} placeholder="March 30, 2022" placeholderTextColor={COLORS.gray} />
+              </View>
             </View>
           </View>
           <TouchableOpacity style={styles.searchButton}>
@@ -88,17 +92,25 @@ const styles = StyleSheet.create({
     margin: SIZES.padding,
     marginTop: -SIZES.padding,
     padding: SIZES.padding,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   tabs: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     marginBottom: SIZES.padding,
   },
   tab: {
-    flex: 1,
     alignItems: 'center',
     padding: SIZES.base,
     borderRadius: SIZES.radius,
+    minWidth: 120,
   },
   activeTab: {
     backgroundColor: COLORS.primary,
@@ -106,6 +118,7 @@ const styles = StyleSheet.create({
   tabText: {
     ...FONTS.body4,
     color: COLORS.black,
+    marginTop: SIZES.base / 2,
   },
   form: {},
   inputGroup: {
@@ -114,22 +127,42 @@ const styles = StyleSheet.create({
   label: {
     ...FONTS.h4,
     marginBottom: SIZES.base,
+    color: COLORS.black,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.background,
+    borderRadius: SIZES.radius,
+    paddingHorizontal: SIZES.padding,
+    height: 50,
+  },
+  inputIcon: {
+    marginRight: SIZES.base,
   },
   input: {
+    flex: 1,
     ...FONTS.body3,
-    borderWidth: 1,
-    borderColor: COLORS.gray,
-    borderRadius: SIZES.radius,
-    padding: SIZES.base,
+    color: COLORS.black,
   },
   row: {
     flexDirection: 'row',
   },
   searchButton: {
     backgroundColor: COLORS.accent,
-    padding: SIZES.padding,
+    padding: SIZES.padding / 1.5,
     borderRadius: SIZES.radius,
     alignItems: 'center',
+    justifyContent: 'center',
+    height: 50,
+    shadowColor: COLORS.primary,
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.34,
+    shadowRadius: 6.27,
+    elevation: 10,
   },
   searchButtonText: {
     ...FONTS.h3,
