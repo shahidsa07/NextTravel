@@ -32,6 +32,7 @@ export const SIZES = {
   body2: 22,
   body3: 16,
   body4: 14,
+  body5: 12,
 
   width,
   height,
@@ -46,6 +47,7 @@ export const FONTS = {
   body2: { fontFamily: 'Poppins-Regular', fontSize: SIZES.body2, lineHeight: 30 },
   body3: { fontFamily: 'Poppins-Regular', fontSize: SIZES.body3, lineHeight: 22 },
   body4: { fontFamily: 'Poppins-Regular', fontSize: SIZES.body4, lineHeight: 22 },
+  body5: { fontFamily: 'Poppins-Regular', fontSize: SIZES.body5, lineHeight: 18 },
 };
 
 const appTheme = { COLORS, SIZES, FONTS };
