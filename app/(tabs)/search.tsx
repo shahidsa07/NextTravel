@@ -2,12 +2,12 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 
-const ProfileScreen = () => {
+const SearchScreen = () => {
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Profile Screen</Text>
+      <Text>Search Screen</Text>
     </View>
   );
 };
 
-export default ProfileScreen;
+export default SearchScreen;
