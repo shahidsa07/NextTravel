@@ -1,32 +1,146 @@
 
 import React from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
-import { COLORS, SIZES } from '../../constants/theme';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList } from 'react-native';
+import { COLORS, FONTS, SIZES } from '../../constants/theme';
+import { Ionicons } from '@expo/vector-icons';
 
-const MOCK_RESULTS = [
-  { id: '3', name: 'Mountain Cabin', price: '$200' },
-  { id: '4', name: 'City Apartment', price: '$120' },
+const mockBuses = [
+  {
+    id: '1',
+    name: 'Rajesh Transports',
+    type: 'Volvo Multi-Axle A/C Sleeper (2+1)',
+    departureTime: '23:30',
+    arrivalTime: '06:00',
+    duration: '6h 30m',
+    seats: 17,
+    singleSeats: 5,
+    price: 1180,
+    rating: 3.9,
+    reviews: 196,
+    tags: ['Flexi Ticket', 'Clean Bus'],
+  },
+  {
+    id: '2',
+    name: 'Rajeswari Travels',
+    type: 'NON A/C Sleeper (2+1)',
+    departureTime: '23:30',
+    arrivalTime: '06:30',
+    duration: '7h',
+    seats: 20,
+    singleSeats: 6,
+    price: 600,
+    rating: 3.7,
+    reviews: 305,
+    tags: ['Flexi Ticket', 'Extra Legroom'],
+  },
+  {
+    id: '3',
+    name: 'Rajeswari Travels',
+    type: 'A/C Sleeper (2+1)',
+    departureTime: '22:30',
+    arrivalTime: '05:00',
+    duration: '6h 30m',
+    seats: 13,
+    singleSeats: 4,
+    price: 800,
+    rating: 3.8,
+    reviews: 119,
+    tags: ['Flexi Ticket', 'Clean Bus'],
+  },
 ];
 
 const SearchResultsScreen = () => {
-  const { query } = useLocalSearchParams();
-
-  const renderItem = ({ item }) => (
-    <View style={styles.itemContainer}>
-      <Text style={styles.itemName}>{item.name}</Text>
-      <Text style={styles.itemPrice}>{item.price}</Text>
+  const renderBusItem = ({ item }) => (
+    <View style={styles.card}>
+      <View style={styles.busInfoTop}>
+        <View>
+          <Text style={styles.busTime}>{`${item.departureTime} - ${item.arrivalTime}`}</Text>
+          <Text style={styles.busDuration}>{`${item.duration} • ${item.seats} Seats (${item.singleSeats} Single)`}</Text>
+        </View>
+        <Text style={styles.busPrice}>From ₹{item.price}</Text>
+      </View>
+      <View style={styles.busInfoBottom}>
+        <View>
+          <Text style={styles.busName}>{item.name}</Text>
+          <Text style={styles.busType}>{item.type}</Text>
+        </View>
+        <View style={styles.ratingContainer}>
+          <Ionicons name="star" size={16} color={COLORS.white} />
+          <Text style={styles.ratingText}>{`${item.rating} • ${item.reviews}`}</Text>
+        </View>
+      </View>
+      <View style={styles.tagsContainer}>
+        {item.tags.map(tag => (
+          <View key={tag} style={styles.tag}>
+            <Text style={styles.tagText}>{tag}</Text>
+          </View>
+        ))}
+      </View>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Results for "{query}"</Text>
+      <View style={styles.header}>
+        <TouchableOpacity>
+          <Ionicons name="arrow-back" size={24} color={COLORS.black} />
+        </TouchableOpacity>
+        <View>
+          <Text style={styles.headerTitle}>Bangalore to Nellore</Text>
+          <Text style={styles.headerSubtitle}>129 Buses</Text>
+        </View>
+        <TouchableOpacity style={styles.dateContainer}>
+          <Ionicons name="chevron-back" size={24} color={COLORS.primary} />
+          <Text style={styles.dateText}>25 Jun</Text>
+          <Ionicons name="chevron-forward" size={24} color={COLORS.primary} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.filtersContainer}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <TouchableOpacity style={styles.filterButton}>
+            <Text style={styles.filterButtonText}>FREE DATE CHANGE</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.filterButton, styles.activeFilter]}>
+            <Text style={[styles.filterButtonText, { color: COLORS.white }]}>LAST MINUTE DEAL</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.filterButton}>
+            <Text style={styles.filterButtonText}>RETURN OFFER</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
+
       <FlatList
-        data={MOCK_RESULTS}
-        renderItem={renderItem}
+        data={mockBuses}
+        renderItem={renderBusItem}
         keyExtractor={item => item.id}
+        contentContainerStyle={styles.listContainer}
       />
+
+      <View style={styles.footer}>
+        <TouchableOpacity style={styles.footerButton}>
+          <Ionicons name="bus-outline" size={24} color={COLORS.primary} />
+          <Text style={styles.footerButtonText}>Primo Bus</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.footerButton}>
+          <Ionicons name="bed-outline" size={24} color={COLORS.primary} />
+          <Text style={styles.footerButtonText}>Sleeper</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.footerButton}>
+          <Ionicons name="snow-outline" size={24} color={COLORS.primary} />
+          <Text style={styles.footerButtonText}>A/C</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.footerButton}>
+          <Text style={styles.footerButtonText}>NON A/C</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.footerButton}>
+          <Ionicons name="accessibility-outline" size={24} color={COLORS.primary} />
+          <Text style={styles.footerButtonText}>Seater</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.sortFilterButton}>
+          <Text style={styles.sortFilterButtonText}>SORT & FILTER</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -34,25 +148,144 @@ const SearchResultsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: SIZES.padding,
     backgroundColor: COLORS.background,
   },
-  title: {
-    ...SIZES.h3,
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: SIZES.padding,
+    backgroundColor: COLORS.white,
+  },
+  headerTitle: {
+    ...FONTS.h3,
+  },
+  headerSubtitle: {
+    ...FONTS.body4,
+    color: COLORS.gray,
+  },
+  dateContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  dateText: {
+    ...FONTS.h4,
+    color: COLORS.primary,
+    marginHorizontal: SIZES.base,
+  },
+  filtersContainer: {
+    paddingVertical: SIZES.base,
+    paddingLeft: SIZES.padding,
+    backgroundColor: COLORS.white,
+  },
+  filterButton: {
+    padding: SIZES.base,
+    borderRadius: SIZES.radius,
+    borderWidth: 1,
+    borderColor: COLORS.gray,
+    marginRight: SIZES.base,
+  },
+  activeFilter: {
+    backgroundColor: '#FF6F61',
+    borderColor: '#FF6F61',
+  },
+  filterButtonText: {
+    ...FONTS.body4,
+  },
+  listContainer: {
+    padding: SIZES.padding,
+  },
+  card: {
+    backgroundColor: COLORS.white,
+    borderRadius: SIZES.radius,
+    padding: SIZES.padding,
+    marginBottom: SIZES.padding,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
+  },
+  busInfoTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: SIZES.padding,
   },
-  itemContainer: {
+  busTime: {
+    ...FONTS.h3,
+  },
+  busDuration: {
+    ...FONTS.body4,
+    color: COLORS.gray,
+  },
+  busPrice: {
+    ...FONTS.h3,
+  },
+  busInfoBottom: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SIZES.padding,
+  },
+  busName: {
+    ...FONTS.h4,
+  },
+  busType: {
+    ...FONTS.body4,
+    color: COLORS.gray,
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1E8449',
+    borderRadius: SIZES.radius,
+    padding: SIZES.base / 2,
+    paddingHorizontal: SIZES.base,
+  },
+  ratingText: {
+    ...FONTS.body4,
+    color: COLORS.white,
+    marginLeft: SIZES.base / 2,
+  },
+  tagsContainer: {
+    flexDirection: 'row',
+  },
+  tag: {
+    backgroundColor: COLORS.background,
+    borderRadius: SIZES.radius,
+    padding: SIZES.base,
+    marginRight: SIZES.base,
+  },
+  tagText: {
+    ...FONTS.body5,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    padding: SIZES.padding,
     backgroundColor: COLORS.white,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.gray,
+  },
+  footerButton: {
+    alignItems: 'center',
+  },
+  footerButtonText: {
+    ...FONTS.body5,
+    marginTop: SIZES.base / 2,
+  },
+  sortFilterButton: {
+    backgroundColor: '#D32F2F',
     padding: SIZES.padding,
     borderRadius: SIZES.radius,
-    marginBottom: SIZES.base,
   },
-  itemName: {
-    ...SIZES.h4,
-  },
-  itemPrice: {
-    ...SIZES.body4,
-    color: COLORS.primary,
+  sortFilterButtonText: {
+    ...FONTS.h4,
+    color: COLORS.white,
   },
 });
 
