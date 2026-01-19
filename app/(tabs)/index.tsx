@@ -6,8 +6,8 @@ import { useRouter } from 'expo-router';
 import Search from '../../components/Search';
 
 const MOCK_FEATURED = [
-  { id: '1', name: 'Weekend in the Hills', image: require('../../assets/images/featured1.png'), price: '$150' },
-  { id: '2', name: 'Beach Getaway', image: require('../../assets/images/featured2.png'), price: '$250' },
+  // { id: '1', name: 'Weekend in the Hills', image: require('../../assets/images/featured1.png'), price: '$150' },
+  // { id: '2', name: 'Beach Getaway', image: require('../../assets/images/featured2.png'), price: '$250' },
 ];
 
 const HomeScreen = () => {

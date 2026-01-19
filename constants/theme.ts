@@ -1,4 +1,5 @@
 
+import React, { createContext, useContext } from 'react';
 import { Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -47,5 +48,19 @@ export const FONTS = {
 };
 
 const appTheme = { COLORS, SIZES, FONTS };
+
+const ThemeContext = createContext(appTheme);
+
+export const ThemeProvider = ({ children }) => {
+  return (
+    <ThemeContext.Provider value={appTheme}>
+      {children}
+    </Theme.Provider>
+  );
+};
+
+export const useTheme = () => {
+  return useContext(ThemeContext);
+}
 
 export default appTheme;
