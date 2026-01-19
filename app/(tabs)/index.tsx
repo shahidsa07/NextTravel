@@ -1,13 +1,13 @@
 
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, FlatList, Image, TouchableOpacity, Alert } from 'react-native';
-import { COLORS, FONTS, SIZES } from '../../constants/theme';
 import { useRouter } from 'expo-router';
+import React from 'react';
+import { FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Search from '../../components/Search';
+import { COLORS, FONTS, SIZES } from '../../constants/theme';
 
 const MOCK_FEATURED = [
-  // { id: '1', name: 'Weekend in the Hills', image: require('../../assets/images/featured1.png'), price: '$150' },
-  // { id: '2', name: 'Beach Getaway', image: require('../../assets/images/featured2.png'), price: '$250' },
+  { id: '1', name: 'Weekend in the Hills', image: require('../../assets/images/featured1.jpeg'), price: '$150' },
+  { id: '2', name: 'Beach Getaway', image: require('../../assets/images/featured2.jpeg'), price: '$250' },
 ];
 
 const HomeScreen = () => {
