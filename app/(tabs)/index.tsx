@@ -107,7 +107,15 @@ const HomeScreen = () => {
             >
               <Ionicons name="close-circle" size={30} color={COLORS.primary} />
             </TouchableOpacity>
-            <Calendar onDayPress={onDayPress} style={{ marginTop: 30}}/>
+            <Calendar
+              onDayPress={onDayPress}
+              style={{ marginTop: 30 }}
+              theme={{
+                selectedDayBackgroundColor: COLORS.primary,
+                todayTextColor: COLORS.primary,
+                arrowColor: COLORS.primary,
+              }}
+            />
           </View>
         </View>
       </Modal>
