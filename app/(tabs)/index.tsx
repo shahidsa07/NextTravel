@@ -1,7 +1,7 @@
 
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { COLORS, FONTS, SIZES } from '../../constants/theme';
@@ -10,10 +10,29 @@ const HomeScreen = () => {
   const router = useRouter();
   const [from, setFrom] = useState('Dallas');
   const [to, setTo] = useState('Texas City');
-  const [departureDate, setDepartureDate] = useState('March 10, 2022');
-  const [returnDate, setReturnDate] = useState('March 30, 2022');
+
+  const [departureDateRaw, setDepartureDateRaw] = useState('2022-03-10');
+  const [returnDateRaw, setReturnDateRaw] = useState('2022-03-30');
+
+  const [departureDate, setDepartureDate] = useState('');
+  const [returnDate, setReturnDate] = useState('');
+
   const [showCalendar, setShowCalendar] = useState(false);
   const [dateType, setDateType] = useState('');
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString.replace(/-/g, '/'));
+    const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'short' });
+    const dayOfMonth = date.toLocaleDateString('en-US', { day: '2-digit' });
+    const month = date.toLocaleDateString('en-US', { month: 'short' });
+    return `${dayOfWeek} - ${dayOfMonth} - ${month}`;
+  };
+
+  useEffect(() => {
+    setDepartureDate(formatDate(departureDateRaw));
+    setReturnDate(formatDate(returnDateRaw));
+  }, [departureDateRaw, returnDateRaw]);
 
   const handleSearch = () => {
     router.push({ pathname: 'search/results', params: { from, to, departureDate, returnDate } });
@@ -21,12 +40,18 @@ const HomeScreen = () => {
 
   const onDayPress = (day) => {
     if (dateType === 'departure') {
-      setDepartureDate(day.dateString);
+      setDepartureDateRaw(day.dateString);
     } else {
-      setReturnDate(day.dateString);
+      setReturnDateRaw(day.dateString);
     }
     setShowCalendar(false);
   };
+
+  const markedDates = {
+    [departureDateRaw]: { selected: true, selectedColor: COLORS.primary },
+    ...(departureDateRaw !== returnDateRaw && { [returnDateRaw]: { selected: true, selectedColor: COLORS.primary } })
+  };
+
 
   return (
     <ScrollView style={styles.container}>
@@ -110,8 +135,10 @@ const HomeScreen = () => {
             <Calendar
               onDayPress={onDayPress}
               style={{ marginTop: 30 }}
+              markedDates={markedDates}
               theme={{
                 selectedDayBackgroundColor: COLORS.primary,
+                selectedDayTextColor: '#FFFFFF',
                 todayTextColor: COLORS.primary,
                 arrowColor: COLORS.primary,
               }}
