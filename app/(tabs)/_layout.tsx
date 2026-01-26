@@ -1,10 +1,10 @@
 
-import React from 'react';
 import { Tabs } from 'expo-router';
+import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../constants/theme';
 
-export default function TabsLayout() {
+export default function TabLayout() {
   return (
     <Tabs
       screenOptions={({ route }) => ({
@@ -13,12 +13,8 @@ export default function TabsLayout() {
 
           if (route.name === 'index') {
             iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'search') {
-            iconName = focused ? 'search' : 'search-outline';
           } else if (route.name === 'trip') {
-            iconName = focused ? 'briefcase' : 'briefcase-outline';
-          } else if (route.name === 'notification') {
-            iconName = focused ? 'notifications' : 'notifications-outline';
+            iconName = focused ? 'paper-plane' : 'paper-plane-outline';
           } else if (route.name === 'profile') {
             iconName = focused ? 'person' : 'person-outline';
           }
@@ -33,10 +29,8 @@ export default function TabsLayout() {
         headerTintColor: COLORS.white,
       })}
     >
-      <Tabs.Screen name="index" options={{ title: 'Home' }} />
-      <Tabs.Screen name="search" options={{ title: 'Search' }} />
+      <Tabs.Screen name="index" options={{ headerShown: false }} />
       <Tabs.Screen name="trip" options={{ title: 'Trip' }} />
-      <Tabs.Screen name="notification" options={{ title: 'Notification' }} />
       <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
     </Tabs>
   );

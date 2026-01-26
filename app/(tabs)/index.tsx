@@ -17,6 +17,9 @@ const HomeScreen = () => {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
+        <TouchableOpacity style={styles.notificationButton} onPress={() => router.push('/(tabs)/notification')}>
+          <Ionicons name="notifications-outline" size={24} color={COLORS.white} />
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>Welcome Back!</Text>
         <Text style={styles.headerSubtitle}>Where do you want to go?</Text>
       </View>
@@ -84,6 +87,12 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: SIZES.radius,
     borderBottomRightRadius: SIZES.radius,
     paddingBottom: SIZES.padding * 2,
+    paddingTop: 50,
+  },
+  notificationButton: {
+    position: 'absolute',
+    top: 50,
+    right: SIZES.padding,
   },
   headerTitle: {
     ...FONTS.h2,
