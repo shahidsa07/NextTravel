@@ -40,19 +40,44 @@ const HomeScreen = () => {
   };
 
   const onDayPress = (day) => {
+    const newDate = day.dateString;
     if (dateType === 'departure') {
-      setDepartureDateRaw(day.dateString);
-    } else {
-      setReturnDateRaw(day.dateString);
+      setDepartureDateRaw(newDate);
+      if (new Date(newDate) > new Date(returnDateRaw)) {
+        setReturnDateRaw(newDate);
+      }
+    } else { // 'return'
+      setReturnDateRaw(newDate);
+      if (new Date(newDate) < new Date(departureDateRaw)) {
+        setDepartureDateRaw(newDate);
+      }
     }
     setShowCalendar(false);
   };
+  
 
-  const markedDates = {
-    [departureDateRaw]: { selected: true, selectedColor: COLORS.primary },
-    ...(departureDateRaw !== returnDateRaw && { [returnDateRaw]: { selected: true, selectedColor: COLORS.primary } })
+  const getMarkedDates = () => {
+    const marked = {};
+    if (departureDateRaw && returnDateRaw) {
+      let currentDate = new Date(`${departureDateRaw}T00:00:00`);
+      const endDate = new Date(`${returnDateRaw}T00:00:00`);
+      
+      while (currentDate <= endDate) {
+        const dateString = currentDate.toISOString().split('T')[0];
+        const isStart = dateString === departureDateRaw;
+        const isEnd = dateString === returnDateRaw;
+        
+        marked[dateString] = {
+          textColor: isStart || isEnd ? COLORS.white : COLORS.primary,
+          color: isStart || isEnd ? COLORS.primary : '#E0F2F1',
+          startingDay: isStart,
+          endingDay: isEnd,
+        };
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+    }
+    return marked;
   };
-
 
   return (
     <ScrollView style={styles.container}>
@@ -136,7 +161,8 @@ const HomeScreen = () => {
             <Calendar
               onDayPress={onDayPress}
               style={{ marginTop: 30 }}
-              markedDates={markedDates}
+              markingType={'period'}
+              markedDates={getMarkedDates()}
               theme={{
                 selectedDayBackgroundColor: COLORS.primary,
                 selectedDayTextColor: '#FFFFFF',
