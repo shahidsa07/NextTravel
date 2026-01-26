@@ -1,10 +1,10 @@
 
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Modal } from 'react-native';
-import { COLORS, FONTS, SIZES } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Calendar } from 'react-native-calendars';
+import { COLORS, FONTS, SIZES } from '../../constants/theme';
 
 const HomeScreen = () => {
   const router = useRouter();
@@ -105,7 +105,7 @@ const HomeScreen = () => {
               style={styles.closeButton}
               onPress={() => setShowCalendar(false)}
             >
-              <Ionicons name="close-circle" size={30} color={COLORS.primary} />
+              <Ionicons name="close" size={25} color={COLORS.black} />
             </TouchableOpacity>
             <Calendar onDayPress={onDayPress} style={{ marginTop: 30}}/>
           </View>
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: SIZES.radius,
     borderBottomRightRadius: SIZES.radius,
     paddingBottom: SIZES.padding * 2,
-    paddingTop: 50,
+    paddingTop: 100,
   },
   notificationButton: {
     position: 'absolute',
@@ -191,11 +191,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: COLORS.background,
     borderRadius: SIZES.radius,
-    paddingHorizontal: SIZES.padding,
+    paddingHorizontal: 10,
     height: 50,
   },
   inputIcon: {
-    marginRight: SIZES.base,
+    marginRight: 6,
   },
   input: {
     flex: 1,
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   searchButton: {
-    backgroundColor: COLORS.accent,
+    backgroundColor: COLORS.primary,
     padding: SIZES.padding / 1.5,
     borderRadius: SIZES.radius,
     alignItems: 'center',
