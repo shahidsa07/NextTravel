@@ -55,26 +55,35 @@ const HomeScreen = () => {
     setShowCalendar(false);
   };
   
-
   const getMarkedDates = () => {
     const marked = {};
-    if (departureDateRaw && returnDateRaw) {
-      let currentDate = new Date(`${departureDateRaw}T00:00:00`);
-      const endDate = new Date(`${returnDateRaw}T00:00:00`);
+    if (!departureDateRaw || !returnDateRaw) {
+      return marked;
+    }
+
+    const start = new Date(departureDateRaw);
+    start.setUTCHours(0, 0, 0, 0);
+    const end = new Date(returnDateRaw);
+    end.setUTCHours(0, 0, 0, 0);
+
+    let currentDate = new Date(start);
+
+    while (currentDate <= end) {
+      const dateString = currentDate.toISOString().split('T')[0];
+      const isStart = currentDate.getTime() === start.getTime();
+      const isEnd = currentDate.getTime() === end.getTime();
       
-      while (currentDate <= endDate) {
-        const dateString = currentDate.toISOString().split('T')[0];
-        const isStart = dateString === departureDateRaw;
-        const isEnd = dateString === returnDateRaw;
-        
-        marked[dateString] = {
-          textColor: isStart || isEnd ? COLORS.white : COLORS.primary,
-          color: isStart || isEnd ? COLORS.primary : '#E0F2F1',
-          startingDay: isStart,
-          endingDay: isEnd,
-        };
-        currentDate.setDate(currentDate.getDate() + 1);
-      }
+      const isSingleDay = departureDateRaw === returnDateRaw;
+
+      marked[dateString] = {
+        color: isStart || isEnd ? COLORS.primary : '#E0F2F1',
+        textColor: isStart || isEnd ? COLORS.white : COLORS.primary,
+        startingDay: isSingleDay ? false : isStart,
+        endingDay: isSingleDay ? false : isEnd,
+        selected: isSingleDay
+      };
+
+      currentDate.setUTCDate(currentDate.getUTCDate() + 1);
     }
     return marked;
   };
