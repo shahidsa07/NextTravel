@@ -48,9 +48,6 @@ const HomeScreen = () => {
       }
     } else { // 'return'
       setReturnDateRaw(newDate);
-      if (new Date(newDate) < new Date(departureDateRaw)) {
-        setDepartureDateRaw(newDate);
-      }
     }
     setShowCalendar(false);
   };
@@ -172,6 +169,7 @@ const HomeScreen = () => {
               style={{ marginTop: 30 }}
               markingType={'period'}
               markedDates={getMarkedDates()}
+              minDate={dateType === 'return' ? departureDateRaw : new Date().toISOString().split('T')[0]}
               theme={{
                 selectedDayBackgroundColor: COLORS.primary,
                 selectedDayTextColor: '#FFFFFF',
