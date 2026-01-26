@@ -1,17 +1,31 @@
 
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Modal } from 'react-native';
+import { COLORS, FONTS, SIZES } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { COLORS, FONTS, SIZES } from '../../constants/theme';
+import { Calendar } from 'react-native-calendars';
 
 const HomeScreen = () => {
   const router = useRouter();
-  const [from, setFrom] = useState('Malappuram');
-  const [to, setTo] = useState('Wayanad');
+  const [from, setFrom] = useState('Dallas');
+  const [to, setTo] = useState('Texas City');
+  const [departureDate, setDepartureDate] = useState('March 10, 2022');
+  const [returnDate, setReturnDate] = useState('March 30, 2022');
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [dateType, setDateType] = useState('');
 
   const handleSearch = () => {
-    router.push({ pathname: 'search/results', params: { from, to } });
+    router.push({ pathname: 'search/results', params: { from, to, departureDate, returnDate } });
+  };
+
+  const onDayPress = (day) => {
+    if (dateType === 'departure') {
+      setDepartureDate(day.dateString);
+    } else {
+      setReturnDate(day.dateString);
+    }
+    setShowCalendar(false);
   };
 
   return (
@@ -20,7 +34,7 @@ const HomeScreen = () => {
         <TouchableOpacity style={styles.notificationButton} onPress={() => router.push('/(tabs)/notification')}>
           <Ionicons name="notifications-outline" size={24} color={COLORS.white} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Book Your Journey With Us!</Text>
+        <Text style={styles.headerTitle}>Welcome Back!</Text>
         <Text style={styles.headerSubtitle}>Where do you want to go?</Text>
       </View>
 
@@ -54,17 +68,21 @@ const HomeScreen = () => {
           <View style={styles.row}>
             <View style={[styles.inputGroup, { flex: 1 }]}>
               <Text style={styles.label}>Departure</Text>
-              <View style={styles.inputContainer}>
-                <Ionicons name="calendar-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
-                <TextInput style={styles.input} placeholder="March 10, 2022" placeholderTextColor={COLORS.gray} />
-              </View>
+              <TouchableOpacity onPress={() => { setDateType('departure'); setShowCalendar(true); }}>
+                <View style={styles.inputContainer}>
+                  <Ionicons name="calendar-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
+                  <Text style={styles.input}>{departureDate}</Text>
+                </View>
+              </TouchableOpacity>
             </View>
             <View style={[styles.inputGroup, { flex: 1, marginLeft: SIZES.padding }]}>
               <Text style={styles.label}>Return</Text>
-              <View style={styles.inputContainer}>
-                <Ionicons name="calendar-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
-                <TextInput style={styles.input} placeholder="March 30, 2022" placeholderTextColor={COLORS.gray} />
-              </View>
+              <TouchableOpacity onPress={() => { setDateType('return'); setShowCalendar(true); }}>
+                <View style={styles.inputContainer}>
+                  <Ionicons name="calendar-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
+                  <Text style={styles.input}>{returnDate}</Text>
+                </View>
+              </TouchableOpacity>
             </View>
           </View>
           <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
@@ -72,6 +90,10 @@ const HomeScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
+
+      <Modal visible={showCalendar} animationType="slide">
+        <Calendar onDayPress={onDayPress} />
+      </Modal>
     </ScrollView>
   );
 };
@@ -87,7 +109,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: SIZES.radius,
     borderBottomRightRadius: SIZES.radius,
     paddingBottom: SIZES.padding * 2,
-    paddingTop: 100,
+    paddingTop: 50,
   },
   notificationButton: {
     position: 'absolute',
@@ -167,7 +189,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   searchButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.accent,
     padding: SIZES.padding / 1.5,
     borderRadius: SIZES.radius,
     alignItems: 'center',
