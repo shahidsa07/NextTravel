@@ -1,14 +1,14 @@
 
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
-import { COLORS, FONTS, SIZES } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { COLORS, FONTS, SIZES } from '../../constants/theme';
 
 const HomeScreen = () => {
   const router = useRouter();
-  const [from, setFrom] = useState('Dallas');
-  const [to, setTo] = useState('Texas City');
+  const [from, setFrom] = useState('Malappuram');
+  const [to, setTo] = useState('Wayanad');
 
   const handleSearch = () => {
     router.push({ pathname: 'search/results', params: { from, to } });
@@ -20,7 +20,7 @@ const HomeScreen = () => {
         <TouchableOpacity style={styles.notificationButton} onPress={() => router.push('/(tabs)/notification')}>
           <Ionicons name="notifications-outline" size={24} color={COLORS.white} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Welcome Back!</Text>
+        <Text style={styles.headerTitle}>Book Your Journey With Us!</Text>
         <Text style={styles.headerSubtitle}>Where do you want to go?</Text>
       </View>
 
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: SIZES.radius,
     borderBottomRightRadius: SIZES.radius,
     paddingBottom: SIZES.padding * 2,
-    paddingTop: 50,
+    paddingTop: 100,
   },
   notificationButton: {
     position: 'absolute',
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   searchButton: {
-    backgroundColor: COLORS.accent,
+    backgroundColor: COLORS.primary,
     padding: SIZES.padding / 1.5,
     borderRadius: SIZES.radius,
     alignItems: 'center',
