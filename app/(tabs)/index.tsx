@@ -22,7 +22,8 @@ const HomeScreen = () => {
 
   const formatDate = (dateString) => {
     if (!dateString) return '';
-    const date = new Date(dateString.replace(/-/g, '/'));
+    const parts = dateString.split('-');
+    const date = new Date(parts[0], parts[1] - 1, parts[2]);
     const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'short' });
     const dayOfMonth = date.toLocaleDateString('en-US', { day: '2-digit' });
     const month = date.toLocaleDateString('en-US', { month: 'short' });
