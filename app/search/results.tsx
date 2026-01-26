@@ -58,8 +58,8 @@ const SearchResultsScreen = () => {
     <View style={styles.card}>
       <View style={styles.busInfoTop}>
         <View>
-          <Text style={styles.busTime}>{`${item.departureTime} - ${item.arrivalTime}`}</Text>
-          <Text style={styles.busDuration}>{`${item.duration} • ${item.seats} Seats (${item.singleSeats} Single)`}</Text>
+          {/* <Text style={styles.busTime}>{`${item.departureTime} - ${item.arrivalTime}`}</Text> */}
+          <Text style={styles.busDuration}>{`${item.seats} Seats`}</Text>
         </View>
         <Text style={styles.busPrice}>From ₹{item.price}</Text>
       </View>
@@ -88,17 +88,17 @@ const SearchResultsScreen = () => {
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color={COLORS.black} />
+          <Ionicons name="arrow-back" size={24} color={COLORS.white} />
         </TouchableOpacity>
         <View>
           <Text style={styles.headerTitle}>{`${from} to ${to}`}</Text>
           <Text style={styles.headerSubtitle}>129 Buses</Text>
         </View>
-        <TouchableOpacity style={styles.dateContainer}>
-          <Ionicons name="chevron-back" size={24} color={COLORS.primary} />
+        {/* <TouchableOpacity style={styles.dateContainer}>
+          <Ionicons name="chevron-back" size={24} color={COLORS.white} />
           <Text style={styles.dateText}>25 Jun</Text>
-          <Ionicons name="chevron-forward" size={24} color={COLORS.primary} />
-        </TouchableOpacity>
+          <Ionicons name="chevron-forward" size={24} color={COLORS.white} />
+        </TouchableOpacity> */}
       </View>
 
       <View style={styles.filtersContainer}>
@@ -154,21 +154,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
-    paddingTop: 40
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     alignItems: 'center',
+    gap: SIZES.padding,
     padding: SIZES.padding,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary,
+    paddingTop: 60
   },
   headerTitle: {
     ...FONTS.h3,
+    color: COLORS.white,
   },
   headerSubtitle: {
     ...FONTS.body4,
-    color: COLORS.gray,
+    color: COLORS.white,
   },
   dateContainer: {
     flexDirection: 'row',
@@ -176,7 +178,7 @@ const styles = StyleSheet.create({
   },
   dateText: {
     ...FONTS.h4,
-    color: COLORS.primary,
+    color: COLORS.white,
     marginHorizontal: SIZES.base,
   },
   filtersContainer: {
@@ -188,12 +190,12 @@ const styles = StyleSheet.create({
     padding: SIZES.base,
     borderRadius: SIZES.radius,
     borderWidth: 1,
-    borderColor: COLORS.gray,
+    borderColor: COLORS.primary,
     marginRight: SIZES.base,
   },
   activeFilter: {
-    backgroundColor: '#FF6F61',
-    borderColor: '#FF6F61',
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
   },
   filterButtonText: {
     ...FONTS.body4,

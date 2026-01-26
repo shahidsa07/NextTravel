@@ -1,18 +1,18 @@
 
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { COLORS, FONTS, SIZES } from '../../constants/theme';
 
 const HomeScreen = () => {
   const router = useRouter();
-  const [from, setFrom] = useState('Dallas');
-  const [to, setTo] = useState('Texas City');
+  const [from, setFrom] = useState('Malappuram');
+  const [to, setTo] = useState('Wayanad');
 
-  const [departureDateRaw, setDepartureDateRaw] = useState('2022-03-10');
-  const [returnDateRaw, setReturnDateRaw] = useState('2022-03-30');
+  const [departureDateRaw, setDepartureDateRaw] = useState('2026-01-10');
+  const [returnDateRaw, setReturnDateRaw] = useState('2026-01-13');
 
   const [departureDate, setDepartureDate] = useState('');
   const [returnDate, setReturnDate] = useState('');
@@ -112,14 +112,14 @@ const HomeScreen = () => {
             <Text style={styles.label}>From</Text>
             <View style={styles.inputContainer}>
               <Ionicons name="location-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
-              <TextInput style={styles.input} placeholder="Dallas" placeholderTextColor={COLORS.gray} value={from} onChangeText={setFrom} />
+              <TextInput style={styles.input} placeholder="Malappuram" placeholderTextColor={COLORS.gray} value={from} onChangeText={setFrom} />
             </View>
           </View>
           <View style={styles.inputGroup}>
             <Text style={styles.label}>To</Text>
             <View style={styles.inputContainer}>
               <Ionicons name="location-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
-              <TextInput style={styles.input} placeholder="Texas City" placeholderTextColor={COLORS.gray} value={to} onChangeText={setTo} />
+              <TextInput style={styles.input} placeholder="Wayanad" placeholderTextColor={COLORS.gray} value={to} onChangeText={setTo} />
             </View>
           </View>
           <View style={styles.row}>
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
   },
   notificationButton: {
     position: 'absolute',
-    top: 50,
+    top: 60,
     right: SIZES.padding,
   },
   headerTitle: {
