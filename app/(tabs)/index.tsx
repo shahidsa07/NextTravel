@@ -91,8 +91,25 @@ const HomeScreen = () => {
         </View>
       </View>
 
-      <Modal visible={showCalendar} animationType="slide">
-        <Calendar onDayPress={onDayPress} />
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showCalendar}
+        onRequestClose={() => {
+          setShowCalendar(!showCalendar);
+        }}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setShowCalendar(false)}
+            >
+              <Ionicons name="close-circle" size={30} color={COLORS.primary} />
+            </TouchableOpacity>
+            <Calendar onDayPress={onDayPress} style={{ marginTop: 30}}/>
+          </View>
+        </View>
       </Modal>
     </ScrollView>
   );
@@ -207,6 +224,24 @@ const styles = StyleSheet.create({
   searchButtonText: {
     ...FONTS.h3,
     color: COLORS.white,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    backgroundColor: COLORS.white,
+    borderTopLeftRadius: SIZES.radius * 2,
+    borderTopRightRadius: SIZES.radius * 2,
+    padding: SIZES.padding,
+    height: '50%',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: SIZES.padding,
+    right: SIZES.padding,
+    zIndex: 1,
   },
 });
 
