@@ -1,10 +1,19 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { COLORS, FONTS, SIZES } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 const HomeScreen = () => {
+  const router = useRouter();
+  const [from, setFrom] = useState('Dallas');
+  const [to, setTo] = useState('Texas City');
+
+  const handleSearch = () => {
+    router.push({ pathname: 'search/results', params: { from, to } });
+  };
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
@@ -29,14 +38,14 @@ const HomeScreen = () => {
             <Text style={styles.label}>From</Text>
             <View style={styles.inputContainer}>
               <Ionicons name="location-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
-              <TextInput style={styles.input} placeholder="Dallas" placeholderTextColor={COLORS.gray} />
+              <TextInput style={styles.input} placeholder="Dallas" placeholderTextColor={COLORS.gray} value={from} onChangeText={setFrom} />
             </View>
           </View>
           <View style={styles.inputGroup}>
             <Text style={styles.label}>To</Text>
             <View style={styles.inputContainer}>
               <Ionicons name="location-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
-              <TextInput style={styles.input} placeholder="Texas City" placeholderTextColor={COLORS.gray} />
+              <TextInput style={styles.input} placeholder="Texas City" placeholderTextColor={COLORS.gray} value={to} onChangeText={setTo} />
             </View>
           </View>
           <View style={styles.row}>
@@ -55,7 +64,7 @@ const HomeScreen = () => {
               </View>
             </View>
           </View>
-          <TouchableOpacity style={styles.searchButton}>
+          <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
             <Text style={styles.searchButtonText}>Search</Text>
           </TouchableOpacity>
         </View>

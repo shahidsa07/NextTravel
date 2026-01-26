@@ -3,6 +3,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList } from 'react-native';
 import { COLORS, FONTS, SIZES } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 const mockBuses = [
   {
@@ -50,6 +51,9 @@ const mockBuses = [
 ];
 
 const SearchResultsScreen = () => {
+  const router = useRouter();
+  const { from, to } = useLocalSearchParams();
+
   const renderBusItem = ({ item }) => (
     <View style={styles.card}>
       <View style={styles.busInfoTop}>
@@ -82,11 +86,11 @@ const SearchResultsScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color={COLORS.black} />
         </TouchableOpacity>
         <View>
-          <Text style={styles.headerTitle}>Bangalore to Nellore</Text>
+          <Text style={styles.headerTitle}>{`${from} to ${to}`}</Text>
           <Text style={styles.headerSubtitle}>129 Buses</Text>
         </View>
         <TouchableOpacity style={styles.dateContainer}>
