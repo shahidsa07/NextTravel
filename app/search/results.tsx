@@ -55,7 +55,7 @@ const SearchResultsScreen = () => {
   const { from, to } = useLocalSearchParams();
 
   const renderBusItem = ({ item }) => (
-    <View style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={() => router.push({ pathname: 'search/bus-details', params: { id: item.id } })}>
       <View style={styles.busInfoTop}>
         <View>
           {/* <Text style={styles.busTime}>{`${item.departureTime} - ${item.arrivalTime}`}</Text> */}
@@ -80,7 +80,7 @@ const SearchResultsScreen = () => {
           </View>
         ))}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
