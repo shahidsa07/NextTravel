@@ -13,27 +13,20 @@ const HomeScreen = () => {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const today = new Date().toISOString().split('T')[0];
-  const [departureDate, setDepartureDate] = useState('Departure');
-  const [returnDate, setReturnDate] = useState('Return');
+  const [tripDate, setTripDate] = useState('Select Trip Date');
   const [showCalendar, setShowCalendar] = useState(false);
-  const [isReturnCalendar, setIsReturnCalendar] = useState(false);
 
   const handleSearch = () => {
-    router.push({ pathname: 'search/results', params: { from, to, departureDate, returnDate } });
+    router.push({ pathname: 'search/results', params: { from, to, tripDate } });
   };
 
   const onDayPress = (day) => {
-    const newDate = formatDate(day.dateString);
-    if (isReturnCalendar) {
-      setReturnDate(newDate);
-    } else {
-      setDepartureDate(newDate);
-    }
+    setTripDate(formatDate(day.dateString));
     setShowCalendar(false);
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return isReturnCalendar ? 'Return' : 'Departure';
+    if (!dateString) return 'Select Trip Date';
     const parts = dateString.split('-');
     const date = new Date(parts[0], parts[1] - 1, parts[2]);
     const dayOfMonth = date.toLocaleDateString('en-US', { day: '2-digit' });
@@ -69,16 +62,10 @@ const HomeScreen = () => {
             <Ionicons name="location-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
             <TextInput style={styles.input} placeholder="Where would you like to go?" placeholderTextColor={COLORS.gray} value={to} onChangeText={setTo} />
           </View>
-          <View style={styles.row}>
-            <TouchableOpacity onPress={() => { setShowCalendar(true); setIsReturnCalendar(false); }} style={styles.datePickerContainer}>
-              <Ionicons name="calendar-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
-              <Text style={[styles.input, departureDate === 'Departure' && styles.placeholderText]}>{departureDate}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => { setShowCalendar(true); setIsReturnCalendar(true); }} style={styles.datePickerContainer}>
-              <Ionicons name="calendar-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
-              <Text style={[styles.input, returnDate === 'Return' && styles.placeholderText]}>{returnDate}</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity onPress={() => setShowCalendar(true)} style={styles.datePickerContainer}>
+            <Ionicons name="calendar-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
+            <Text style={[styles.input, tripDate === 'Select Trip Date' && styles.placeholderText]}>{tripDate}</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.exploreButton} onPress={handleSearch}>
             <Ionicons name="search-outline" size={24} color={COLORS.white} />
             <Text style={styles.exploreButtonText}>Explore</Text>
@@ -227,20 +214,14 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     ...FONTS.body4,
     color: COLORS.gray,
   },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: SIZES.base
-  },
   datePickerContainer: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.white,
     borderRadius: SIZES.radius,
     paddingHorizontal: SIZES.padding,
     height: 50,
-    marginRight: SIZES.base,
+    marginBottom: SIZES.base,
   },
   exploreButton: {
     flexDirection: 'row',
