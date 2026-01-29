@@ -16,6 +16,7 @@ const HomeScreen = () => {
   const [showCalendar, setShowCalendar] = useState(false);
   const [markedDates, setMarkedDates] = useState({});
   const calendarRef = useRef(null);
+  const [warning, setWarning] = useState('');
 
   const getToday = () => {
     const now = new Date();
@@ -26,7 +27,12 @@ const HomeScreen = () => {
   const today = getToday();
 
   const handleSearch = () => {
-    router.push({ pathname: 'search/results', params: { from, to, tripDate } });
+    if (!from || !to || tripDate === 'Select Trip Date') {
+        setWarning('All input fields are required.');
+    } else {
+        setWarning('');
+        router.push({ pathname: 'search/results', params: { from, to, tripDate } });
+    }
   };
 
   const onDayPress = (day) => {
@@ -157,6 +163,7 @@ const HomeScreen = () => {
             <Ionicons name="search-outline" size={24} color={COLORS.white} />
             <Text style={styles.exploreButtonText}>Explore</Text>
           </TouchableOpacity>
+          {warning ? <Text style={styles.warningText}>{warning}</Text> : null}
         </View>
 
         <View style={styles.filters}>
@@ -345,6 +352,11 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     ...FONTS.h4,
     color: COLORS.white,
     marginLeft: SIZES.base,
+  },
+  warningText: {
+    color: 'red',
+    textAlign: 'center',
+    marginTop: SIZES.base,
   },
   filters: {
     flexDirection: 'row',
