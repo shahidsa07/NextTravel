@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -15,6 +15,20 @@ export const COLORS = {
   black: '#171717',
   white: '#FFFFFF',
   background: '#F4F4F4',
+  gray: '#a9a9a9',
+};
+
+export const darkCOLORS = {
+  primary: '#22914A',
+  secondary: '#2ecc71',
+  accent: '#135029',
+
+  success: '#2ecc71',
+  error: '#e74c3c',
+
+  black: '#FFFFFF',
+  white: '#171717',
+  background: '#1E1E1E',
   gray: '#a9a9a9',
 };
 
@@ -50,13 +64,24 @@ export const FONTS = {
   body5: { fontFamily: 'Poppins-Regular', fontSize: SIZES.body5, lineHeight: 18 },
 };
 
-const appTheme = { COLORS, SIZES, FONTS };
+const AppTheme = {
+  light: { COLORS, SIZES, FONTS },
+  dark: { COLORS: darkCOLORS, SIZES, FONTS },
+};
 
-const ThemeContext = createContext(appTheme);
+const ThemeContext = createContext(AppTheme.light);
 
 export const ThemeProvider = ({ children }) => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+
+  const theme = isDarkMode ? AppTheme.dark : AppTheme.light;
+
   return (
-    <ThemeContext.Provider value={appTheme}>
+    <ThemeContext.Provider value={{...theme, toggleTheme, isDarkMode}}>
       {children}
     </ThemeContext.Provider>
   );
@@ -65,5 +90,3 @@ export const ThemeProvider = ({ children }) => {
 export const useTheme = () => {
   return useContext(ThemeContext);
 }
-
-export default appTheme;

@@ -2,12 +2,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Switch } from 'react-native';
 import { Calendar } from 'react-native-calendars';
-import { COLORS, FONTS, SIZES } from '../../constants/theme';
+import { useTheme } from '../../constants/theme';
 
 const HomeScreen = () => {
   const router = useRouter();
+  const { COLORS, FONTS, SIZES, isDarkMode, toggleTheme } = useTheme();
+  const styles = getStyles(COLORS, FONTS, SIZES);
   const [from, setFrom] = useState('Malappuram');
   const [to, setTo] = useState('Wayanad');
 
@@ -95,6 +97,16 @@ const HomeScreen = () => {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Welcome Back!</Text>
         <Text style={styles.headerSubtitle}>Where do you want to go?</Text>
+        <View style={styles.themeSwitcher}>
+          <Text style={{ color: COLORS.white }}>{isDarkMode ? 'Dark' : 'Light'} Mode</Text>
+          <Switch
+            trackColor={{ false: '#767577', true: '#81b0ff' }}
+            thumbColor={isDarkMode ? '#f5dd4b' : '#f4f3f4'}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={toggleTheme}
+            value={isDarkMode}
+          />
+        </View>
       </View>
 
       <View style={styles.card}>
@@ -173,10 +185,22 @@ const HomeScreen = () => {
               markedDates={getMarkedDates()}
               minDate={dateType === 'return' ? departureDateRaw : new Date().toISOString().split('T')[0]}
               theme={{
+                backgroundColor: COLORS.background,
+                calendarBackground: COLORS.background,
+                textSectionTitleColor: COLORS.black,
                 selectedDayBackgroundColor: COLORS.primary,
                 selectedDayTextColor: '#FFFFFF',
                 todayTextColor: COLORS.primary,
+                dayTextColor: COLORS.black,
+                textDisabledColor: COLORS.gray,
+                dotColor: COLORS.primary,
+                selectedDotColor: COLORS.white,
                 arrowColor: COLORS.primary,
+                monthTextColor: COLORS.black,
+                indicatorColor: COLORS.black,
+                textDayFontFamily: 'Poppins-Regular',
+                textMonthFontFamily: 'Poppins-Bold',
+                textDayHeaderFontFamily: 'Poppins-Regular',
               }}
             />
           </View>
@@ -186,7 +210,7 @@ const HomeScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
@@ -203,6 +227,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 60,
     right: SIZES.padding,
+  },
+  themeSwitcher: {
+    position: 'absolute',
+    top: 60,
+    left: SIZES.padding,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   headerTitle: {
     ...FONTS.h2,
@@ -306,7 +337,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: SIZES.radius * 2,
     borderTopRightRadius: SIZES.radius * 2,
     padding: SIZES.padding,
-    height: '50%',
+    height: '60%',
   },
   closeButton: {
     position: 'absolute',
