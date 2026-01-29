@@ -1,86 +1,83 @@
 
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
-import { FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { COLORS, FONTS, SIZES } from '../../constants/theme';
+import { FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTheme } from '../../constants/theme';
 
-const mockBuses = [
+const mockVehicles = [
   {
     id: '1',
-    name: 'Rajesh Transports',
-    type: 'Volvo Multi-Axle A/C Sleeper (2+1)',
-    departureTime: '23:30',
-    arrivalTime: '06:00',
-    duration: '6h 30m',
-    seats: 17,
-    singleSeats: 5,
-    price: 1180,
-    rating: 3.9,
-    reviews: 196,
-    tags: ['Flexi Ticket', 'Clean Bus'],
+    name: 'Executive Coach Series 5',
+    image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    seats: 45,
+    amenities: ['Climate Control', 'Free WiFi'],
+    price: 520,
+    rating: 4.9,
+    badge: 'Top Choice',
   },
   {
     id: '2',
-    name: 'Rajeswari Travels',
-    type: 'NON A/C Sleeper (2+1)',
-    departureTime: '23:30',
-    arrivalTime: '06:30',
-    duration: '7h',
-    seats: 20,
-    singleSeats: 6,
-    price: 600,
-    rating: 3.7,
-    reviews: 305,
-    tags: ['Flexi Ticket', 'Extra Legroom'],
-  },
-  {
-    id: '3',
-    name: 'Rajeswari Travels',
-    type: 'A/C Sleeper (2+1)',
-    departureTime: '22:30',
-    arrivalTime: '05:00',
-    duration: '6h 30m',
-    seats: 13,
-    singleSeats: 4,
-    price: 800,
-    rating: 3.8,
-    reviews: 119,
-    tags: ['Flexi Ticket', 'Clean Bus'],
+    name: 'Luxury Minibus',
+    image: 'https://images.unsplash.com/photo-1620292415136-44a2b94c3a5e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    seats: 25,
+    amenities: ['Climate Control', 'Leather Seats'],
+    price: 480,
+    rating: 4.8,
+    badge: 'Best Value',
   },
 ];
 
 const SearchResultsScreen = () => {
   const router = useRouter();
-  const { from, to } = useLocalSearchParams();
+  const { COLORS, FONTS, SIZES } = useTheme();
+  const styles = getStyles(COLORS, FONTS, SIZES);
+  const { to, departureDate } = useLocalSearchParams();
 
-  const renderBusItem = ({ item }) => (
-    <TouchableOpacity style={styles.card} onPress={() => router.push({ pathname: 'search/bus-details', params: { id: item.id } })}>
-      <View style={styles.busInfoTop}>
-        <View>
-          {/* <Text style={styles.busTime}>{`${item.departureTime} - ${item.arrivalTime}`}</Text> */}
-          <Text style={styles.busDuration}>{`${item.seats} Seats`}</Text>
+  const renderVehicleItem = ({ item }) => (
+    <View style={styles.card}>
+      <Image source={{ uri: item.image }} style={styles.cardImage} />
+      {item.badge && (
+        <View style={[styles.badge, item.badge === 'Top Choice' ? styles.topChoiceBadge : styles.bestValueBadge]}>
+          <Text style={styles.badgeText}>{item.badge}</Text>
         </View>
-        <Text style={styles.busPrice}>From ₹{item.price}</Text>
-      </View>
-      <View style={styles.busInfoBottom}>
-        <View>
-          <Text style={styles.busName}>{item.name}</Text>
-          <Text style={styles.busType}>{item.type}</Text>
-        </View>
-        <View style={styles.ratingContainer}>
-          <Ionicons name="star" size={16} color={COLORS.white} />
-          <Text style={styles.ratingText}>{`${item.rating} • ${item.reviews}`}</Text>
-        </View>
-      </View>
-      <View style={styles.tagsContainer}>
-        {item.tags.map(tag => (
-          <View key={tag} style={styles.tag}>
-            <Text style={styles.tagText}>{tag}</Text>
+      )}
+      <TouchableOpacity style={styles.favoriteIcon}>
+        <Ionicons name="heart-outline" size={24} color={COLORS.white} />
+      </TouchableOpacity>
+      <View style={styles.cardContent}>
+        <View style={styles.cardHeader}>
+          <Text style={styles.vehicleName}>{item.name}</Text>
+          <View style={styles.ratingContainer}>
+            <Ionicons name="star" size={16} color={'#FFC700'} />
+            <Text style={styles.ratingText}>{item.rating}</Text>
           </View>
-        ))}
+        </View>
+        <View style={styles.amenitiesContainer}>
+          <View style={styles.amenity}>
+            <Ionicons name="people-outline" size={18} color={COLORS.gray} />
+            <Text style={styles.amenityText}>{item.seats} Seats</Text>
+          </View>
+          <View style={styles.amenity}>
+            <Ionicons name="snow-outline" size={18} color={COLORS.gray} />
+            <Text style={styles.amenityText}>{item.amenities[0]}</Text>
+          </View>
+          <View style={styles.amenity}>
+            <Ionicons name="wifi-outline" size={18} color={COLORS.gray} />
+            <Text style={styles.amenityText}>{item.amenities[1]}</Text>
+          </View>
+        </View>
+        <View style={styles.cardFooter}>
+            <View>
+                <Text style={styles.priceLabel}>TOTAL DAILY RATE</Text>
+                <Text style={styles.price}>${item.price} <Text style={styles.pricePerDay}>/ day</Text></Text>
+            </View>
+          <TouchableOpacity style={styles.detailsButton} onPress={() => router.push({ pathname: 'search/bus-details', params: { id: item.id } })}>
+            <Text style={styles.detailsButtonText}>View Details</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 
   return (
@@ -88,117 +85,123 @@ const SearchResultsScreen = () => {
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color={COLORS.white} />
+          <Ionicons name="arrow-back" size={24} color={COLORS.black} />
         </TouchableOpacity>
-        <View>
-          <Text style={styles.headerTitle}>{`${from} to ${to}`}</Text>
-          <Text style={styles.headerSubtitle}>129 Buses</Text>
+        <View style={styles.summaryContainer}>
+            <MaterialIcons name="article" size={24} color={COLORS.gray} />
+            <View style={{marginLeft: SIZES.base}}>
+                <Text style={styles.summaryLabel}>SEARCH SUMMARY</Text>
+                <Text style={styles.summaryText}>{to} • {departureDate}</Text>
+            </View>
         </View>
-        {/* <TouchableOpacity style={styles.dateContainer}>
-          <Ionicons name="chevron-back" size={24} color={COLORS.white} />
-          <Text style={styles.dateText}>25 Jun</Text>
-          <Ionicons name="chevron-forward" size={24} color={COLORS.white} />
-        </TouchableOpacity> */}
+        <TouchableOpacity style={styles.editButton}>
+            <Text style={styles.editButtonText}>Edit</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.filtersContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <TouchableOpacity style={styles.filterButton}>
-            <Text style={styles.filterButtonText}>FREE DATE CHANGE</Text>
-          </TouchableOpacity>
           <TouchableOpacity style={[styles.filterButton, styles.activeFilter]}>
-            <Text style={[styles.filterButtonText, { color: COLORS.white }]}>LAST MINUTE DEAL</Text>
+            <Ionicons name="filter" size={16} color={COLORS.white} />
+            <Text style={[styles.filterButtonText, { color: COLORS.white }]}>FILTERS</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.filterButton}>
-            <Text style={styles.filterButtonText}>RETURN OFFER</Text>
+            <Text style={styles.filterButtonText}>LUXURY</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.filterButton}>
+            <Text style={styles.filterButtonText}>EXECUTIVE</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.filterButton}>
+            <Text style={styles.filterButtonText}>40+ SEATS</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>
+      
+      <View style={{paddingHorizontal: SIZES.padding}}>
+        <Text style={styles.selectVehicle}>Select Vehicle</Text>
+        <Text style={styles.optionsAvailable}>12 PREMIUM OPTIONS AVAILABLE</Text>
+      </View>
 
       <FlatList
-        data={mockBuses}
-        renderItem={renderBusItem}
+        data={mockVehicles}
+        renderItem={renderVehicleItem}
         keyExtractor={item => item.id}
         contentContainerStyle={styles.listContainer}
       />
-
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.footerButton}>
-          <Ionicons name="bus-outline" size={24} color={COLORS.primary} />
-          <Text style={styles.footerButtonText}>Primo Bus</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.footerButton}>
-          <Ionicons name="bed-outline" size={24} color={COLORS.primary} />
-          <Text style={styles.footerButtonText}>Sleeper</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.footerButton}>
-          <Ionicons name="snow-outline" size={24} color={COLORS.primary} />
-          <Text style={styles.footerButtonText}>A/C</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.footerButton}>
-          <Text style={styles.footerButtonText}>NON A/C</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.footerButton}>
-          <Ionicons name="accessibility-outline" size={24} color={COLORS.primary} />
-          <Text style={styles.footerButtonText}>Seater</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.sortFilterButton}>
-          <Text style={styles.sortFilterButtonText}>SORT & FILTER</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.lightWhite,
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'flex-start',
     alignItems: 'center',
-    gap: SIZES.padding,
+    justifyContent: 'space-between',
     padding: SIZES.padding,
-    backgroundColor: COLORS.primary,
-    paddingTop: 60
+    paddingTop: 50,
+    backgroundColor: COLORS.lightWhite
   },
-  headerTitle: {
-    ...FONTS.h3,
-    color: COLORS.white,
-  },
-  headerSubtitle: {
-    ...FONTS.body4,
-    color: COLORS.white,
-  },
-  dateContainer: {
+  summaryContainer: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    padding: SIZES.base,
+    marginLeft: SIZES.padding
   },
-  dateText: {
+  summaryLabel: {
+    ...FONTS.body5,
+    color: COLORS.gray,
+  },
+  summaryText: {
     ...FONTS.h4,
-    color: COLORS.white,
-    marginHorizontal: SIZES.base,
+    color: COLORS.black,
+  },
+  editButton: {
+      backgroundColor: COLORS.white,
+      paddingVertical: SIZES.base / 2,
+      paddingHorizontal: SIZES.base,
+      borderRadius: SIZES.radius,
+      borderWidth: 1,
+      borderColor: COLORS.gray2
+  },
+  editButtonText: {
+      ...FONTS.body4,
+      color: COLORS.black
   },
   filtersContainer: {
     paddingVertical: SIZES.base,
     paddingLeft: SIZES.padding,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.lightWhite,
   },
   filterButton: {
-    padding: SIZES.base,
-    borderRadius: SIZES.radius,
-    borderWidth: 1,
-    borderColor: COLORS.primary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: SIZES.base,
+    paddingHorizontal: SIZES.padding,
+    borderRadius: 20,
+    backgroundColor: COLORS.white,
     marginRight: SIZES.base,
   },
   activeFilter: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: COLORS.black,
   },
   filterButtonText: {
     ...FONTS.body4,
+    color: COLORS.black,
+    marginLeft: 5
+  },
+  selectVehicle: {
+    ...FONTS.h2,
+    color: COLORS.black
+  },
+  optionsAvailable: {
+      ...FONTS.body4,
+      color: COLORS.gray
   },
   listContainer: {
     padding: SIZES.padding,
@@ -206,92 +209,110 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: COLORS.white,
     borderRadius: SIZES.radius,
-    padding: SIZES.padding,
-    marginBottom: SIZES.padding,
+    marginBottom: SIZES.padding * 2,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.23,
-    shadowRadius: 2.62,
-    elevation: 4,
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
-  busInfoTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: SIZES.padding,
+  cardImage: {
+    width: '100%',
+    height: 200,
+    borderTopLeftRadius: SIZES.radius,
+    borderTopRightRadius: SIZES.radius,
   },
-  busTime: {
-    ...FONTS.h3,
+  badge: {
+    position: 'absolute',
+    top: SIZES.base,
+    left: SIZES.base,
+    paddingHorizontal: SIZES.base,
+    paddingVertical: 5,
+    borderRadius: 5,
   },
-  busDuration: {
-    ...FONTS.body4,
-    color: COLORS.gray,
+  topChoiceBadge: {
+    backgroundColor: '#00A799',
   },
-  busPrice: {
-    ...FONTS.h3,
+  bestValueBadge: {
+    backgroundColor: COLORS.black
   },
-  busInfoBottom: {
+  badgeText: {
+    ...FONTS.body5,
+    color: COLORS.white,
+  },
+  favoriteIcon: {
+    position: 'absolute',
+    top: SIZES.base,
+    right: SIZES.base,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    padding: SIZES.base / 2,
+    borderRadius: 20
+  },
+  cardContent: {
+    padding: SIZES.padding,
+  },
+  cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: SIZES.padding,
   },
-  busName: {
-    ...FONTS.h4,
-  },
-  busType: {
-    ...FONTS.body4,
-    color: COLORS.gray,
+  vehicleName: {
+    ...FONTS.h3,
+    color: COLORS.black,
   },
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1E8449',
-    borderRadius: SIZES.radius,
+    backgroundColor: COLORS.lightWhite,
     padding: SIZES.base / 2,
-    paddingHorizontal: SIZES.base,
+    borderRadius: SIZES.radius
   },
   ratingText: {
     ...FONTS.body4,
-    color: COLORS.white,
-    marginLeft: SIZES.base / 2,
+    color: COLORS.black,
+    marginLeft: 5,
   },
-  tagsContainer: {
-    flexDirection: 'row',
-  },
-  tag: {
-    backgroundColor: COLORS.background,
-    borderRadius: SIZES.radius,
-    padding: SIZES.base,
-    marginRight: SIZES.base,
-  },
-  tagText: {
-    ...FONTS.body5,
-  },
-  footer: {
+  amenitiesContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    alignItems: 'center',
-    padding: SIZES.padding,
-    backgroundColor: COLORS.white,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.gray,
+    marginTop: SIZES.padding,
   },
-  footerButton: {
+  amenity: {
     alignItems: 'center',
   },
-  footerButtonText: {
+  amenityText: {
     ...FONTS.body5,
-    marginTop: SIZES.base / 2,
+    color: COLORS.gray,
+    marginTop: 5,
   },
-  sortFilterButton: {
-    backgroundColor: '#D32F2F',
-    padding: SIZES.padding,
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: SIZES.padding,
+  },
+  priceLabel: {
+    ...FONTS.body5,
+    color: COLORS.gray
+  },
+  price: {
+    ...FONTS.h2,
+    color: COLORS.black
+  },
+  pricePerDay: {
+      ...FONTS.body4,
+      color: COLORS.gray
+  },
+  detailsButton: {
+    backgroundColor: '#00A799',
+    paddingVertical: SIZES.base,
+    paddingHorizontal: SIZES.padding,
     borderRadius: SIZES.radius,
   },
-  sortFilterButtonText: {
+  detailsButtonText: {
     ...FONTS.h4,
     color: COLORS.white,
   },
