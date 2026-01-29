@@ -1,7 +1,7 @@
 
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useTheme } from '../../constants/theme';
@@ -10,25 +10,30 @@ const HomeScreen = () => {
   const router = useRouter();
   const { COLORS, FONTS, SIZES } = useTheme();
   const styles = getStyles(COLORS, FONTS, SIZES);
+  const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const today = new Date().toISOString().split('T')[0];
-  const [departureDateRaw, setDepartureDateRaw] = useState(today);
   const [departureDate, setDepartureDate] = useState('Select Date');
+  const [returnDate, setReturnDate] = useState('Select Date');
   const [showCalendar, setShowCalendar] = useState(false);
+  const [isReturnCalendar, setIsReturnCalendar] = useState(false);
 
   const handleSearch = () => {
-    router.push({ pathname: 'search/results', params: { to, departureDate } });
+    router.push({ pathname: 'search/results', params: { from, to, departureDate, returnDate } });
   };
 
   const onDayPress = (day) => {
-    const newDate = day.dateString;
-    setDepartureDateRaw(newDate);
-    setDepartureDate(formatDate(newDate));
+    const newDate = formatDate(day.dateString);
+    if (isReturnCalendar) {
+      setReturnDate(newDate);
+    } else {
+      setDepartureDate(newDate);
+    }
     setShowCalendar(false);
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return '';
+    if (!dateString) return 'Select Date';
     const parts = dateString.split('-');
     const date = new Date(parts[0], parts[1] - 1, parts[2]);
     const dayOfMonth = date.toLocaleDateString('en-US', { day: '2-digit' });
@@ -58,18 +63,26 @@ const HomeScreen = () => {
         <View style={styles.searchContainer}>
           <View style={styles.inputContainer}>
             <Ionicons name="location-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
+            <TextInput style={styles.input} placeholder="From where?" placeholderTextColor={COLORS.gray} value={from} onChangeText={setFrom} />
+          </View>
+          <View style={styles.inputContainer}>
+            <Ionicons name="location-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
             <TextInput style={styles.input} placeholder="Where would you like to go?" placeholderTextColor={COLORS.gray} value={to} onChangeText={setTo} />
           </View>
           <View style={styles.row}>
-            <TouchableOpacity onPress={() => setShowCalendar(true)} style={styles.datePickerContainer}>
+            <TouchableOpacity onPress={() => { setShowCalendar(true); setIsReturnCalendar(false); }} style={styles.datePickerContainer}>
               <Ionicons name="calendar-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
               <Text style={styles.input}>{departureDate}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.exploreButton} onPress={handleSearch}>
-              <Ionicons name="search-outline" size={24} color={COLORS.white} />
-              <Text style={styles.exploreButtonText}>Explore</Text>
+            <TouchableOpacity onPress={() => { setShowCalendar(true); setIsReturnCalendar(true); }} style={styles.datePickerContainer}>
+              <Ionicons name="calendar-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
+              <Text style={styles.input}>{returnDate}</Text>
             </TouchableOpacity>
           </View>
+          <TouchableOpacity style={styles.exploreButton} onPress={handleSearch}>
+            <Ionicons name="search-outline" size={24} color={COLORS.white} />
+            <Text style={styles.exploreButtonText}>Explore</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.filters}>
@@ -213,6 +226,7 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: SIZES.base
   },
   datePickerContainer: {
     flex: 1,
@@ -225,7 +239,6 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     marginRight: SIZES.base,
   },
   exploreButton: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
