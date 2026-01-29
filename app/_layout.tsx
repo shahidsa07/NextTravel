@@ -1,4 +1,5 @@
 
+import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { Stack } from 'expo-router';
 import { useFonts } from 'expo-font';
@@ -16,6 +17,7 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
+      <StatusBar style="dark" />
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="auth/login" options={{ title: 'Login' }} />
