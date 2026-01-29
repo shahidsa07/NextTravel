@@ -1,10 +1,49 @@
 
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useRef, useState } from 'react';
-import { Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useTheme } from '../../constants/theme';
+
+const Toast = ({ message, onHide }) => {
+    const opacity = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        Animated.sequence([
+            Animated.timing(opacity, {
+                toValue: 1,
+                duration: 500,
+                useNativeDriver: true,
+            }),
+            Animated.delay(2000),
+            Animated.timing(opacity, {
+                toValue: 0,
+                duration: 500,
+                useNativeDriver: true,
+            }),
+        ]).start(() => {
+            onHide();
+        });
+    }, []);
+
+    return (
+        <Animated.View
+            style={{
+                opacity,
+                position: 'absolute',
+                bottom: 50,
+                left: 0,
+                right: 0,
+                alignItems: 'center',
+            }}
+        >
+            <View style={{ backgroundColor: 'black', padding: 16, borderRadius: 8 }}>
+                <Text style={{ color: 'white' }}>{message}</Text>
+            </View>
+        </Animated.View>
+    );
+};
 
 const HomeScreen = () => {
   const router = useRouter();
@@ -163,7 +202,6 @@ const HomeScreen = () => {
             <Ionicons name="search-outline" size={24} color={COLORS.white} />
             <Text style={styles.exploreButtonText}>Explore</Text>
           </TouchableOpacity>
-          {warning ? <Text style={styles.warningText}>{warning}</Text> : null}
         </View>
 
         <View style={styles.filters}>
@@ -261,6 +299,7 @@ const HomeScreen = () => {
           </View>
         </View>
       </Modal>
+      {warning ? <Toast message={warning} onHide={() => setWarning('')} /> : null}
     </ScrollView>
   );
 };
@@ -352,11 +391,6 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     ...FONTS.h4,
     color: COLORS.white,
     marginLeft: SIZES.base,
-  },
-  warningText: {
-    color: 'red',
-    textAlign: 'center',
-    marginTop: SIZES.base,
   },
   filters: {
     flexDirection: 'row',
