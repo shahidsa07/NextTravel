@@ -2,7 +2,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useTheme } from '../../constants/theme';
 
@@ -10,146 +10,100 @@ const HomeScreen = () => {
   const router = useRouter();
   const { COLORS, FONTS, SIZES } = useTheme();
   const styles = getStyles(COLORS, FONTS, SIZES);
-  const [from, setFrom] = useState('Malappuram');
-  const [to, setTo] = useState('Wayanad');
-
+  const [to, setTo] = useState('');
   const today = new Date().toISOString().split('T')[0];
-
   const [departureDateRaw, setDepartureDateRaw] = useState(today);
-  const [returnDateRaw, setReturnDateRaw] = useState(today);
-
-  const [departureDate, setDepartureDate] = useState('');
-  const [returnDate, setReturnDate] = useState('');
-
+  const [departureDate, setDepartureDate] = useState('Select Date');
   const [showCalendar, setShowCalendar] = useState(false);
-  const [dateType, setDateType] = useState('');
+
+  const handleSearch = () => {
+    router.push({ pathname: 'search/results', params: { to, departureDate } });
+  };
+
+  const onDayPress = (day) => {
+    const newDate = day.dateString;
+    setDepartureDateRaw(newDate);
+    setDepartureDate(formatDate(newDate));
+    setShowCalendar(false);
+  };
 
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const parts = dateString.split('-');
     const date = new Date(parts[0], parts[1] - 1, parts[2]);
-    const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'short' });
     const dayOfMonth = date.toLocaleDateString('en-US', { day: '2-digit' });
     const month = date.toLocaleDateString('en-US', { month: 'short' });
-    return `${dayOfWeek} - ${dayOfMonth} - ${month}`;
-  };
-
-  useEffect(() => {
-    setDepartureDate(formatDate(departureDateRaw));
-    setReturnDate(formatDate(returnDateRaw));
-  }, [departureDateRaw, returnDateRaw]);
-
-  const handleSearch = () => {
-    router.push({ pathname: 'search/results', params: { from, to, departureDate, returnDate } });
-  };
-
-  const onDayPress = (day) => {
-    const newDate = day.dateString;
-    if (dateType === 'departure') {
-      setDepartureDateRaw(newDate);
-      if (new Date(newDate) > new Date(returnDateRaw)) {
-        setReturnDateRaw(newDate);
-      }
-    } else { // 'return'
-      setReturnDateRaw(newDate);
-    }
-    setShowCalendar(false);
-  };
-  
-  const getMarkedDates = () => {
-    const marked = {};
-    if (!departureDateRaw || !returnDateRaw) {
-      return marked;
-    }
-
-    const start = new Date(departureDateRaw);
-    start.setUTCHours(0, 0, 0, 0);
-    const end = new Date(returnDateRaw);
-    end.setUTCHours(0, 0, 0, 0);
-
-    let currentDate = new Date(start);
-
-    while (currentDate <= end) {
-      const dateString = currentDate.toISOString().split('T')[0];
-      const isStart = currentDate.getTime() === start.getTime();
-      const isEnd = currentDate.getTime() === end.getTime();
-      
-      const isSingleDay = departureDateRaw === returnDateRaw;
-
-      marked[dateString] = {
-        color: isStart || isEnd ? COLORS.primary : '#E0F2F1',
-        textColor: isStart || isEnd ? COLORS.white : COLORS.primary,
-        startingDay: isSingleDay ? false : isStart,
-        endingDay: isSingleDay ? false : isEnd,
-        selected: isSingleDay
-      };
-
-      currentDate.setUTCDate(currentDate.getUTCDate() + 1);
-    }
-    return marked;
+    return `${dayOfMonth} ${month}`;
   };
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.notificationButton} onPress={() => router.push('/(tabs)/notification')}>
-          <Ionicons name="notifications-outline" size={24} color={COLORS.white} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Welcome Back!</Text>
-        <Text style={styles.headerSubtitle}>Where do you want to go?</Text>
-      </View>
-
-      <View style={styles.card}>
-        <View style={styles.tabs}>
-          <TouchableOpacity style={[styles.tab, styles.activeTab]}>
-            <Ionicons name="bus" size={24} color={COLORS.white} />
-            <Text style={[styles.tabText, { color: COLORS.white }]}>Bus/Traveller</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.tab}>
-            <Ionicons name="briefcase" size={24} color={COLORS.primary} />
-            <Text style={styles.tabText}>Packages</Text>
+        <View style={styles.headerTop}>
+          <View style={styles.userInfo}>
+            <Image source={{ uri: 'https://randomuser.me/api/portraits/men/32.jpg' }} style={styles.avatar} />
+            <View>
+              <Text style={styles.welcomeText}>WELCOME</Text>
+              <Text style={styles.userName}>Alex Johnson</Text>
+            </View>
+          </View>
+          <TouchableOpacity onPress={() => router.push('/(tabs)/notification')}>
+            <Ionicons name="notifications-outline" size={24} color={COLORS.black} />
           </TouchableOpacity>
         </View>
 
-        <View style={styles.form}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>From</Text>
-            <View style={styles.inputContainer}>
-              <Ionicons name="location-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
-              <TextInput style={styles.input} placeholder="Malappuram" placeholderTextColor={COLORS.gray} value={from} onChangeText={setFrom} />
-            </View>
-          </View>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>To</Text>
-            <View style={styles.inputContainer}>
-              <Ionicons name="location-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
-              <TextInput style={styles.input} placeholder="Wayanad" placeholderTextColor={COLORS.gray} value={to} onChangeText={setTo} />
-            </View>
+        <Text style={styles.title1}>Exquisite Journeys</Text>
+        <Text style={styles.title2}>Awaits Your Presence</Text>
+
+        <View style={styles.searchContainer}>
+          <View style={styles.inputContainer}>
+            <Ionicons name="location-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
+            <TextInput style={styles.input} placeholder="Where would you like to go?" placeholderTextColor={COLORS.gray} value={to} onChangeText={setTo} />
           </View>
           <View style={styles.row}>
-            <View style={[styles.inputGroup, { flex: 1 }]}>
-              <Text style={styles.label}>Departure</Text>
-              <TouchableOpacity onPress={() => { setDateType('departure'); setShowCalendar(true); }}>
-                <View style={styles.inputContainer}>
-                  <Ionicons name="calendar-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
-                  <Text style={styles.input}>{departureDate}</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-            <View style={[styles.inputGroup, { flex: 1, marginLeft: SIZES.padding }]}>
-              <Text style={styles.label}>Return</Text>
-              <TouchableOpacity onPress={() => { setDateType('return'); setShowCalendar(true); }}>
-                <View style={styles.inputContainer}>
-                  <Ionicons name="calendar-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
-                  <Text style={styles.input}>{returnDate}</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity onPress={() => setShowCalendar(true)} style={styles.datePickerContainer}>
+              <Ionicons name="calendar-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
+              <Text style={styles.input}>{departureDate}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.exploreButton} onPress={handleSearch}>
+              <Ionicons name="search-outline" size={24} color={COLORS.white} />
+              <Text style={styles.exploreButtonText}>Explore</Text>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
-            <Text style={styles.searchButtonText}>Search</Text>
+        </View>
+
+        <View style={styles.filters}>
+          <TouchableOpacity style={[styles.filter, styles.activeFilter]}>
+            <Text style={[styles.filterText, styles.activeFilterText]}>All Experiences</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.filter}>
+            <Text style={styles.filterText}>Weddings</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.filter}>
+            <Text style={styles.filterText}>Corporate</Text>
           </TouchableOpacity>
         </View>
+      </View>
+
+      <View style={styles.specialOccasions}>
+        <View style={styles.specialOccasionsHeader}>
+          <View>
+            <Text style={styles.specialOccasionsTitle}>Special Occasions</Text>
+            <Text style={styles.specialOccasionsSubtitle}>Tailored for your most precious moments</Text>
+          </View>
+          <TouchableOpacity>
+            <Text style={styles.viewAll}>VIEW ALL</Text>
+          </TouchableOpacity>
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View style={styles.occasionCard}>
+            <Image source={{ uri: 'https://images.unsplash.com/photo-1597402518423-72535a0a3a23?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' }} style={styles.occasionImage} />
+            <View style={styles.signature}><Text style={styles.signatureText}>SIGNATURE</Text></View>
+          </View>
+          <View style={styles.occasionCard}>
+            <Image source={{ uri: 'https://images.unsplash.com/photo-1525095368449-763452da67e2?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' }} style={styles.occasionImage} />
+          </View>
+        </ScrollView>
       </View>
 
       <Modal
@@ -171,26 +125,20 @@ const HomeScreen = () => {
             <Calendar
               onDayPress={onDayPress}
               style={{ marginTop: 30 }}
-              markingType={'period'}
-              markedDates={getMarkedDates()}
-              minDate={dateType === 'return' ? departureDateRaw : new Date().toISOString().split('T')[0]}
+              minDate={today}
               theme={{
-                backgroundColor: COLORS.background,
-                calendarBackground: COLORS.background,
+                backgroundColor: COLORS.white,
+                calendarBackground: COLORS.white,
                 textSectionTitleColor: COLORS.black,
-                selectedDayBackgroundColor: COLORS.primary,
+                selectedDayBackgroundColor: '#00A799',
                 selectedDayTextColor: '#FFFFFF',
-                todayTextColor: COLORS.primary,
+                todayTextColor: '#00A799',
                 dayTextColor: COLORS.black,
                 textDisabledColor: COLORS.gray,
-                dotColor: COLORS.primary,
+                dotColor: '#00A799',
                 selectedDotColor: COLORS.white,
-                arrowColor: COLORS.primary,
+                arrowColor: '#00A799',
                 monthTextColor: COLORS.black,
-                indicatorColor: COLORS.black,
-                textDayFontFamily: 'Poppins-Regular',
-                textMonthFontFamily: 'Poppins-Bold',
-                textDayHeaderFontFamily: 'Poppins-Regular',
               }}
             />
           </View>
@@ -203,111 +151,154 @@ const HomeScreen = () => {
 const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.lightWhite,
   },
   header: {
-    backgroundColor: COLORS.primary,
     padding: SIZES.padding,
-    borderBottomLeftRadius: SIZES.radius,
-    borderBottomRightRadius: SIZES.radius,
-    paddingBottom: SIZES.padding * 2,
-    paddingTop: 100,
+    paddingTop: 50,
+    backgroundColor: COLORS.lightWhite,
   },
-  notificationButton: {
-    position: 'absolute',
-    top: 60,
-    right: SIZES.padding,
-  },
-  headerTitle: {
-    ...FONTS.h2,
-    color: COLORS.white,
-    textAlign: 'center',
-  },
-  headerSubtitle: {
-    ...FONTS.body3,
-    color: COLORS.white,
-    textAlign: 'center',
-  },
-  card: {
-    backgroundColor: COLORS.white,
-    borderRadius: SIZES.radius,
-    margin: SIZES.padding,
-    marginTop: -SIZES.padding,
-    padding: SIZES.padding,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  tabs: {
+  headerTop: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: SIZES.padding,
-  },
-  tab: {
+    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: SIZES.base,
-    borderRadius: SIZES.radius,
-    minWidth: 120,
   },
-  activeTab: {
-    backgroundColor: COLORS.primary,
+  userInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  tabText: {
-    ...FONTS.body4,
-    color: COLORS.black,
-    marginTop: SIZES.base / 2,
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: SIZES.base,
   },
-  form: {},
-  inputGroup: {
-    marginBottom: SIZES.padding,
+  welcomeText: {
+    ...FONTS.body5,
+    color: COLORS.gray,
   },
-  label: {
+  userName: {
     ...FONTS.h4,
-    marginBottom: SIZES.base,
     color: COLORS.black,
+  },
+  title1: {
+    ...FONTS.h1,
+    color: COLORS.black,
+    marginTop: SIZES.padding,
+  },
+  title2: {
+    ...FONTS.h1,
+    color: '#00A799',
+  },
+  searchContainer: {
+    marginTop: SIZES.padding,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.white,
     borderRadius: SIZES.radius,
-    paddingHorizontal: 10,
+    paddingHorizontal: SIZES.padding,
     height: 50,
+    marginBottom: SIZES.base,
   },
   inputIcon: {
-    marginRight: 6,
+    marginRight: SIZES.base,
   },
   input: {
     flex: 1,
-    ...FONTS.body4,
+    ...FONTS.body3,
     color: COLORS.black,
   },
   row: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
   },
-  searchButton: {
-    backgroundColor: COLORS.primary,
-    padding: SIZES.padding / 1.5,
+  datePickerContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.white,
     borderRadius: SIZES.radius,
+    paddingHorizontal: SIZES.padding,
+    height: 50,
+    marginRight: SIZES.base,
+  },
+  exploreButton: {
+    flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#1A2B40',
+    borderRadius: SIZES.radius,
     height: 50,
-    shadowColor: COLORS.primary,
-    shadowOffset: {
-      width: 0,
-      height: 5,
-    },
-    shadowOpacity: 0.34,
-    shadowRadius: 6.27,
-    elevation: 10,
   },
-  searchButtonText: {
+  exploreButtonText: {
+    ...FONTS.h4,
+    color: COLORS.white,
+    marginLeft: SIZES.base,
+  },
+  filters: {
+    flexDirection: 'row',
+    marginTop: SIZES.padding,
+  },
+  filter: {
+    backgroundColor: COLORS.white,
+    paddingVertical: SIZES.base,
+    paddingHorizontal: SIZES.padding,
+    borderRadius: 20,
+    marginRight: SIZES.base,
+  },
+  activeFilter: {
+    backgroundColor: '#00A799',
+  },
+  filterText: {
+    ...FONTS.body4,
+    color: COLORS.gray,
+  },
+  activeFilterText: {
+    color: COLORS.white,
+  },
+  specialOccasions: {
+    padding: SIZES.padding,
+  },
+  specialOccasionsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  specialOccasionsTitle: {
     ...FONTS.h3,
+    color: COLORS.black,
+  },
+  specialOccasionsSubtitle: {
+    ...FONTS.body4,
+    color: COLORS.gray,
+  },
+  viewAll: {
+    ...FONTS.h5,
+    color: '#00A799',
+  },
+  occasionCard: {
+    marginTop: SIZES.base,
+    marginRight: SIZES.base,
+  },
+  occasionImage: {
+    width: 280,
+    height: 180,
+    borderRadius: SIZES.radius,
+  },
+  signature: {
+    position: 'absolute',
+    bottom: SIZES.base,
+    left: SIZES.base,
+    backgroundColor: '#00A799',
+    paddingHorizontal: SIZES.base,
+    paddingVertical: 5,
+    borderRadius: 5,
+  },
+  signatureText: {
+    ...FONTS.body5,
     color: COLORS.white,
   },
   modalContainer: {

@@ -13,25 +13,28 @@ export default function TabLayout() {
 
           if (route.name === 'index') {
             iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'trip') {
-            iconName = focused ? 'paper-plane' : 'paper-plane-outline';
-          } else if (route.name === 'settings') {
-            iconName = focused ? 'settings' : 'settings-outline';
+          } else if (route.name === 'bookings') {
+            iconName = focused ? 'bookmarks' : 'bookmarks-outline';
+          } else if (route.name === 'explore') {
+            iconName = focused ? 'map' : 'map-outline';
+          } else if (route.name === 'profile') {
+            iconName = focused ? 'person' : 'person-outline';
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: COLORS.primary,
+        tabBarActiveTintColor: '#00A799',
         tabBarInactiveTintColor: 'gray',
-        headerStyle: {
-          backgroundColor: COLORS.primary,
+        headerShown: false,
+        tabBarStyle: {
+          backgroundColor: COLORS.lightWhite,
         },
-        headerTintColor: COLORS.white,
       })}
     >
-      <Tabs.Screen name="index" options={{ headerShown: false }} />
-      <Tabs.Screen name="trip" options={{ title: 'Trip' }} />
-      <Tabs.Screen name="settings" options={{ title: 'Settings' }} />
+      <Tabs.Screen name="index" options={{ title: 'Discover' }} />
+      <Tabs.Screen name="bookings" options={{ title: 'Bookings' }} />
+      <Tabs.Screen name="explore" options={{ title: 'Explore' }} />
+      <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
     </Tabs>
   );
 }
