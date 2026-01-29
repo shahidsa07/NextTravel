@@ -13,8 +13,8 @@ const HomeScreen = () => {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const today = new Date().toISOString().split('T')[0];
-  const [departureDate, setDepartureDate] = useState('Departure Date');
-  const [returnDate, setReturnDate] = useState('Return Date');
+  const [departureDate, setDepartureDate] = useState('Departure');
+  const [returnDate, setReturnDate] = useState('Return');
   const [showCalendar, setShowCalendar] = useState(false);
   const [isReturnCalendar, setIsReturnCalendar] = useState(false);
 
@@ -33,7 +33,7 @@ const HomeScreen = () => {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return isReturnCalendar ? 'Return Date' : 'Departure Date';
+    if (!dateString) return isReturnCalendar ? 'Return' : 'Departure';
     const parts = dateString.split('-');
     const date = new Date(parts[0], parts[1] - 1, parts[2]);
     const dayOfMonth = date.toLocaleDateString('en-US', { day: '2-digit' });
@@ -72,11 +72,11 @@ const HomeScreen = () => {
           <View style={styles.row}>
             <TouchableOpacity onPress={() => { setShowCalendar(true); setIsReturnCalendar(false); }} style={styles.datePickerContainer}>
               <Ionicons name="calendar-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
-              <Text style={[styles.input, departureDate === 'Departure Date' && styles.placeholderText]}>{departureDate}</Text>
+              <Text style={[styles.input, departureDate === 'Departure' && styles.placeholderText]}>{departureDate}</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => { setShowCalendar(true); setIsReturnCalendar(true); }} style={styles.datePickerContainer}>
               <Ionicons name="calendar-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
-              <Text style={[styles.input, returnDate === 'Return Date' && styles.placeholderText]}>{returnDate}</Text>
+              <Text style={[styles.input, returnDate === 'Return' && styles.placeholderText]}>{returnDate}</Text>
             </TouchableOpacity>
           </View>
           <TouchableOpacity style={styles.exploreButton} onPress={handleSearch}>
