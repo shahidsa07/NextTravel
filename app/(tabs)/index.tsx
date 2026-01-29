@@ -11,8 +11,10 @@ const HomeScreen = () => {
   const [from, setFrom] = useState('Malappuram');
   const [to, setTo] = useState('Wayanad');
 
-  const [departureDateRaw, setDepartureDateRaw] = useState('2026-01-10');
-  const [returnDateRaw, setReturnDateRaw] = useState('2026-01-13');
+  const today = new Date().toISOString().split('T')[0];
+
+  const [departureDateRaw, setDepartureDateRaw] = useState(today);
+  const [returnDateRaw, setReturnDateRaw] = useState(today);
 
   const [departureDate, setDepartureDate] = useState('');
   const [returnDate, setReturnDate] = useState('');
