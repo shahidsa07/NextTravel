@@ -25,26 +25,27 @@ const HomeScreen = () => {
     const { dateString } = day;
     const selectedDates = Object.keys(markedDates).filter(date => markedDates[date].selected);
 
-    let newMarkedDates = {};
+    let newMarkedDates = { ...markedDates };
 
-    if (selectedDates.length >= 2) {
+    if (selectedDates.length === 1 && new Date(dateString) < new Date(selectedDates[0])) {
+        newMarkedDates = {
+            [dateString]: { selected: true, color: '#00A799', startingDay: true, endingDay: true }
+        };
+    } else if (selectedDates.length >= 2) {
         newMarkedDates = {
             [dateString]: { selected: true, color: '#00A799', startingDay: true, endingDay: true }
         };
     } else {
-        const currentSelection = { ...markedDates };
-        currentSelection[dateString] = { selected: true, color: '#00A799' };
-        const selectedKeys = Object.keys(currentSelection).filter(key => currentSelection[key].selected);
+        newMarkedDates[dateString] = { selected: true, color: '#00A799' };
+        const selectedKeys = Object.keys(newMarkedDates).filter(key => newMarkedDates[key].selected);
 
         if (selectedKeys.length === 1) {
-            newMarkedDates = {
-                [dateString]: { selected: true, color: '#00A799', startingDay: true, endingDay: true }
-            };
+            newMarkedDates[dateString] = { ...newMarkedDates[dateString], startingDay: true, endingDay: true };
         } else {
             const [start, end] = selectedKeys.sort();
             const startDate = new Date(start);
             const endDate = new Date(end);
-            
+
             newMarkedDates = {
                 [start]: { startingDay: true, selected: true, color: '#00A799' },
                 [end]: { endingDay: true, selected: true, color: '#00A799' }
@@ -52,7 +53,7 @@ const HomeScreen = () => {
 
             const currentDate = new Date(startDate);
             currentDate.setDate(currentDate.getDate() + 1);
-            
+
             while (currentDate < endDate) {
                 const dateStr = currentDate.toISOString().split('T')[0];
                 newMarkedDates[dateStr] = { color: '#E6F6F5', textColor: '#00A799', startingDay: false, endingDay: false };
@@ -60,6 +61,7 @@ const HomeScreen = () => {
             }
         }
     }
+
     setMarkedDates(newMarkedDates);
   };
 
@@ -197,7 +199,7 @@ const HomeScreen = () => {
             </View>
             <Calendar
               onDayPress={onDayPress}
-              style={{ marginTop: 30 }}
+              style={{ marginTop: 15 }}
               minDate={today}
               markingType={'period'}
               markedDates={markedDates}
@@ -399,11 +401,11 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     borderTopLeftRadius: SIZES.radius * 2,
     borderTopRightRadius: SIZES.radius * 2,
     padding: SIZES.padding,
-    height: '90%',
+    height: '75%',
   },
   modalHeader: {
     alignItems: 'center',
-    paddingBottom: SIZES.padding,
+    paddingBottom: SIZES.base,
   },
   modalTitle: {
     ...FONTS.h2,
@@ -422,7 +424,7 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
   quickSelectionContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginVertical: SIZES.padding,
+    marginVertical: SIZES.base,
   },
   quickSelectionButton: {
     padding: SIZES.base,
@@ -435,7 +437,7 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginVertical: SIZES.padding,
+    marginVertical: SIZES.base,
   },
   durationLabel: {
     ...FONTS.body5,
