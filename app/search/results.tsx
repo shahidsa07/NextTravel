@@ -94,15 +94,14 @@ const SearchResultsScreen = () => {
                 <Text style={styles.summaryText}>{to} • {departureDate}</Text>
             </View>
         </View>
-        <TouchableOpacity style={styles.editButton}>
-            <Text style={styles.editButtonText}>Edit</Text>
+        <TouchableOpacity style={styles.filterIconButton}>
+          <Ionicons name="filter" size={24} color={COLORS.black} />
         </TouchableOpacity>
       </View>
 
       <View style={styles.filtersContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <TouchableOpacity style={[styles.filterButton, styles.activeFilter]}>
-            <Ionicons name="filter" size={16} color={COLORS.white} />
             <Text style={[styles.filterButtonText, { color: COLORS.white }]}>FILTERS</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.filterButton}>
@@ -161,17 +160,14 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     ...FONTS.h4,
     color: COLORS.black,
   },
-  editButton: {
+  filterIconButton: {
       backgroundColor: COLORS.white,
-      paddingVertical: SIZES.base / 2,
-      paddingHorizontal: SIZES.base,
+      padding: SIZES.base,
       borderRadius: SIZES.radius,
       borderWidth: 1,
-      borderColor: COLORS.gray2
-  },
-  editButtonText: {
-      ...FONTS.body4,
-      color: COLORS.black
+      borderColor: COLORS.gray2,
+      justifyContent: 'center',
+      alignItems: 'center'
   },
   filtersContainer: {
     paddingVertical: SIZES.base,
@@ -193,7 +189,6 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
   filterButtonText: {
     ...FONTS.body4,
     color: COLORS.black,
-    marginLeft: 5
   },
   selectVehicle: {
     ...FONTS.h2,
