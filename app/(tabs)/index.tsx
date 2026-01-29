@@ -78,7 +78,7 @@ const HomeScreen = () => {
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
       return `${formatDate(start)} - ${formatDate(end)} (${diffDays} Days)`;
     }
-    return '';
+    return 'Please select a date';
   };
 
   const formatDate = (dateString) => {
@@ -92,7 +92,7 @@ const HomeScreen = () => {
 
   const applySelection = () => {
     const duration = getDuration();
-    if (duration) {
+    if (duration && duration !== 'Please select a date') {
         setTripDate(duration);
     } else {
         setTripDate('Select Trip Date');
@@ -220,15 +220,15 @@ const HomeScreen = () => {
             />
             <View style={styles.quickSelectionContainer}>
               <TouchableOpacity style={styles.quickSelectionButton}><Text>Today</Text></TouchableOpacity>
-              {/* <TouchableOpacity style={styles.quickSelectionButton}><Text>This Weekend</Text></TouchableOpacity> */}
-              {/* <TouchableOpacity style={styles.quickSelectionButton}><Text>Next Week</Text></TouchableOpacity> */}
             </View>
             <View style={styles.durationContainer}>
-              <Text style={styles.durationLabel}>DURATION</Text>
-              <Text style={styles.durationText}>{getDuration()}</Text>
-              <TouchableOpacity onPress={clearSelection}>
-                <Text style={styles.clearSelectionText}>CLEAR SELECTION</Text>
-              </TouchableOpacity>
+                <View>
+                    <Text style={styles.durationLabel}>DURATION</Text>
+                    <Text style={styles.durationText}>{getDuration()}</Text>
+                </View>
+                <TouchableOpacity onPress={clearSelection}>
+                    <Text style={styles.clearSelectionText}>CLEAR SELECTION</Text>
+                </TouchableOpacity>
             </View>
             <TouchableOpacity style={styles.applyButton} onPress={applySelection}>
               <Text style={styles.applyButtonText}>Apply Selection</Text>
@@ -423,7 +423,7 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
   },
   quickSelectionContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'flex-start',
     marginVertical: SIZES.base,
   },
   quickSelectionButton: {
@@ -447,6 +447,7 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
   durationText: {
     ...FONTS.h4,
     color: COLORS.black,
+    marginTop: 4,
   },
   clearSelectionText: {
     ...FONTS.h5,
@@ -458,6 +459,7 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: SIZES.padding
   },
   applyButtonText: {
     ...FONTS.h4,
