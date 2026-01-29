@@ -15,14 +15,55 @@ const HomeScreen = () => {
   const today = new Date().toISOString().split('T')[0];
   const [tripDate, setTripDate] = useState('Select Trip Date');
   const [showCalendar, setShowCalendar] = useState(false);
+  const [markedDates, setMarkedDates] = useState({});
 
   const handleSearch = () => {
     router.push({ pathname: 'search/results', params: { from, to, tripDate } });
   };
 
   const onDayPress = (day) => {
-    setTripDate(formatDate(day.dateString));
-    setShowCalendar(false);
+    const { dateString } = day;
+    const newMarkedDates = { ...markedDates };
+
+    if (Object.keys(newMarkedDates).length === 2) {
+      setMarkedDates({ [dateString]: { selected: true, color: '#00A799' } });
+      return;
+    }
+
+    newMarkedDates[dateString] = { selected: true, color: '#00A799' };
+
+    if (Object.keys(newMarkedDates).length === 2) {
+      const [start, end] = Object.keys(newMarkedDates).sort();
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+      const currentDate = new Date(startDate);
+
+      while (currentDate <= endDate) {
+        const dateStr = currentDate.toISOString().split('T')[0];
+        if (!newMarkedDates[dateStr]) {
+          newMarkedDates[dateStr] = { color: '#E6F6F5', textColor: '#00A799' };
+        }
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      newMarkedDates[start] = { ...newMarkedDates[start], startingDay: true };
+      newMarkedDates[end] = { ...newMarkedDates[end], endingDay: true };
+    }
+
+    setMarkedDates(newMarkedDates);
+  };
+
+  const getDuration = () => {
+    const dates = Object.keys(markedDates).filter(date => markedDates[date].selected);
+    if (dates.length === 2) {
+      const [start, end] = dates.sort();
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+      const diffTime = Math.abs(endDate - startDate);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      return `${formatDate(start)} - ${formatDate(end)} (${diffDays} Days)`;
+    }
+    return '';
   };
 
   const formatDate = (dateString) => {
@@ -32,6 +73,16 @@ const HomeScreen = () => {
     const dayOfMonth = date.toLocaleDateString('en-US', { day: '2-digit' });
     const month = date.toLocaleDateString('en-US', { month: 'short' });
     return `${dayOfMonth} ${month}`;
+  };
+
+  const applySelection = () => {
+    setTripDate(getDuration());
+    setShowCalendar(false);
+  };
+
+  const clearSelection = () => {
+    setMarkedDates({});
+    setTripDate('Select Trip Date');
   };
 
   return (
@@ -116,16 +167,22 @@ const HomeScreen = () => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setShowCalendar(false)}
-            >
-              <Ionicons name="close" size={25} color={COLORS.black} />
-            </TouchableOpacity>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Trip Date</Text>
+              <Text style={styles.modalSubtitle}>Choose your journey schedule</Text>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setShowCalendar(false)}
+              >
+                <Ionicons name="close" size={25} color={COLORS.black} />
+              </TouchableOpacity>
+            </View>
             <Calendar
               onDayPress={onDayPress}
               style={{ marginTop: 30 }}
               minDate={today}
+              markingType={'period'}
+              markedDates={markedDates}
               theme={{
                 backgroundColor: COLORS.white,
                 calendarBackground: COLORS.white,
@@ -141,6 +198,21 @@ const HomeScreen = () => {
                 monthTextColor: COLORS.black,
               }}
             />
+            <View style={styles.quickSelectionContainer}>
+              <TouchableOpacity style={styles.quickSelectionButton}><Text>Today</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.quickSelectionButton}><Text>This Weekend</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.quickSelectionButton}><Text>Next Week</Text></TouchableOpacity>
+            </View>
+            <View style={styles.durationContainer}>
+              <Text style={styles.durationLabel}>DURATION</Text>
+              <Text style={styles.durationText}>{getDuration()}</Text>
+              <TouchableOpacity onPress={clearSelection}>
+                <Text style={styles.clearSelectionText}>CLEAR SELECTION</Text>
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity style={styles.applyButton} onPress={applySelection}>
+              <Text style={styles.applyButtonText}>Apply Selection</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -309,13 +381,66 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     borderTopLeftRadius: SIZES.radius * 2,
     borderTopRightRadius: SIZES.radius * 2,
     padding: SIZES.padding,
-    height: '60%',
+    height: '90%',
+  },
+  modalHeader: {
+    alignItems: 'center',
+    paddingBottom: SIZES.padding,
+  },
+  modalTitle: {
+    ...FONTS.h2,
+    color: COLORS.black,
+  },
+  modalSubtitle: {
+    ...FONTS.body4,
+    color: COLORS.gray,
   },
   closeButton: {
     position: 'absolute',
-    top: SIZES.padding,
-    right: SIZES.padding,
+    top: 0,
+    right: 0,
     zIndex: 1,
+  },
+  quickSelectionContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: SIZES.padding,
+  },
+  quickSelectionButton: {
+    padding: SIZES.base,
+    backgroundColor: COLORS.white,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: COLORS.gray,
+  },
+  durationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: SIZES.padding,
+  },
+  durationLabel: {
+    ...FONTS.body5,
+    color: COLORS.gray,
+  },
+  durationText: {
+    ...FONTS.h4,
+    color: COLORS.black,
+  },
+  clearSelectionText: {
+    ...FONTS.h5,
+    color: '#00A799',
+  },
+  applyButton: {
+    backgroundColor: '#00A799',
+    borderRadius: SIZES.radius,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  applyButtonText: {
+    ...FONTS.h4,
+    color: COLORS.white,
   },
 });
 
