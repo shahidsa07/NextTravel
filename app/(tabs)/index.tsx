@@ -72,11 +72,11 @@ const HomeScreen = () => {
           <View style={styles.row}>
             <TouchableOpacity onPress={() => { setShowCalendar(true); setIsReturnCalendar(false); }} style={styles.datePickerContainer}>
               <Ionicons name="calendar-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
-              <Text style={styles.input}>{departureDate}</Text>
+              <Text style={[styles.input, departureDate === 'Departure Date' && styles.placeholderText]}>{departureDate}</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => { setShowCalendar(true); setIsReturnCalendar(true); }} style={styles.datePickerContainer}>
               <Ionicons name="calendar-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
-              <Text style={styles.input}>{returnDate}</Text>
+              <Text style={[styles.input, returnDate === 'Return Date' && styles.placeholderText]}>{returnDate}</Text>
             </TouchableOpacity>
           </View>
           <TouchableOpacity style={styles.exploreButton} onPress={handleSearch}>
@@ -222,6 +222,10 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     flex: 1,
     ...FONTS.body3,
     color: COLORS.black,
+  },
+  placeholderText: {
+    ...FONTS.body4,
+    color: COLORS.gray,
   },
   row: {
     flexDirection: 'row',
