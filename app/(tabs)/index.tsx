@@ -23,38 +23,51 @@ const HomeScreen = () => {
 
   const onDayPress = (day) => {
     const { dateString } = day;
-    const newMarkedDates = { ...markedDates };
+    const selectedDates = Object.keys(markedDates).filter(date => markedDates[date].selected);
 
-    if (Object.keys(newMarkedDates).length === 2) {
-      setMarkedDates({ [dateString]: { selected: true, color: '#00A799' } });
-      return;
-    }
+    let newMarkedDates = {};
 
-    newMarkedDates[dateString] = { selected: true, color: '#00A799' };
+    if (selectedDates.length >= 2) {
+        newMarkedDates = {
+            [dateString]: { selected: true, color: '#00A799', startingDay: true, endingDay: true }
+        };
+    } else {
+        const currentSelection = { ...markedDates };
+        currentSelection[dateString] = { selected: true, color: '#00A799' };
+        const selectedKeys = Object.keys(currentSelection).filter(key => currentSelection[key].selected);
 
-    if (Object.keys(newMarkedDates).length === 2) {
-      const [start, end] = Object.keys(newMarkedDates).sort();
-      const startDate = new Date(start);
-      const endDate = new Date(end);
-      const currentDate = new Date(startDate);
+        if (selectedKeys.length === 1) {
+            newMarkedDates = {
+                [dateString]: { selected: true, color: '#00A799', startingDay: true, endingDay: true }
+            };
+        } else {
+            const [start, end] = selectedKeys.sort();
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+            
+            newMarkedDates = {
+                [start]: { startingDay: true, selected: true, color: '#00A799' },
+                [end]: { endingDay: true, selected: true, color: '#00A799' }
+            };
 
-      while (currentDate <= endDate) {
-        const dateStr = currentDate.toISOString().split('T')[0];
-        if (!newMarkedDates[dateStr]) {
-          newMarkedDates[dateStr] = { color: '#E6F6F5', textColor: '#00A799' };
+            const currentDate = new Date(startDate);
+            currentDate.setDate(currentDate.getDate() + 1);
+            
+            while (currentDate < endDate) {
+                const dateStr = currentDate.toISOString().split('T')[0];
+                newMarkedDates[dateStr] = { color: '#E6F6F5', textColor: '#00A799', startingDay: false, endingDay: false };
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
         }
-        currentDate.setDate(currentDate.getDate() + 1);
-      }
-
-      newMarkedDates[start] = { ...newMarkedDates[start], startingDay: true };
-      newMarkedDates[end] = { ...newMarkedDates[end], endingDay: true };
     }
-
     setMarkedDates(newMarkedDates);
   };
 
   const getDuration = () => {
     const dates = Object.keys(markedDates).filter(date => markedDates[date].selected);
+    if (dates.length === 1) {
+      return `${formatDate(dates[0])}`;
+    }
     if (dates.length === 2) {
       const [start, end] = dates.sort();
       const startDate = new Date(start);
@@ -76,7 +89,12 @@ const HomeScreen = () => {
   };
 
   const applySelection = () => {
-    setTripDate(getDuration());
+    const duration = getDuration();
+    if (duration) {
+        setTripDate(duration);
+    } else {
+        setTripDate('Select Trip Date');
+    }
     setShowCalendar(false);
   };
 
