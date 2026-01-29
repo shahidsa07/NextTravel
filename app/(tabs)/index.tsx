@@ -105,6 +105,13 @@ const HomeScreen = () => {
     setTripDate('Select Trip Date');
   };
 
+  const selectToday = () => {
+    const today = new Date().toISOString().split('T')[0];
+    setMarkedDates({
+        [today]: { selected: true, color: '#00A799', startingDay: true, endingDay: true },
+    });
+  };
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
@@ -219,7 +226,7 @@ const HomeScreen = () => {
               }}
             />
             <View style={styles.quickSelectionContainer}>
-              <TouchableOpacity style={styles.quickSelectionButton}><Text>Today</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.quickSelectionButton} onPress={selectToday}><Text>Today</Text></TouchableOpacity>
             </View>
             <View style={styles.durationContainer}>
                 <View>
@@ -423,7 +430,7 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
   },
   quickSelectionContainer: {
     flexDirection: 'row',
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     marginVertical: SIZES.base,
   },
   quickSelectionButton: {
