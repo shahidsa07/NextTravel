@@ -2,7 +2,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image } from 'react-native';
+import { Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useTheme } from '../../constants/theme';
 
@@ -220,8 +220,8 @@ const HomeScreen = () => {
             />
             <View style={styles.quickSelectionContainer}>
               <TouchableOpacity style={styles.quickSelectionButton}><Text>Today</Text></TouchableOpacity>
-              <TouchableOpacity style={styles.quickSelectionButton}><Text>This Weekend</Text></TouchableOpacity>
-              <TouchableOpacity style={styles.quickSelectionButton}><Text>Next Week</Text></TouchableOpacity>
+              {/* <TouchableOpacity style={styles.quickSelectionButton}><Text>This Weekend</Text></TouchableOpacity> */}
+              {/* <TouchableOpacity style={styles.quickSelectionButton}><Text>Next Week</Text></TouchableOpacity> */}
             </View>
             <View style={styles.durationContainer}>
               <Text style={styles.durationLabel}>DURATION</Text>
@@ -427,7 +427,8 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     marginVertical: SIZES.base,
   },
   quickSelectionButton: {
-    padding: SIZES.base,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     backgroundColor: COLORS.white,
     borderRadius: 20,
     borderWidth: 1,
