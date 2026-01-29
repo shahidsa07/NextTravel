@@ -1,7 +1,7 @@
 
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useTheme } from '../../constants/theme';
@@ -12,10 +12,18 @@ const HomeScreen = () => {
   const styles = getStyles(COLORS, FONTS, SIZES);
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
-  const today = new Date().toISOString().split('T')[0];
   const [tripDate, setTripDate] = useState('Select Trip Date');
   const [showCalendar, setShowCalendar] = useState(false);
   const [markedDates, setMarkedDates] = useState({});
+  const calendarRef = useRef(null);
+
+  const getToday = () => {
+    const now = new Date();
+    const localDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return localDate.toISOString().split('T')[0];
+  };
+
+  const today = getToday();
 
   const handleSearch = () => {
     router.push({ pathname: 'search/results', params: { from, to, tripDate } });
@@ -85,8 +93,8 @@ const HomeScreen = () => {
     if (!dateString) return 'Select Trip Date';
     const parts = dateString.split('-');
     const date = new Date(parts[0], parts[1] - 1, parts[2]);
-    const dayOfMonth = date.toLocaleDateString('en-US', { day: '2-digit' });
-    const month = date.toLocaleDateString('en-US', { month: 'short' });
+    const dayOfMonth = date.toLocaleDateString('en-US', { day: '2-digit', timeZone: 'UTC' });
+    const month = date.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' });
     return `${dayOfMonth} ${month}`;
   };
 
@@ -106,10 +114,11 @@ const HomeScreen = () => {
   };
 
   const selectToday = () => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getToday();
     setMarkedDates({
         [today]: { selected: true, color: '#00A799', startingDay: true, endingDay: true },
     });
+    calendarRef.current?.scrollToDay(today, true);
   };
 
   return (
@@ -205,6 +214,8 @@ const HomeScreen = () => {
               </TouchableOpacity>
             </View>
             <Calendar
+              ref={calendarRef}
+              key={today} 
               onDayPress={onDayPress}
               style={{ marginTop: 15 }}
               minDate={today}
