@@ -122,7 +122,8 @@ const HomeScreen = () => {
               <TextInput style={styles.input} placeholder="Wayanad" placeholderTextColor={COLORS.gray} value={to} onChangeText={setTo} />
             </View>
           </View>
-          <View style={styles.inputGroup}>
+          <View style={styles.row}>
+            <View style={[styles.inputGroup, { flex: 1 }]}>
               <Text style={styles.label}>Departure</Text>
               <TouchableOpacity onPress={() => { setDateType('departure'); setShowCalendar(true); }}>
                 <View style={styles.inputContainer}>
@@ -131,7 +132,7 @@ const HomeScreen = () => {
                 </View>
               </TouchableOpacity>
             </View>
-            <View style={styles.inputGroup}>
+            <View style={[styles.inputGroup, { flex: 1, marginLeft: SIZES.padding }]}>
               <Text style={styles.label}>Return</Text>
               <TouchableOpacity onPress={() => { setDateType('return'); setShowCalendar(true); }}>
                 <View style={styles.inputContainer}>
@@ -140,6 +141,7 @@ const HomeScreen = () => {
                 </View>
               </TouchableOpacity>
             </View>
+          </View>
           <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
             <Text style={styles.searchButtonText}>Search</Text>
           </TouchableOpacity>
@@ -266,8 +268,11 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    ...FONTS.body3,
+    ...FONTS.body4,
     color: COLORS.black,
+  },
+  row: {
+    flexDirection: 'row',
   },
   searchButton: {
     backgroundColor: COLORS.primary,
