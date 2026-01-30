@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Image, ImageBackground, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Animated, Image, ImageBackground, Modal, PanResponder, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useTheme } from '../../constants/theme';
 
@@ -57,6 +57,26 @@ const HomeScreen = () => {
   const calendarRef = useRef(null);
   const [warning, setWarning] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
+
+  const pan = useRef(new Animated.ValueXY()).current;
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderMove: Animated.event([null, { dy: pan.y }], { useNativeDriver: false }),
+      onPanResponderRelease: (e, gesture) => {
+        if (gesture.dy > 50) {
+          setShowNotifications(false);
+          pan.setValue({ x: 0, y: 0 });
+        } else {
+          Animated.spring(pan, {
+            toValue: { x: 0, y: 0 },
+            useNativeDriver: false,
+          }).start();
+        }
+      },
+    })
+  ).current;
 
   const notifications = {
     today: [
@@ -288,7 +308,7 @@ const HomeScreen = () => {
       </Modal>
 
       <Modal animationType="slide" transparent={true} visible={showNotifications} onRequestClose={() => setShowNotifications(false)}>
-        <View style={styles.modalContainer}>
+        <Animated.View style={[styles.modalContainer, { transform: [{ translateY: pan.y }] }]} {...panResponder.panHandlers}>
             <View style={styles.notificationModalContent}>
                 <View style={styles.notificationGrabber} />
                 <View style={styles.notificationHeader}>
@@ -346,7 +366,7 @@ const HomeScreen = () => {
                     ))}
                 </ScrollView>
             </View>
-        </View>
+        </Animated.View>
       </Modal>
     </View>
   );
