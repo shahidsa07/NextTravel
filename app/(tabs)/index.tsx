@@ -1,8 +1,21 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Image, ImageBackground, Modal, PanResponder, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+    Animated,
+    Image,
+    ImageBackground,
+    Modal,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
+} from 'react-native';
 import { Calendar } from 'react-native-calendars';
+import { PanGestureHandler } from 'react-native-gesture-handler';
+import Reanimated, { useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useTheme } from '../../constants/theme';
 
 const Toast = ({ message, onHide }) => {
@@ -46,40 +59,46 @@ const Toast = ({ message, onHide }) => {
 };
 
 const NotificationModal = ({ visible, onClose, notifications, styles }) => {
-    const pan = useRef(new Animated.ValueXY()).current;
+    const translateY = useSharedValue(0);
   
-    const panResponder = useRef(
-      PanResponder.create({
-        onMoveShouldSetPanResponder: () => true,
-        onPanResponderMove: Animated.event([null, { dy: pan.y }], { useNativeDriver: false }),
-        onPanResponderRelease: (e, gesture) => {
-          if (gesture.dy > 50) {
-            onClose();
-            pan.setValue({ x: 0, y: 0 });
-          } else {
-            Animated.spring(pan, {
-              toValue: { x: 0, y: 0 },
-              useNativeDriver: false,
-            }).start();
-          }
-        },
-      })
-    ).current;
+    const gestureHandler = useAnimatedGestureHandler({
+      onStart: (_, ctx) => {
+        ctx.startY = translateY.value;
+      },
+      onActive: (event, ctx) => {
+        translateY.value = ctx.startY + event.translationY;
+      },
+      onEnd: () => {
+        if (translateY.value > 50) {
+          onClose();
+          translateY.value = 0;
+        } else {
+          translateY.value = withSpring(0);
+        }
+      },
+    });
+  
+    const animatedStyle = useAnimatedStyle(() => {
+      return {
+        transform: [{ translateY: translateY.value }],
+      };
+    });
   
     return (
       <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onClose}>
         <View style={styles.modalContainer}>
-          <Animated.View style={[styles.notificationModalContent, { transform: [{ translateY: pan.y }] }]}>
-            <View {...panResponder.panHandlers} style={styles.notificationGrabberContainer}>
+          <PanGestureHandler onGestureEvent={gestureHandler}>
+            <Reanimated.View style={[styles.notificationModalContent, animatedStyle]}>
+              <View style={styles.notificationGrabberContainer}>
                 <View style={styles.notificationGrabber} />
-            </View>
-            <View style={styles.notificationHeader}>
-              <Text style={styles.notificationTitle}>Notifications</Text>
-              <TouchableOpacity>
-                <Text style={styles.notificationMarkAll}>Mark all as read</Text>
-              </TouchableOpacity>
-            </View>
-            <ScrollView>
+              </View>
+              <View style={styles.notificationHeader}>
+                <Text style={styles.notificationTitle}>Notifications</Text>
+                <TouchableOpacity>
+                  <Text style={styles.notificationMarkAll}>Mark all as read</Text>
+                </TouchableOpacity>
+              </View>
+              <ScrollView>
               <Text style={styles.notificationSectionTitle}>TODAY</Text>
               {notifications.today.map(item => (
                 <View key={item.id} style={styles.notificationItem}>
@@ -127,7 +146,8 @@ const NotificationModal = ({ visible, onClose, notifications, styles }) => {
                 </View>
               ))}
             </ScrollView>
-          </Animated.View>
+            </Reanimated.View>
+          </PanGestureHandler>
         </View>
       </Modal>
     );
