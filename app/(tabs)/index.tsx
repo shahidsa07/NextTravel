@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Animated, Image, ImageBackground, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useTheme } from '../../constants/theme';
 
@@ -302,7 +302,7 @@ const HomeScreen = () => {
                     {notifications.today.map(item => (
                         <View key={item.id} style={styles.notificationItem}>
                             {item.type === 'special_offer' ? (
-                                <Image source={{ uri: item.image }} style={styles.notificationImage}>
+                                <ImageBackground source={{ uri: item.image }} style={styles.notificationImage}>
                                     <View style={styles.notificationOverlay}>
                                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                             <Text style={styles.specialOfferTag}>SPECIAL OFFER</Text>
@@ -311,7 +311,7 @@ const HomeScreen = () => {
                                         <Text style={styles.notificationSpecialOfferTitle}>{item.title}</Text>
                                         <Text style={styles.notificationSpecialOfferDescription}>{item.description}</Text>
                                     </View>
-                                </Image>
+                                </ImageBackground>
                             ) : (
                                 <View style={[styles.notificationCard, item.type === 'alert' && {backgroundColor: '#E6F6F5'}]}>
                                     <View style={styles.notificationIconContainer}>
