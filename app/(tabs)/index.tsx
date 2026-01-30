@@ -45,6 +45,94 @@ const Toast = ({ message, onHide }) => {
     );
 };
 
+const NotificationModal = ({ visible, onClose, notifications, styles }) => {
+    const pan = useRef(new Animated.ValueXY()).current;
+  
+    const panResponder = useRef(
+      PanResponder.create({
+        onMoveShouldSetPanResponder: () => true,
+        onPanResponderMove: Animated.event([null, { dy: pan.y }], { useNativeDriver: false }),
+        onPanResponderRelease: (e, gesture) => {
+          if (gesture.dy > 50) {
+            onClose();
+            pan.setValue({ x: 0, y: 0 });
+          } else {
+            Animated.spring(pan, {
+              toValue: { x: 0, y: 0 },
+              useNativeDriver: false,
+            }).start();
+          }
+        },
+      })
+    ).current;
+  
+    return (
+      <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onClose}>
+        <View style={styles.modalContainer}>
+          <Animated.View style={[styles.notificationModalContent, { transform: [{ translateY: pan.y }] }]}>
+            <View {...panResponder.panHandlers} style={styles.notificationGrabberContainer}>
+                <View style={styles.notificationGrabber} />
+            </View>
+            <View style={styles.notificationHeader}>
+              <Text style={styles.notificationTitle}>Notifications</Text>
+              <TouchableOpacity>
+                <Text style={styles.notificationMarkAll}>Mark all as read</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView>
+              <Text style={styles.notificationSectionTitle}>TODAY</Text>
+              {notifications.today.map(item => (
+                <View key={item.id} style={styles.notificationItem}>
+                  {item.type === 'special_offer' ? (
+                    <ImageBackground source={{ uri: item.image }} style={styles.notificationImage}>
+                      <View style={styles.notificationOverlay}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                          <Text style={styles.specialOfferTag}>SPECIAL OFFER</Text>
+                          <Text style={styles.notificationTimeDark}>{item.time}</Text>
+                        </View>
+                        <Text style={styles.notificationSpecialOfferTitle}>{item.title}</Text>
+                        <Text style={styles.notificationSpecialOfferDescription}>{item.description}</Text>
+                      </View>
+                    </ImageBackground>
+                  ) : (
+                    <View style={[styles.notificationCard, item.type === 'alert' && { backgroundColor: '#E6F6F5' }]}>
+                      <View style={styles.notificationIconContainer}>
+                        <Ionicons name={item.type === 'alert' ? 'bus-outline' : 'gift-outline'} size={24} color={'#000'} />
+                      </View>
+                      <View style={styles.notificationTextContainer}>
+                        <Text style={styles.notificationCardTitle}>{item.title}</Text>
+                        <Text style={styles.notificationCardDescription}>{item.description}</Text>
+                      </View>
+                      <View style={{ alignItems: 'flex-end' }}>
+                        <Text style={styles.notificationTime}>{item.time}</Text>
+                        {item.isNew && <View style={styles.notificationNewDot} />}
+                      </View>
+                    </View>
+                  )}
+                </View>
+              ))}
+              <Text style={styles.notificationSectionTitle}>YESTERDAY</Text>
+              {notifications.yesterday.map(item => (
+                <View key={item.id} style={styles.notificationItem}>
+                  <View style={[styles.notificationCard, { backgroundColor: '#fff' }]}>
+                    <View style={styles.notificationIconContainer}>
+                      <Ionicons name={'checkmark-circle-outline'} size={24} color={'#000'} />
+                    </View>
+                    <View style={styles.notificationTextContainer}>
+                      <Text style={styles.notificationCardTitle}>{item.title}</Text>
+                      <Text style={styles.notificationCardDescription}>{item.description}</Text>
+                    </View>
+                    <Text style={styles.notificationTime}>{item.time}</Text>
+                  </View>
+                </View>
+              ))}
+            </ScrollView>
+          </Animated.View>
+        </View>
+      </Modal>
+    );
+  };
+
 const HomeScreen = () => {
   const router = useRouter();
   const { COLORS, FONTS, SIZES } = useTheme();
@@ -57,26 +145,6 @@ const HomeScreen = () => {
   const calendarRef = useRef(null);
   const [warning, setWarning] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
-
-  const pan = useRef(new Animated.ValueXY()).current;
-
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderMove: Animated.event([null, { dy: pan.y }], { useNativeDriver: false }),
-      onPanResponderRelease: (e, gesture) => {
-        if (gesture.dy > 50) {
-          setShowNotifications(false);
-          pan.setValue({ x: 0, y: 0 });
-        } else {
-          Animated.spring(pan, {
-            toValue: { x: 0, y: 0 },
-            useNativeDriver: false,
-          }).start();
-        }
-      },
-    })
-  ).current;
 
   const notifications = {
     today: [
@@ -307,67 +375,12 @@ const HomeScreen = () => {
         </View>
       </Modal>
 
-      <Modal animationType="slide" transparent={true} visible={showNotifications} onRequestClose={() => setShowNotifications(false)}>
-        <Animated.View style={[styles.modalContainer, { transform: [{ translateY: pan.y }] }]} {...panResponder.panHandlers}>
-            <View style={styles.notificationModalContent}>
-                <View style={styles.notificationGrabber} />
-                <View style={styles.notificationHeader}>
-                    <Text style={styles.notificationTitle}>Notifications</Text>
-                    <TouchableOpacity>
-                        <Text style={styles.notificationMarkAll}>Mark all as read</Text>
-                    </TouchableOpacity>
-                </View>
-                <ScrollView>
-                    <Text style={styles.notificationSectionTitle}>TODAY</Text>
-                    {notifications.today.map(item => (
-                        <View key={item.id} style={styles.notificationItem}>
-                            {item.type === 'special_offer' ? (
-                                <ImageBackground source={{ uri: item.image }} style={styles.notificationImage}>
-                                    <View style={styles.notificationOverlay}>
-                                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                            <Text style={styles.specialOfferTag}>SPECIAL OFFER</Text>
-                                            <Text style={styles.notificationTimeDark}>{item.time}</Text>
-                                        </View>
-                                        <Text style={styles.notificationSpecialOfferTitle}>{item.title}</Text>
-                                        <Text style={styles.notificationSpecialOfferDescription}>{item.description}</Text>
-                                    </View>
-                                </ImageBackground>
-                            ) : (
-                                <View style={[styles.notificationCard, item.type === 'alert' && {backgroundColor: '#E6F6F5'}]}>
-                                    <View style={styles.notificationIconContainer}>
-                                        <Ionicons name={item.type === 'alert' ? 'bus-outline' : 'gift-outline'} size={24} color={COLORS.black} />
-                                    </View>
-                                    <View style={styles.notificationTextContainer}>
-                                        <Text style={styles.notificationCardTitle}>{item.title}</Text>
-                                        <Text style={styles.notificationCardDescription}>{item.description}</Text>
-                                    </View>
-                                    <View style={{alignItems: 'flex-end'}}>
-                                      <Text style={styles.notificationTime}>{item.time}</Text>
-                                      {item.isNew && <View style={styles.notificationNewDot} />}
-                                    </View>
-                                </View>
-                            )}
-                        </View>
-                    ))}
-                     <Text style={styles.notificationSectionTitle}>YESTERDAY</Text>
-                     {notifications.yesterday.map(item => (
-                        <View key={item.id} style={styles.notificationItem}>
-                            <View style={[styles.notificationCard, {backgroundColor: COLORS.white}]}>
-                                <View style={styles.notificationIconContainer}>
-                                    <Ionicons name={'checkmark-circle-outline'} size={24} color={COLORS.black} />
-                                </View>
-                                <View style={styles.notificationTextContainer}>
-                                    <Text style={styles.notificationCardTitle}>{item.title}</Text>
-                                    <Text style={styles.notificationCardDescription}>{item.description}</Text>
-                                </View>
-                                <Text style={styles.notificationTime}>{item.time}</Text>
-                            </View>
-                        </View>
-                    ))}
-                </ScrollView>
-            </View>
-        </Animated.View>
-      </Modal>
+      <NotificationModal
+        visible={showNotifications}
+        onClose={() => setShowNotifications(false)}
+        notifications={notifications}
+        styles={styles}
+      />
     </View>
   );
 };
@@ -440,6 +453,7 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
 
   // Notification Modal Styles
   notificationModalContent: { backgroundColor: COLORS.white, borderTopLeftRadius: SIZES.radius * 2, borderTopRightRadius: SIZES.radius * 2, padding: SIZES.padding, height: '75%', },
+  notificationGrabberContainer: { paddingTop: 10, paddingBottom: 10, alignItems: 'center' },
   notificationGrabber: { width: 40, height: 5, backgroundColor: COLORS.gray, borderRadius: 3, alignSelf: 'center', marginTop: 5, marginBottom: 10 },
   notificationHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SIZES.padding },
   notificationTitle: { ...FONTS.h2, color: COLORS.black },
