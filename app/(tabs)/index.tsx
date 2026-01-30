@@ -1,4 +1,3 @@
-
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
@@ -81,7 +80,7 @@ const HomeScreen = () => {
         id: 3,
         type: 'reward',
         title: 'Reward Points Updated',
-        description: 'You've earned 450 points from your last trip. Level up to Gold status soon!',
+        description: "You've earned 450 points from your last trip. Level up to Gold status soon!",
         time: '5h ago'
       },
     ],
