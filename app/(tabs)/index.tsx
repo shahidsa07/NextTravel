@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-    Animated,
+    Animated as RNAnimated,
     Image,
     ImageBackground,
     Modal,
@@ -14,22 +14,22 @@ import {
     View
 } from 'react-native';
 import { Calendar } from 'react-native-calendars';
-import { PanGestureHandler } from 'react-native-gesture-handler';
-import Reanimated, { useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useTheme } from '../../constants/theme';
 
 const Toast = ({ message, onHide }) => {
-    const opacity = useRef(new Animated.Value(0)).current;
+    const opacity = useRef(new RNAnimated.Value(0)).current;
 
     useEffect(() => {
-        Animated.sequence([
-            Animated.timing(opacity, {
+        RNAnimated.sequence([
+            RNAnimated.timing(opacity, {
                 toValue: 1,
                 duration: 500,
                 useNativeDriver: true,
             }),
-            Animated.delay(2000),
-            Animated.timing(opacity, {
+            RNAnimated.delay(2000),
+            RNAnimated.timing(opacity, {
                 toValue: 0,
                 duration: 500,
                 useNativeDriver: true,
@@ -40,7 +40,7 @@ const Toast = ({ message, onHide }) => {
     }, []);
 
     return (
-        <Animated.View
+        <RNAnimated.View
             style={{
                 opacity,
                 position: 'absolute',
@@ -54,104 +54,110 @@ const Toast = ({ message, onHide }) => {
             <View style={{ backgroundColor: 'black', padding: 16, borderRadius: 8 }}>
                 <Text style={{ color: 'white' }}>{message}</Text>
             </View>
-        </Animated.View>
+        </RNAnimated.View>
     );
 };
 
 const NotificationModal = ({ visible, onClose, notifications, styles }) => {
     const translateY = useSharedValue(0);
-  
-    const gestureHandler = useAnimatedGestureHandler({
-      onStart: (_, ctx) => {
-        ctx.startY = translateY.value;
-      },
-      onActive: (event, ctx) => {
-        translateY.value = ctx.startY + event.translationY;
-      },
-      onEnd: () => {
-        if (translateY.value > 50) {
-          onClose();
-          translateY.value = 0;
-        } else {
-          translateY.value = withSpring(0);
+    const startY = useSharedValue(0);
+
+    // Reset position when modal becomes visible
+    useEffect(() => {
+        if (visible) {
+            translateY.value = 0;
         }
-      },
-    });
-  
+    }, [visible]);
+
+    const gesture = Gesture.Pan()
+        .onBegin(() => {
+            startY.value = translateY.value;
+        })
+        .onUpdate((event) => {
+            translateY.value = startY.value + event.translationY;
+        })
+        .onEnd(() => {
+            if (translateY.value > 100) {
+                runOnJS(onClose)();
+            } else {
+                translateY.value = withSpring(0);
+            }
+        });
+
     const animatedStyle = useAnimatedStyle(() => {
-      return {
-        transform: [{ translateY: translateY.value }],
-      };
+        return {
+            transform: [{ translateY: translateY.value }],
+        };
     });
-  
+
     return (
-      <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onClose}>
-        <View style={styles.modalContainer}>
-          <PanGestureHandler onGestureEvent={gestureHandler}>
-            <Reanimated.View style={[styles.notificationModalContent, animatedStyle]}>
-              <View style={styles.notificationGrabberContainer}>
-                <View style={styles.notificationGrabber} />
-              </View>
-              <View style={styles.notificationHeader}>
-                <Text style={styles.notificationTitle}>Notifications</Text>
-                <TouchableOpacity>
-                  <Text style={styles.notificationMarkAll}>Mark all as read</Text>
-                </TouchableOpacity>
-              </View>
-              <ScrollView>
-              <Text style={styles.notificationSectionTitle}>TODAY</Text>
-              {notifications.today.map(item => (
-                <View key={item.id} style={styles.notificationItem}>
-                  {item.type === 'special_offer' ? (
-                    <ImageBackground source={{ uri: item.image }} style={styles.notificationImage}>
-                      <View style={styles.notificationOverlay}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                          <Text style={styles.specialOfferTag}>SPECIAL OFFER</Text>
-                          <Text style={styles.notificationTimeDark}>{item.time}</Text>
+        <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onClose}>
+            <View style={styles.modalContainer}>
+                <GestureDetector gesture={gesture}>
+                    <Animated.View style={[styles.notificationModalContent, animatedStyle]}>
+                        <View style={styles.notificationGrabberContainer}>
+                            <View style={styles.notificationGrabber} />
                         </View>
-                        <Text style={styles.notificationSpecialOfferTitle}>{item.title}</Text>
-                        <Text style={styles.notificationSpecialOfferDescription}>{item.description}</Text>
-                      </View>
-                    </ImageBackground>
-                  ) : (
-                    <View style={[styles.notificationCard, item.type === 'alert' && { backgroundColor: '#E6F6F5' }]}>
-                      <View style={styles.notificationIconContainer}>
-                        <Ionicons name={item.type === 'alert' ? 'bus-outline' : 'gift-outline'} size={24} color={'#000'} />
-                      </View>
-                      <View style={styles.notificationTextContainer}>
-                        <Text style={styles.notificationCardTitle}>{item.title}</Text>
-                        <Text style={styles.notificationCardDescription}>{item.description}</Text>
-                      </View>
-                      <View style={{ alignItems: 'flex-end' }}>
-                        <Text style={styles.notificationTime}>{item.time}</Text>
-                        {item.isNew && <View style={styles.notificationNewDot} />}
-                      </View>
-                    </View>
-                  )}
-                </View>
-              ))}
-              <Text style={styles.notificationSectionTitle}>YESTERDAY</Text>
-              {notifications.yesterday.map(item => (
-                <View key={item.id} style={styles.notificationItem}>
-                  <View style={[styles.notificationCard, { backgroundColor: '#fff' }]}>
-                    <View style={styles.notificationIconContainer}>
-                      <Ionicons name={'checkmark-circle-outline'} size={24} color={'#000'} />
-                    </View>
-                    <View style={styles.notificationTextContainer}>
-                      <Text style={styles.notificationCardTitle}>{item.title}</Text>
-                      <Text style={styles.notificationCardDescription}>{item.description}</Text>
-                    </View>
-                    <Text style={styles.notificationTime}>{item.time}</Text>
-                  </View>
-                </View>
-              ))}
-            </ScrollView>
-            </Reanimated.View>
-          </PanGestureHandler>
-        </View>
-      </Modal>
+                        <View style={styles.notificationHeader}>
+                            <Text style={styles.notificationTitle}>Notifications</Text>
+                            <TouchableOpacity>
+                                <Text style={styles.notificationMarkAll}>Mark all as read</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <ScrollView>
+                            <Text style={styles.notificationSectionTitle}>TODAY</Text>
+                            {notifications.today.map(item => (
+                                <View key={item.id} style={styles.notificationItem}>
+                                    {item.type === 'special_offer' ? (
+                                        <ImageBackground source={{ uri: item.image }} style={styles.notificationImage}>
+                                            <View style={styles.notificationOverlay}>
+                                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                    <Text style={styles.specialOfferTag}>SPECIAL OFFER</Text>
+                                                    <Text style={styles.notificationTimeDark}>{item.time}</Text>
+                                                </View>
+                                                <Text style={styles.notificationSpecialOfferTitle}>{item.title}</Text>
+                                                <Text style={styles.notificationSpecialOfferDescription}>{item.description}</Text>
+                                            </View>
+                                        </ImageBackground>
+                                    ) : (
+                                        <View style={[styles.notificationCard, item.type === 'alert' && { backgroundColor: '#E6F6F5' }]}>
+                                            <View style={styles.notificationIconContainer}>
+                                                <Ionicons name={item.type === 'alert' ? 'bus-outline' : 'gift-outline'} size={24} color={'#000'} />
+                                            </View>
+                                            <View style={styles.notificationTextContainer}>
+                                                <Text style={styles.notificationCardTitle}>{item.title}</Text>
+                                                <Text style={styles.notificationCardDescription}>{item.description}</Text>
+                                            </View>
+                                            <View style={{ alignItems: 'flex-end' }}>
+                                                <Text style={styles.notificationTime}>{item.time}</Text>
+                                                {item.isNew && <View style={styles.notificationNewDot} />}
+                                            </View>
+                                        </View>
+                                    )}
+                                </View>
+                            ))}
+                            <Text style={styles.notificationSectionTitle}>YESTERDAY</Text>
+                            {notifications.yesterday.map(item => (
+                                <View key={item.id} style={styles.notificationItem}>
+                                    <View style={[styles.notificationCard, { backgroundColor: '#fff' }]}>
+                                        <View style={styles.notificationIconContainer}>
+                                            <Ionicons name={'checkmark-circle-outline'} size={24} color={'#000'} />
+                                        </View>
+                                        <View style={styles.notificationTextContainer}>
+                                            <Text style={styles.notificationCardTitle}>{item.title}</Text>
+                                            <Text style={styles.notificationCardDescription}>{item.description}</Text>
+                                        </View>
+                                        <Text style={styles.notificationTime}>{item.time}</Text>
+                                    </View>
+                                </View>
+                            ))}
+                        </ScrollView>
+                    </Animated.View>
+                </GestureDetector>
+            </View>
+        </Modal>
     );
-  };
+};
 
 const HomeScreen = () => {
   const router = useRouter();
@@ -361,7 +367,7 @@ const HomeScreen = () => {
               <View style={styles.signature}><Text style={styles.signatureText}>SIGNATURE</Text></View>
             </View>
             <View style={styles.occasionCard}>
-              <Image source={{ uri: 'https://images.unsplash.com/photo-1525095368449-763452da67e2?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' }} style={styles.occasionImage} />
+              <Image source={{ uri: 'https://images.unsplash.com/photo-1525095368449-763452da67e2?q=80&w=2070&auto=format&fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' }} style={styles.occasionImage} />
             </View>
           </ScrollView>
         </View>
@@ -486,7 +492,7 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
   notificationCardTitle: { ...FONTS.h5, color: COLORS.black },
   notificationCardDescription: { ...FONTS.body5, color: COLORS.gray },
   notificationTime: { ...FONTS.body5, color: COLORS.gray, marginLeft: SIZES.base, },
-  notificationTimeDark: { ...FONTS.body5, color: COLORS.lightGray, marginLeft: SIZES.base, },
+  notificationTimeDark: { ...FONTS.body5, color: 'white', marginLeft: SIZES.base, },
   notificationNewDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#00A799', marginTop: 4, marginLeft: 'auto' },
   notificationImage: { width: '100%', height: 150, borderRadius: SIZES.radius, justifyContent: 'flex-end', overflow: 'hidden' },
   notificationOverlay: { backgroundColor: 'rgba(0,0,0,0.4)', padding: SIZES.base, },
