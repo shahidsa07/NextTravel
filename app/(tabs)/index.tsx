@@ -16,7 +16,14 @@ import {
 } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { Gesture, GestureDetector, GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler';
-import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, {
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSpring,
+  withTiming
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../constants/theme';
 
@@ -354,14 +361,48 @@ const HomeScreen = () => {
     const calendarModalTranslateY = useSharedValue(0);
     const calendarModalStartY = useSharedValue(0);
 
+    // Animation for notification indicator ping effect
+    const notificationPingScale = useSharedValue(1);
+    const notificationPingOpacity = useSharedValue(1);
+
     // Track if any modal is open to adjust status bar
     const isAnyModalOpen = showCalendar || showNotifications;
 
-  useEffect(() => {
-    if (showCalendar) {
-      calendarModalTranslateY.value = withSpring(0);
-    }
-  }, [showCalendar]);
+    // Check if there are unread notifications
+    const hasUnreadNotifications = notifications.today.some(item => item.isNew) || notifications.last7Days.some(item => item.isNew);
+
+    // Start ping animation when there are unread notifications
+    useEffect(() => {
+        if (hasUnreadNotifications) {
+            // Create repeating ping animation
+            notificationPingScale.value = withRepeat(
+                withTiming(1.5, { duration: 1000 }),
+                -1, // infinite repeat
+                true // reverse
+            );
+            notificationPingOpacity.value = withRepeat(
+                withTiming(0.3, { duration: 1000 }),
+                -1, // infinite repeat
+                true // reverse
+            );
+        } else {
+            // Reset animation when no unread notifications
+            notificationPingScale.value = withTiming(1, { duration: 300 });
+            notificationPingOpacity.value = withTiming(1, { duration: 300 });
+        }
+    }, [hasUnreadNotifications]);
+
+    // Animated style for the ping effect
+    const notificationPingStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: notificationPingScale.value }],
+        opacity: notificationPingOpacity.value,
+    }));
+
+    useEffect(() => {
+        if (showCalendar) {
+            calendarModalTranslateY.value = withSpring(0);
+        }
+    }, [showCalendar]);
 
     const handleDismissNotification = (id: number, section: string) => {
         setNotifications(prev => ({
@@ -561,8 +602,11 @@ const HomeScreen = () => {
                                     <Text style={styles.userName}>Alex Johnson</Text>
                                 </View>
                             </View>
-                            <TouchableOpacity onPress={() => setShowNotifications(true)}>
+                            <TouchableOpacity onPress={() => setShowNotifications(true)} style={styles.notificationIconContainer}>
                                 <Ionicons name="notifications-outline" size={24} color={COLORS.black} />
+                                {(notifications.today.some(item => item.isNew) || notifications.last7Days.some(item => item.isNew)) && (
+                                    <Animated.View style={[styles.notificationIndicator, notificationPingStyle]} />
+                                )}
                             </TouchableOpacity>
                         </View>
                         <Text style={styles.title1}>Exquisite Journeys</Text>
@@ -756,7 +800,7 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) => StyleSheet.create({
     welcomeText: { ...FONTS.body5, color: COLORS.gray },
     userName: { ...FONTS.h4, color: COLORS.black },
     title1: { ...FONTS.h1, color: COLORS.black, marginTop: SIZES.padding },
-    title2: { ...FONTS.h1, color: '#00A799' },
+    title2: { ...FONTS.h1, color: '#00A799', fontStyle: 'italic' },
     searchContainer: { marginTop: SIZES.padding },
     inputContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.white, borderRadius: SIZES.radius, paddingHorizontal: SIZES.padding, height: 50, marginBottom: SIZES.base },
     inputIcon: { marginRight: SIZES.base },
@@ -824,6 +868,8 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) => StyleSheet.create({
     modeButtonText: { ...FONTS.body4, color: COLORS.gray },
     activeModeButtonText: { color: COLORS.white },
     quickSelectionButtonText: { ...FONTS.body4, color: COLORS.black },
+    notificationIconContainer: { position: 'relative' },
+    notificationIndicator: { position: 'absolute', top: 0, right: 1, width: 10, height: 10, borderRadius: 5, borderColor: '#fff', backgroundColor: '#00A799', borderWidth: 2 },
 });
 
 export default HomeScreen;
