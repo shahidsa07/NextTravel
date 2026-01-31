@@ -15,7 +15,7 @@ import {
     Dimensions
 } from 'react-native';
 import { Calendar } from 'react-native-calendars';
-import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Gesture, GestureDetector, GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useTheme } from '../../constants/theme';
 
@@ -59,15 +59,40 @@ const Toast = ({ message, onHide }) => {
     );
 };
 
-const NotificationModal = ({ visible, onClose, notifications, styles }) => {
+const SwipeableNotification = ({ children, onDismiss }) => {
+    const renderRightActions = (progress, dragX) => {
+        const trans = dragX.interpolate({
+            inputRange: [-80, 0],
+            outputRange: [0, 80],
+            extrapolate: 'clamp',
+        });
+
+        return (
+            <TouchableOpacity onPress={onDismiss} style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: '#FF4136', width: 80, borderRadius: 10 }}>
+                <RNAnimated.View style={{ transform: [{ translateX: trans }] }}>
+                    <Text style={{ color: 'white', fontWeight: '600' }}>Dismiss</Text>
+                </RNAnimated.View>
+            </TouchableOpacity>
+        );
+    };
+
+    return (
+        <Swipeable renderRightActions={renderRightActions} onSwipeableOpen={onDismiss}>
+            {children}
+        </Swipeable>
+    );
+};
+
+
+const NotificationModal = ({ visible, onClose, notifications, styles, onDismiss }) => {
     const translateY = useSharedValue(0);
     const startY = useSharedValue(0);
-    const totalNotifications = notifications.today.length + notifications.yesterday.length;
-    const modalHeight = totalNotifications <= 3 ? '50%' : '90%';
+    const totalNotifications = notifications.today.length + notifications.last7Days.length;
+    const modalHeight = totalNotifications > 3 ? '90%' : '50%';
 
     useEffect(() => {
         if (visible) {
-            translateY.value = 0;
+            translateY.value = withSpring(0, { damping: 15 });
         }
     }, [visible, translateY]);
 
@@ -86,11 +111,9 @@ const NotificationModal = ({ visible, onClose, notifications, styles }) => {
             }
         });
 
-    const animatedStyle = useAnimatedStyle(() => {
-        return {
-            transform: [{ translateY: translateY.value }],
-        };
-    });
+    const animatedStyle = useAnimatedStyle(() => ({
+        transform: [{ translateY: translateY.value }],
+    }));
 
     return (
         <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onClose}>
@@ -98,61 +121,57 @@ const NotificationModal = ({ visible, onClose, notifications, styles }) => {
                 <View style={styles.modalContainer}>
                     <GestureDetector gesture={gesture}>
                         <Animated.View style={[styles.notificationModalContent, { height: modalHeight }, animatedStyle]}>
-                            <View style={styles.notificationGrabberContainer}>
-                                <View style={styles.notificationGrabber} />
-                            </View>
+                            <View style={styles.notificationGrabberContainer}><View style={styles.notificationGrabber} /></View>
                             <View style={styles.notificationHeader}>
                                 <Text style={styles.notificationTitle}>Notifications</Text>
-                                <TouchableOpacity>
-                                    <Text style={styles.notificationMarkAll}>Mark all as read</Text>
-                                </TouchableOpacity>
+                                <TouchableOpacity><Text style={styles.notificationMarkAll}>Mark all as read</Text></TouchableOpacity>
                             </View>
                             <ScrollView>
                                 <Text style={styles.notificationSectionTitle}>TODAY</Text>
                                 {notifications.today.map(item => (
-                                    <View key={item.id} style={styles.notificationItem}>
-                                        {item.type === 'special_offer' ? (
-                                            <ImageBackground source={{ uri: item.image }} style={styles.notificationImage} imageStyle={{ borderRadius: 10 }}>
-                                                <View style={styles.notificationOverlay}>
-                                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                        <Text style={styles.specialOfferTag}>SPECIAL OFFER</Text>
-                                                        <Text style={styles.notificationTimeDark}>{item.time}</Text>
+                                    <SwipeableNotification key={item.id} onDismiss={() => onDismiss(item.id, 'today')}>
+                                        <View style={styles.notificationItem}>
+                                            {item.type === 'special_offer' ? (
+                                                <ImageBackground source={{ uri: item.image }} style={styles.notificationImage} imageStyle={{ borderRadius: 10 }}>
+                                                    <View style={styles.notificationOverlay}>
+                                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                            <Text style={styles.specialOfferTag}>SPECIAL OFFER</Text>
+                                                            <Text style={styles.notificationTimeDark}>{item.time}</Text>
+                                                        </View>
+                                                        <Text style={styles.notificationSpecialOfferTitle}>{item.title}</Text>
+                                                        <Text style={styles.notificationSpecialOfferDescription}>{item.description}</Text>
                                                     </View>
-                                                    <Text style={styles.notificationSpecialOfferTitle}>{item.title}</Text>
-                                                    <Text style={styles.notificationSpecialOfferDescription}>{item.description}</Text>
+                                                </ImageBackground>
+                                            ) : (
+                                                <View style={[styles.notificationCard, item.type === 'alert' && { backgroundColor: '#E6F6F5' }]}>
+                                                    <View style={styles.notificationIconContainer}><Ionicons name={item.type === 'alert' ? 'bus-outline' : 'gift-outline'} size={24} color={'#000'} /></View>
+                                                    <View style={styles.notificationTextContainer}>
+                                                        <Text style={styles.notificationCardTitle}>{item.title}</Text>
+                                                        <Text style={styles.notificationCardDescription}>{item.description}</Text>
+                                                    </View>
+                                                    <View style={{ alignItems: 'flex-end' }}>
+                                                        <Text style={styles.notificationTime}>{item.time}</Text>
+                                                        {item.isNew && <View style={styles.notificationNewDot} />}
+                                                    </View>
                                                 </View>
-                                            </ImageBackground>
-                                        ) : (
-                                            <View style={[styles.notificationCard, item.type === 'alert' && { backgroundColor: '#E6F6F5' }]}>
-                                                <View style={styles.notificationIconContainer}>
-                                                    <Ionicons name={item.type === 'alert' ? 'bus-outline' : 'gift-outline'} size={24} color={'#000'} />
-                                                </View>
+                                            )}
+                                        </View>
+                                    </SwipeableNotification>
+                                ))}
+                                <Text style={styles.notificationSectionTitle}>LAST 7 DAYS</Text>
+                                {notifications.last7Days.map(item => (
+                                     <SwipeableNotification key={item.id} onDismiss={() => onDismiss(item.id, 'last7Days')}>
+                                        <View style={styles.notificationItem}>
+                                            <View style={[styles.notificationCard, { backgroundColor: '#fff' }]}>
+                                                <View style={styles.notificationIconContainer}><Ionicons name={'checkmark-circle-outline'} size={24} color={'#000'} /></View>
                                                 <View style={styles.notificationTextContainer}>
                                                     <Text style={styles.notificationCardTitle}>{item.title}</Text>
                                                     <Text style={styles.notificationCardDescription}>{item.description}</Text>
                                                 </View>
-                                                <View style={{ alignItems: 'flex-end' }}>
-                                                    <Text style={styles.notificationTime}>{item.time}</Text>
-                                                    {item.isNew && <View style={styles.notificationNewDot} />}
-                                                </View>
+                                                <Text style={styles.notificationTime}>{item.time}</Text>
                                             </View>
-                                        )}
-                                    </View>
-                                ))}
-                                <Text style={styles.notificationSectionTitle}>YESTERDAY</Text>
-                                {notifications.yesterday.map(item => (
-                                    <View key={item.id} style={styles.notificationItem}>
-                                        <View style={[styles.notificationCard, { backgroundColor: '#fff' }]}>
-                                            <View style={styles.notificationIconContainer}>
-                                                <Ionicons name={'checkmark-circle-outline'} size={24} color={'#000'} />
-                                            </View>
-                                            <View style={styles.notificationTextContainer}>
-                                                <Text style={styles.notificationCardTitle}>{item.title}</Text>
-                                                <Text style={styles.notificationCardDescription}>{item.description}</Text>
-                                            </View>
-                                            <Text style={styles.notificationTime}>{item.time}</Text>
                                         </View>
-                                    </View>
+                                    </SwipeableNotification>
                                 ))}
                             </ScrollView>
                         </Animated.View>
@@ -161,6 +180,20 @@ const NotificationModal = ({ visible, onClose, notifications, styles }) => {
             </GestureHandlerRootView>
         </Modal>
     );
+};
+
+const initialNotifications = {
+    today: [
+        { id: 1, type: 'alert', title: 'Your Heritage City Tour is arriving', description: 'Driver Michael is 5 minutes away in a White Mercedes Sprinter (ABC-1234).', time: '2m ago', isNew: true },
+        { id: 2, type: 'special_offer', title: 'Book Your Dream Wedding Shuttle', description: 'Save 15% on curated bridal fleet bookings this month.', time: '3h ago', image: 'https://images.unsplash.com/photo-1597402518423-72535a0a3a23?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', isNew: true },
+        { id: 3, type: 'reward', title: 'Reward Points Updated', description: "You've earned 450 points from your last trip. Level up to Gold status soon!", time: '5h ago', isNew: true },
+    ],
+    last7Days: [
+        { id: 4, type: 'booking_confirmed', title: 'Your booking is confirmed', description: 'Your booking for the Heritage City Tour on 24th May has been confirmed.', time: '1d ago', isNew: false },
+        { id: 5, type: 'booking_confirmed', title: 'Rate your last trip', description: 'Enjoyed your ride with driver Sarah? Let us know how it went.', time: '3d ago', isNew: false },
+        { id: 6, type: 'booking_confirmed', title: 'A new vehicle has been added', description: 'The Classic Rolls Royce is now available for booking in your city.', time: '5d ago', isNew: false },
+        { id: 7, type: 'booking_confirmed', title: 'Your account has been secured', description: 'Your password was recently changed. If this wasn't you, please secure your account.', time: '7d ago', isNew: false },
+    ]
 };
 
 const HomeScreen = () => {
@@ -175,20 +208,16 @@ const HomeScreen = () => {
     const calendarRef = useRef(null);
     const [warning, setWarning] = useState('');
     const [showNotifications, setShowNotifications] = useState(false);
+    const [notifications, setNotifications] = useState(initialNotifications);
 
-    const notifications = {
-        today: [
-            { id: 1, type: 'alert', title: 'Your Heritage City Tour is arriving', description: 'Driver Michael is 5 minutes away in a White Mercedes Sprinter (ABC-1234).', time: '2m ago', isNew: true },
-            // { id: 2, type: 'special_offer', title: 'Book Your Dream Wedding Shuttle', description: 'Save 15% on curated bridal fleet bookings this month.', time: '3h ago', image: 'https://images.unsplash.com/photo-1597402518423-72535a0a3a23?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
-            // { id: 3, type: 'reward', title: 'Reward Points Updated', description: "You've earned 450 points from your last trip. Level up to Gold status soon!", time: '5h ago' },
-        ],
-        yesterday: [
-            // { id: 4, type: 'alert', title: 'Your booking is confirmed', description: 'Your booking for the Heritage City Tour on 24th May has been confirmed.', time: '1d ago' }
-        ]
+    const handleDismissNotification = (id, section) => {
+        setNotifications(prev => ({
+            ...prev,
+            [section]: prev[section].filter(item => item.id !== id)
+        }));
     };
 
     const getToday = () => new Date().toISOString().split('T')[0];
-
     const today = getToday();
 
     const handleSearch = () => {
@@ -338,6 +367,7 @@ const HomeScreen = () => {
                     onClose={() => setShowNotifications(false)}
                     notifications={notifications}
                     styles={styles}
+                    onDismiss={handleDismissNotification}
                 />
             </View>
         </GestureHandlerRootView>
@@ -397,7 +427,7 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     notificationTitle: { ...FONTS.h2, color: COLORS.black },
     notificationMarkAll: { ...FONTS.h5, color: '#00A799' },
     notificationSectionTitle: { ...FONTS.h5, color: COLORS.gray, marginVertical: SIZES.base },
-    notificationItem: { marginBottom: SIZES.base },
+    notificationItem: { marginBottom: SIZES.base, backgroundColor: 'white', borderRadius: 10, overflow: 'hidden' },
     notificationCard: { flexDirection: 'row', alignItems: 'center', padding: SIZES.base, borderRadius: SIZES.radius },
     notificationIconContainer: { width: 40, height: 40, borderRadius: 20, backgroundColor: COLORS.white, justifyContent: 'center', alignItems: 'center', marginRight: SIZES.base },
     notificationTextContainer: { flex: 1 },
