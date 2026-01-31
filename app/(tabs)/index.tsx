@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { Gesture, GestureDetector, GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler';
-import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { useTheme } from '../../constants/theme';
 
 const Toast = ({ message, onHide }) => {
@@ -91,7 +91,7 @@ const NotificationModal = ({ visible, onClose, notifications, styles, onDismiss 
 
     useEffect(() => {
         if (visible) {
-            translateY.value = withSpring(0, { damping: 15 });
+            translateY.value = withTiming(0);
         }
     }, [visible, translateY]);
 
@@ -106,7 +106,7 @@ const NotificationModal = ({ visible, onClose, notifications, styles, onDismiss 
             if (translateY.value > 100) {
                 runOnJS(onClose)();
             } else {
-                translateY.value = withSpring(0);
+                translateY.value = withTiming(0);
             }
         });
 
@@ -191,7 +191,7 @@ const initialNotifications = {
         { id: 4, type: 'booking_confirmed', title: 'Your booking is confirmed', description: 'Your booking for the Heritage City Tour on 24th May has been confirmed.', time: '1d ago', isNew: false },
         { id: 5, type: 'booking_confirmed', title: 'Rate your last trip', description: 'Enjoyed your ride with driver Sarah? Let us know how it went.', time: '3d ago', isNew: false },
         { id: 6, type: 'booking_confirmed', title: 'A new vehicle has been added', description: 'The Classic Rolls Royce is now available for booking in your city.', time: '5d ago', isNew: false },
-        { id: 7, type: 'booking_confirmed', title: 'Your account has been secured', description: 'Your password was recently changed. If this wasnt you, please secure your account.', time: '7d ago', isNew: false },
+        { id: 7, type: 'booking_confirmed', title: 'Your account has been secured', description: 'Your password was recently changed. If this wasn\'t you, please secure your account.', time: '7d ago', isNew: false },
     ]
 };
 
