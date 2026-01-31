@@ -2,17 +2,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-    Animated as RNAnimated,
-    Image,
-    ImageBackground,
-    Modal,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-    Dimensions
+  Image,
+  ImageBackground,
+  Modal,
+  Animated as RNAnimated,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { Gesture, GestureDetector, GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler';
@@ -192,7 +191,7 @@ const initialNotifications = {
         { id: 4, type: 'booking_confirmed', title: 'Your booking is confirmed', description: 'Your booking for the Heritage City Tour on 24th May has been confirmed.', time: '1d ago', isNew: false },
         { id: 5, type: 'booking_confirmed', title: 'Rate your last trip', description: 'Enjoyed your ride with driver Sarah? Let us know how it went.', time: '3d ago', isNew: false },
         { id: 6, type: 'booking_confirmed', title: 'A new vehicle has been added', description: 'The Classic Rolls Royce is now available for booking in your city.', time: '5d ago', isNew: false },
-        { id: 7, type: 'booking_confirmed', title: 'Your account has been secured', description: 'Your password was recently changed. If this wasn't you, please secure your account.', time: '7d ago', isNew: false },
+        { id: 7, type: 'booking_confirmed', title: 'Your account has been secured', description: 'Your password was recently changed. If this wasnt you, please secure your account.', time: '7d ago', isNew: false },
     ]
 };
 
