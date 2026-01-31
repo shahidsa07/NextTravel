@@ -51,6 +51,8 @@ interface NotificationModalProps {
   notifications: NotificationData;
   styles: any;
   onDismiss: (id: number, section: string) => void;
+  onMarkAsRead: (id: number, section: string) => void;
+  onMarkAllAsRead: () => void;
 }
 
 interface MarkedDate {
@@ -105,19 +107,63 @@ const Toast = ({ message, onHide }: ToastProps) => {
 };
 
 const SwipeableNotification = ({ children, onDismiss }: SwipeableNotificationProps) => {
+    const { COLORS, FONTS, SIZES } = useTheme();
+    
     const renderRightActions = (progress: any, dragX: any) => {
         const trans = dragX.interpolate({
-            inputRange: [-80, 0],
-            outputRange: [0, 80],
+            inputRange: [-100, 0],
+            outputRange: [0, 100],
+            extrapolate: 'clamp',
+        });
+
+        const scale = progress.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0.8, 1],
             extrapolate: 'clamp',
         });
 
         return (
-            <TouchableOpacity onPress={onDismiss} style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: '#FF4136', width: 80, borderRadius: 10 }}>
-                <RNAnimated.View style={{ transform: [{ translateX: trans }] }}>
-                    <Text style={{ color: 'white', fontWeight: '600' }}>Dismiss</Text>
-                </RNAnimated.View>
-            </TouchableOpacity>
+            <RNAnimated.View style={{
+                flex: 1,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                paddingRight: SIZES.padding,
+                marginBottom: SIZES.base,
+            }}>
+                <TouchableOpacity 
+                    onPress={onDismiss} 
+                    style={{
+                        backgroundColor: COLORS.black,
+                        width: 80,
+                        height: '100%',
+                        borderRadius: SIZES.radius,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        shadowColor: COLORS.black,
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.3,
+                        shadowRadius: 4,
+                        elevation: 4,
+                    }}
+                >
+                    <RNAnimated.View style={{ 
+                        transform: [{ translateX: trans }, { scale }],
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}>
+                        <Ionicons name="trash-outline" size={20} color={COLORS.white} style={{ marginBottom: 2 }} />
+                        <Text style={{
+                            ...FONTS.body5,
+                            color: COLORS.white,
+                            fontWeight: '600',
+                            textAlign: 'center',
+                        }}>
+                            Dismiss
+                        </Text>
+                    </RNAnimated.View>
+                </TouchableOpacity>
+            </RNAnimated.View>
         );
     };
 
@@ -128,7 +174,7 @@ const SwipeableNotification = ({ children, onDismiss }: SwipeableNotificationPro
     );
 };
 
-const NotificationModal = ({ visible, onClose, notifications, styles, onDismiss }: NotificationModalProps) => {
+const NotificationModal = ({ visible, onClose, notifications, styles, onDismiss, onMarkAsRead, onMarkAllAsRead }: NotificationModalProps) => {
     const translateY = useSharedValue(0);
     const startY = useSharedValue(0);
     const scrollViewRef = useRef<ScrollView>(null);
@@ -183,7 +229,9 @@ const NotificationModal = ({ visible, onClose, notifications, styles, onDismiss 
                                 </View>
                                 <View style={styles.notificationHeader}>
                                     <Text style={styles.notificationTitle}>Notifications</Text>
-                                    <TouchableOpacity><Text style={styles.notificationMarkAll}>Mark all as read</Text></TouchableOpacity>
+                                    <TouchableOpacity onPress={onMarkAllAsRead}>
+                                        <Text style={styles.notificationMarkAll}>Mark all as read</Text>
+                                    </TouchableOpacity>
                                 </View>
                             </View>
                         </GestureDetector>
@@ -200,13 +248,20 @@ const NotificationModal = ({ visible, onClose, notifications, styles, onDismiss 
                             <Text style={styles.notificationSectionTitle}>TODAY</Text>
                             {notifications.today.map((item: NotificationItem) => (
                                 <SwipeableNotification key={item.id} onDismiss={() => onDismiss(item.id, 'today')}>
-                                    <View style={styles.notificationItem}>
+                                    <TouchableOpacity 
+                                        style={styles.notificationItem}
+                                        onPress={() => onMarkAsRead(item.id, 'today')}
+                                        activeOpacity={0.7}
+                                    >
                                         {item.type === 'special_offer' ? (
                                             <ImageBackground source={{ uri: item.image }} style={styles.notificationImage} imageStyle={{ borderRadius: 10 }}>
                                                 <View style={styles.notificationOverlay}>
-                                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                                         <Text style={styles.specialOfferTag}>SPECIAL OFFER</Text>
-                                                        <Text style={styles.notificationTimeDark}>{item.time}</Text>
+                                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                            <Text style={styles.notificationTimeDark}>{item.time}</Text>
+                                                            {item.isNew && <View style={styles.notificationNewDotDark} />}
+                                                        </View>
                                                     </View>
                                                     <Text style={styles.notificationSpecialOfferTitle}>{item.title}</Text>
                                                     <Text style={styles.notificationSpecialOfferDescription}>{item.description}</Text>
@@ -214,7 +269,9 @@ const NotificationModal = ({ visible, onClose, notifications, styles, onDismiss 
                                             </ImageBackground>
                                         ) : (
                                             <View style={[styles.notificationCard, item.type === 'alert' && { backgroundColor: '#E6F6F5' }]}>
-                                                <View style={styles.notificationIconContainer}><Ionicons name={item.type === 'alert' ? 'bus-outline' : 'gift-outline'} size={24} color={'#000'} /></View>
+                                                <View style={styles.notificationIconContainer}>
+                                                    <Ionicons name={item.type === 'alert' ? 'bus-outline' : 'gift-outline'} size={24} color={'#000'} />
+                                                </View>
                                                 <View style={styles.notificationTextContainer}>
                                                     <Text style={styles.notificationCardTitle}>{item.title}</Text>
                                                     <Text style={styles.notificationCardDescription}>{item.description}</Text>
@@ -225,22 +282,31 @@ const NotificationModal = ({ visible, onClose, notifications, styles, onDismiss 
                                                 </View>
                                             </View>
                                         )}
-                                    </View>
+                                    </TouchableOpacity>
                                 </SwipeableNotification>
                             ))}
                             <Text style={styles.notificationSectionTitle}>LAST 7 DAYS</Text>
                             {notifications.last7Days.map((item: NotificationItem) => (
                                  <SwipeableNotification key={item.id} onDismiss={() => onDismiss(item.id, 'last7Days')}>
-                                    <View style={styles.notificationItem}>
+                                    <TouchableOpacity 
+                                        style={styles.notificationItem}
+                                        onPress={() => onMarkAsRead(item.id, 'last7Days')}
+                                        activeOpacity={0.7}
+                                    >
                                         <View style={[styles.notificationCard, { backgroundColor: '#fff' }]}>
-                                            <View style={styles.notificationIconContainer}><Ionicons name={'checkmark-circle-outline'} size={24} color={'#000'} /></View>
+                                            <View style={styles.notificationIconContainer}>
+                                                <Ionicons name={'checkmark-circle-outline'} size={24} color={'#000'} />
+                                            </View>
                                             <View style={styles.notificationTextContainer}>
                                                 <Text style={styles.notificationCardTitle}>{item.title}</Text>
                                                 <Text style={styles.notificationCardDescription}>{item.description}</Text>
                                             </View>
-                                            <Text style={styles.notificationTime}>{item.time}</Text>
+                                            <View style={{ alignItems: 'flex-end' }}>
+                                                <Text style={styles.notificationTime}>{item.time}</Text>
+                                                {item.isNew && <View style={styles.notificationNewDot} />}
+                                            </View>
                                         </View>
-                                    </View>
+                                    </TouchableOpacity>
                                 </SwipeableNotification>
                             ))}
                         </ScrollView>
@@ -304,7 +370,31 @@ const HomeScreen = () => {
         }));
     };
 
-    const getToday = () => new Date().toISOString().split('T')[0];
+    // Mark individual notification as read
+    const handleMarkAsRead = (id: number, section: string) => {
+        setNotifications(prev => ({
+            ...prev,
+            [section]: prev[section as keyof NotificationData].map((item: NotificationItem) => 
+                item.id === id ? { ...item, isNew: false } : item
+            )
+        }));
+    };
+
+    // Mark all notifications as read
+    const handleMarkAllAsRead = () => {
+        setNotifications(prev => ({
+            today: prev.today.map(item => ({ ...item, isNew: false })),
+            last7Days: prev.last7Days.map(item => ({ ...item, isNew: false }))
+        }));
+    };
+
+    const getToday = () => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
     const today = getToday();
 
     const handleSearch = () => {
@@ -395,8 +485,9 @@ const HomeScreen = () => {
 
     const formatDate = (dateString: string) => {
         if (!dateString) return 'Select Trip Date';
-        const date = new Date(dateString + 'T00:00:00'); // Ensure UTC
-        return `${date.toLocaleDateString('en-US', { day: '2-digit', timeZone: 'UTC' })} ${date.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' })}`;
+        const [year, month, day] = dateString.split('-');
+        const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day)); // Use local timezone
+        return `${String(date.getDate()).padStart(2, '0')} ${date.toLocaleDateString('en-US', { month: 'short' })}`;
     };
 
     const applySelection = () => {
@@ -596,13 +687,17 @@ const HomeScreen = () => {
                                         {isSelectingRange && (
                                             <>
                                                 <TouchableOpacity style={styles.quickSelectionButton} onPress={() => {
+                                                    const today = new Date();
                                                     const tomorrow = new Date();
-                                                    tomorrow.setDate(tomorrow.getDate() + 1);
-                                                    const tomorrowStr = tomorrow.toISOString().split('T')[0];
-                                                    const dayAfterStr = new Date(tomorrow.getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-                                                    setStartDate(tomorrowStr);
-                                                    setEndDate(dayAfterStr);
-                                                    setMarkedDates(generateDateRange(tomorrowStr, dayAfterStr));
+                                                    tomorrow.setDate(today.getDate() + 1);
+                                                    
+                                                    // Use local timezone formatting instead of UTC
+                                                    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+                                                    const tomorrowStr = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
+                                                    
+                                                    setStartDate(todayStr);
+                                                    setEndDate(tomorrowStr);
+                                                    setMarkedDates(generateDateRange(todayStr, tomorrowStr));
                                                 }}>
                                                     <Text style={styles.quickSelectionButtonText}>2 Days</Text>
                                                 </TouchableOpacity>
@@ -610,8 +705,11 @@ const HomeScreen = () => {
                                                     const start = new Date();
                                                     const end = new Date();
                                                     end.setDate(start.getDate() + 6);
-                                                    const startStr = start.toISOString().split('T')[0];
-                                                    const endStr = end.toISOString().split('T')[0];
+                                                    
+                                                    // Use local timezone formatting instead of UTC
+                                                    const startStr = `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(start.getDate()).padStart(2, '0')}`;
+                                                    const endStr = `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')}`;
+                                                    
                                                     setStartDate(startStr);
                                                     setEndDate(endStr);
                                                     setMarkedDates(generateDateRange(startStr, endStr));
@@ -641,6 +739,8 @@ const HomeScreen = () => {
                     notifications={notifications}
                     styles={styles}
                     onDismiss={handleDismissNotification}
+                    onMarkAsRead={handleMarkAsRead}
+                    onMarkAllAsRead={handleMarkAllAsRead}
                 />
             </View>
         </GestureHandlerRootView>
@@ -680,7 +780,7 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) => StyleSheet.create({
     signature: { position: 'absolute', bottom: SIZES.base, left: SIZES.base, backgroundColor: '#00A799', paddingHorizontal: SIZES.base, paddingVertical: 5, borderRadius: 5 },
     signatureText: { ...FONTS.body5, color: COLORS.white },
     modalContainer: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
-    modalContent: { backgroundColor: COLORS.white, borderTopLeftRadius: SIZES.radius * 2, borderTopRightRadius: SIZES.radius * 2, padding: SIZES.padding, height: '80%' },
+    modalContent: { backgroundColor: COLORS.white, borderTopLeftRadius: SIZES.radius * 2, borderTopRightRadius: SIZES.radius * 2, padding: SIZES.padding, height: 'auto' },
     modalHeader: { alignItems: 'center', paddingBottom: SIZES.base },
     modalTitle: { ...FONTS.h2, color: COLORS.black },
     modalSubtitle: { ...FONTS.body4, color: COLORS.gray },
@@ -712,6 +812,7 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) => StyleSheet.create({
     notificationTime: { ...FONTS.body5, color: COLORS.gray, marginLeft: SIZES.base },
     notificationTimeDark: { ...FONTS.body5, color: COLORS.lightGray, marginLeft: SIZES.base },
     notificationNewDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#00A799', marginTop: 4, alignSelf: 'center', marginLeft: 'auto' },
+    notificationNewDotDark: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#00A799', marginTop: 4, alignSelf: 'center', marginLeft: 8 },
     notificationImage: { width: '100%', height: 150, justifyContent: 'flex-end' },
     notificationOverlay: { backgroundColor: 'rgba(0,0,0,0.4)', padding: SIZES.base, borderBottomLeftRadius: 10, borderBottomRightRadius: 10 },
     specialOfferTag: { ...FONTS.body5, color: '#00A799', backgroundColor: COLORS.white, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4, overflow: 'hidden', alignSelf: 'flex-start' },
