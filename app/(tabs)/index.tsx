@@ -156,7 +156,7 @@ const NotificationModal = ({ visible, onClose, notifications, styles, onDismiss 
                                             )}
                                         </View>
                                     </SwipeableNotification>
-                                ))}
+                                ))}\
                                 <Text style={styles.notificationSectionTitle}>LAST 7 DAYS</Text>
                                 {notifications.last7Days.map(item => (
                                      <SwipeableNotification key={item.id} onDismiss={() => onDismiss(item.id, 'last7Days')}>
@@ -171,7 +171,7 @@ const NotificationModal = ({ visible, onClose, notifications, styles, onDismiss 
                                             </View>
                                         </View>
                                     </SwipeableNotification>
-                                ))}
+                                ))}\
                             </ScrollView>
                         </Animated.View>
                     </GestureDetector>
@@ -185,13 +185,13 @@ const initialNotifications = {
     today: [
         { id: 1, type: 'alert', title: 'Your Heritage City Tour is arriving', description: 'Driver Michael is 5 minutes away in a White Mercedes Sprinter (ABC-1234).', time: '2m ago', isNew: true },
         { id: 2, type: 'special_offer', title: 'Book Your Dream Wedding Shuttle', description: 'Save 15% on curated bridal fleet bookings this month.', time: '3h ago', image: 'https://images.unsplash.com/photo-1597402518423-72535a0a3a23?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', isNew: true },
-        { id: 3, type: 'reward', title: 'Reward Points Updated', description: "You've earned 450 points from your last trip. Level up to Gold status soon!", time: '5h ago', isNew: true },
+        { id: 3, type: 'reward', title: 'Reward Points Updated', description: 'You\'ve earned 450 points from your last trip. Level up to Gold status soon!', time: '5h ago', isNew: true },
     ],
     last7Days: [
         { id: 4, type: 'booking_confirmed', title: 'Your booking is confirmed', description: 'Your booking for the Heritage City Tour on 24th May has been confirmed.', time: '1d ago', isNew: false },
         { id: 5, type: 'booking_confirmed', title: 'Rate your last trip', description: 'Enjoyed your ride with driver Sarah? Let us know how it went.', time: '3d ago', isNew: false },
         { id: 6, type: 'booking_confirmed', title: 'A new vehicle has been added', description: 'The Classic Rolls Royce is now available for booking in your city.', time: '5d ago', isNew: false },
-        { id: 7, type: 'booking_confirmed', title: 'Your account has been secured', description: 'Your password was recently changed. If this wasnt you, please secure your account.', time: '7d ago', isNew: false },
+        { id: 7, type: 'booking_confirmed', title: 'Your account has been secured', description: 'Your password was recently changed. If this wasn\'t you, please secure your account.', time: '7d ago', isNew: false },
     ]
 };
 
@@ -208,6 +208,8 @@ const HomeScreen = () => {
     const [warning, setWarning] = useState('');
     const [showNotifications, setShowNotifications] = useState(false);
     const [notifications, setNotifications] = useState(initialNotifications);
+    const calendarModalTranslateY = useSharedValue(0);
+    const calendarModalStartY = useSharedValue(0);
 
     const handleDismissNotification = (id, section) => {
         setNotifications(prev => ({
@@ -261,6 +263,25 @@ const HomeScreen = () => {
         setMarkedDates({ [todayStr]: { selected: true, color: '#00A799', startingDay: true, endingDay: true } });
         calendarRef.current?.scrollToDay(todayStr, 0, true);
     };
+
+    const calendarGesture = Gesture.Pan()
+        .onBegin(() => {
+            calendarModalStartY.value = calendarModalTranslateY.value;
+        })
+        .onUpdate((event) => {
+            calendarModalTranslateY.value = Math.max(0, calendarModalStartY.value + event.translationY);
+        })
+        .onEnd(() => {
+            if (calendarModalTranslateY.value > 100) {
+                runOnJS(setShowCalendar)(false);
+            } else {
+                calendarModalTranslateY.value = withSpring(0);
+            }
+        });
+
+    const calendarModalAnimatedStyle = useAnimatedStyle(() => ({
+        transform: [{ translateY: calendarModalTranslateY.value }],
+    }));
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
@@ -336,29 +357,34 @@ const HomeScreen = () => {
                 {warning ? <Toast message={warning} onHide={() => setWarning('')} /> : null}
 
                 <Modal animationType="slide" transparent={true} visible={showCalendar} onRequestClose={() => setShowCalendar(false)}>
-                    <View style={styles.modalContainer}>
-                        <View style={styles.modalContent}>
-                            <View style={styles.modalHeader}>
-                                <Text style={styles.modalTitle}>Select Trip Date</Text>
-                                <Text style={styles.modalSubtitle}>Choose your journey schedule</Text>
-                                <TouchableOpacity style={styles.closeButton} onPress={() => setShowCalendar(false)}>
-                                    <Ionicons name="close" size={25} color={COLORS.black} />
-                                </TouchableOpacity>
-                            </View>
-                            <Calendar ref={calendarRef} onDayPress={onDayPress} style={{ marginTop: 15 }} minDate={today} markingType={'period'} markedDates={markedDates} theme={{ backgroundColor: COLORS.white, calendarBackground: COLORS.white, textSectionTitleColor: COLORS.black, selectedDayBackgroundColor: '#00A799', selectedDayTextColor: '#FFFFFF', todayTextColor: '#00A799', dayTextColor: COLORS.black, textDisabledColor: COLORS.gray, dotColor: '#00A799', selectedDotColor: COLORS.white, arrowColor: '#00A799', monthTextColor: COLORS.black }} />
-                            <View style={styles.quickSelectionContainer}>
-                                <TouchableOpacity style={styles.quickSelectionButton} onPress={selectToday}><Text>Today</Text></TouchableOpacity>
-                            </View>
-                            <View style={styles.durationContainer}>
-                                <View>
-                                    <Text style={styles.durationLabel}>DURATION</Text>
-                                    <Text style={styles.durationText}>{getDuration()}</Text>
-                                </View>
-                                <TouchableOpacity onPress={clearSelection}><Text style={styles.clearSelectionText}>CLEAR SELECTION</Text></TouchableOpacity>
-                            </View>
-                            <TouchableOpacity style={styles.applyButton} onPress={applySelection}><Text style={styles.applyButtonText}>Apply Selection</Text></TouchableOpacity>
+                    <GestureHandlerRootView style={{ flex: 1 }}>
+                        <View style={styles.modalContainer}>
+                            <GestureDetector gesture={calendarGesture}>
+                                <Animated.View style={[styles.modalContent, calendarModalAnimatedStyle]}>
+                                    <View style={styles.grabberContainer}><View style={styles.grabber} /></View>
+                                    <View style={styles.modalHeader}>
+                                        <Text style={styles.modalTitle}>Select Trip Date</Text>
+                                        <Text style={styles.modalSubtitle}>Choose your journey schedule</Text>
+                                        <TouchableOpacity style={styles.closeButton} onPress={() => setShowCalendar(false)}>
+                                            <Ionicons name="close" size={25} color={COLORS.black} />
+                                        </TouchableOpacity>
+                                    </View>
+                                    <Calendar ref={calendarRef} onDayPress={onDayPress} style={{ marginTop: 15 }} minDate={today} markingType={'period'} markedDates={markedDates} theme={{ backgroundColor: COLORS.white, calendarBackground: COLORS.white, textSectionTitleColor: COLORS.black, selectedDayBackgroundColor: '#00A799', selectedDayTextColor: '#FFFFFF', todayTextColor: '#00A799', dayTextColor: COLORS.black, textDisabledColor: COLORS.gray, dotColor: '#00A799', selectedDotColor: COLORS.white, arrowColor: '#00A799', monthTextColor: COLORS.black }} />
+                                    <View style={styles.quickSelectionContainer}>
+                                        <TouchableOpacity style={styles.quickSelectionButton} onPress={selectToday}><Text>Today</Text></TouchableOpacity>
+                                    </View>
+                                    <View style={styles.durationContainer}>
+                                        <View>
+                                            <Text style={styles.durationLabel}>DURATION</Text>
+                                            <Text style={styles.durationText}>{getDuration()}</Text>
+                                        </View>
+                                        <TouchableOpacity onPress={clearSelection}><Text style={styles.clearSelectionText}>CLEAR SELECTION</Text></TouchableOpacity>
+                                    </View>
+                                    <TouchableOpacity style={styles.applyButton} onPress={applySelection}><Text style={styles.applyButtonText}>Apply Selection</Text></TouchableOpacity>
+                                </Animated.View>
+                            </GestureDetector>
                         </View>
-                    </View>
+                    </GestureHandlerRootView>
                 </Modal>
 
                 <NotificationModal
@@ -422,6 +448,8 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     notificationModalContent: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: COLORS.white, borderTopLeftRadius: SIZES.radius * 2, borderTopRightRadius: SIZES.radius * 2, padding: SIZES.padding },
     notificationGrabberContainer: { alignItems: 'center', paddingVertical: 10 },
     notificationGrabber: { width: 40, height: 5, backgroundColor: COLORS.gray, borderRadius: 3 },
+    grabberContainer: { alignItems: 'center', paddingVertical: 10 },
+    grabber: { width: 40, height: 5, backgroundColor: COLORS.gray, borderRadius: 3 },
     notificationHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SIZES.padding },
     notificationTitle: { ...FONTS.h2, color: COLORS.black },
     notificationMarkAll: { ...FONTS.h5, color: '#00A799' },
