@@ -11,7 +11,8 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    View
+    View,
+    Dimensions
 } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -61,6 +62,8 @@ const Toast = ({ message, onHide }) => {
 const NotificationModal = ({ visible, onClose, notifications, styles }) => {
     const translateY = useSharedValue(0);
     const startY = useSharedValue(0);
+    const totalNotifications = notifications.today.length + notifications.yesterday.length;
+    const modalHeight = totalNotifications <= 3 ? '50%' : '90%';
 
     useEffect(() => {
         if (visible) {
@@ -94,7 +97,7 @@ const NotificationModal = ({ visible, onClose, notifications, styles }) => {
             <GestureHandlerRootView style={{ flex: 1 }}>
                 <View style={styles.modalContainer}>
                     <GestureDetector gesture={gesture}>
-                        <Animated.View style={[styles.notificationModalContent, animatedStyle]}>
+                        <Animated.View style={[styles.notificationModalContent, { height: modalHeight }, animatedStyle]}>
                             <View style={styles.notificationGrabberContainer}>
                                 <View style={styles.notificationGrabber} />
                             </View>
@@ -176,11 +179,11 @@ const HomeScreen = () => {
     const notifications = {
         today: [
             { id: 1, type: 'alert', title: 'Your Heritage City Tour is arriving', description: 'Driver Michael is 5 minutes away in a White Mercedes Sprinter (ABC-1234).', time: '2m ago', isNew: true },
-            { id: 2, type: 'special_offer', title: 'Book Your Dream Wedding Shuttle', description: 'Save 15% on curated bridal fleet bookings this month.', time: '3h ago', image: 'https://images.unsplash.com/photo-1597402518423-72535a0a3a23?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
-            { id: 3, type: 'reward', title: 'Reward Points Updated', description: "You've earned 450 points from your last trip. Level up to Gold status soon!", time: '5h ago' },
+            // { id: 2, type: 'special_offer', title: 'Book Your Dream Wedding Shuttle', description: 'Save 15% on curated bridal fleet bookings this month.', time: '3h ago', image: 'https://images.unsplash.com/photo-1597402518423-72535a0a3a23?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
+            // { id: 3, type: 'reward', title: 'Reward Points Updated', description: "You've earned 450 points from your last trip. Level up to Gold status soon!", time: '5h ago' },
         ],
         yesterday: [
-            { id: 4, type: 'alert', title: 'Your booking is confirmed', description: 'Your booking for the Heritage City Tour on 24th May has been confirmed.', time: '1d ago' }
+            // { id: 4, type: 'alert', title: 'Your booking is confirmed', description: 'Your booking for the Heritage City Tour on 24th May has been confirmed.', time: '1d ago' }
         ]
     };
 
@@ -387,7 +390,7 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     clearSelectionText: { ...FONTS.h5, color: '#00A799' },
     applyButton: { backgroundColor: '#00A799', borderRadius: SIZES.radius, height: 50, alignItems: 'center', justifyContent: 'center', margin: SIZES.padding },
     applyButtonText: { ...FONTS.h4, color: COLORS.white },
-    notificationModalContent: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: COLORS.white, borderTopLeftRadius: SIZES.radius * 2, borderTopRightRadius: SIZES.radius * 2, padding: SIZES.padding, height: '90%' },
+    notificationModalContent: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: COLORS.white, borderTopLeftRadius: SIZES.radius * 2, borderTopRightRadius: SIZES.radius * 2, padding: SIZES.padding },
     notificationGrabberContainer: { alignItems: 'center', paddingVertical: 10 },
     notificationGrabber: { width: 40, height: 5, backgroundColor: COLORS.gray, borderRadius: 3 },
     notificationHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SIZES.padding },
