@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Image,
@@ -16,9 +17,54 @@ import {
 import { Calendar } from 'react-native-calendars';
 import { Gesture, GestureDetector, GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../constants/theme';
 
-const Toast = ({ message, onHide }) => {
+interface NotificationItem {
+  id: number;
+  type: string;
+  title: string;
+  description: string;
+  time: string;
+  isNew?: boolean;
+  image?: string;
+}
+
+interface NotificationData {
+  today: NotificationItem[];
+  last7Days: NotificationItem[];
+}
+
+interface ToastProps {
+  message: string;
+  onHide: () => void;
+}
+
+interface SwipeableNotificationProps {
+  children: React.ReactNode;
+  onDismiss: () => void;
+}
+
+interface NotificationModalProps {
+  visible: boolean;
+  onClose: () => void;
+  notifications: NotificationData;
+  styles: any;
+  onDismiss: (id: number, section: string) => void;
+}
+
+interface MarkedDate {
+  selected: boolean;
+  color: string;
+  startingDay: boolean;
+  endingDay: boolean;
+}
+
+interface MarkedDates {
+  [key: string]: MarkedDate;
+}
+
+const Toast = ({ message, onHide }: ToastProps) => {
     const opacity = useRef(new RNAnimated.Value(0)).current;
 
     useEffect(() => {
@@ -58,8 +104,8 @@ const Toast = ({ message, onHide }) => {
     );
 };
 
-const SwipeableNotification = ({ children, onDismiss }) => {
-    const renderRightActions = (progress, dragX) => {
+const SwipeableNotification = ({ children, onDismiss }: SwipeableNotificationProps) => {
+    const renderRightActions = (progress: any, dragX: any) => {
         const trans = dragX.interpolate({
             inputRange: [-80, 0],
             outputRange: [0, 80],
@@ -82,28 +128,34 @@ const SwipeableNotification = ({ children, onDismiss }) => {
     );
 };
 
-
-const NotificationModal = ({ visible, onClose, notifications, styles, onDismiss }) => {
+const NotificationModal = ({ visible, onClose, notifications, styles, onDismiss }: NotificationModalProps) => {
     const translateY = useSharedValue(0);
     const startY = useSharedValue(0);
+    const scrollViewRef = useRef<ScrollView>(null);
+    const [scrollOffset, setScrollOffset] = useState(0);
     const totalNotifications = notifications.today.length + notifications.last7Days.length;
     const modalHeight = totalNotifications > 3 ? '90%' : '50%';
 
     useEffect(() => {
         if (visible) {
             translateY.value = withTiming(0);
+            setScrollOffset(0);
         }
     }, [visible, translateY]);
 
+    // Gesture only for the header area (grabber)
     const gesture = Gesture.Pan()
         .onBegin(() => {
             startY.value = translateY.value;
         })
         .onUpdate((event) => {
-            translateY.value = Math.max(0, startY.value + event.translationY);
+            // Only allow modal dismissal when scrolled to top AND dragging downward
+            if (scrollOffset <= 0 && event.translationY > 0) {
+                translateY.value = Math.max(0, startY.value + event.translationY);
+            }
         })
         .onEnd(() => {
-            if (translateY.value > 100) {
+            if (scrollOffset <= 0 && translateY.value > 100) {
                 runOnJS(onClose)();
             } else {
                 translateY.value = withTiming(0);
@@ -114,74 +166,92 @@ const NotificationModal = ({ visible, onClose, notifications, styles, onDismiss 
         transform: [{ translateY: translateY.value }],
     }));
 
+    const handleScroll = (event: any) => {
+        setScrollOffset(event.nativeEvent.contentOffset.y);
+    };
+
     return (
         <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onClose}>
             <GestureHandlerRootView style={{ flex: 1 }}>
                 <View style={styles.modalContainer}>
-                    <GestureDetector gesture={gesture}>
-                        <Animated.View style={[styles.notificationModalContent, { height: modalHeight }, animatedStyle]}>
-                            <View style={styles.notificationGrabberContainer}><View style={styles.notificationGrabber} /></View>
-                            <View style={styles.notificationHeader}>
-                                <Text style={styles.notificationTitle}>Notifications</Text>
-                                <TouchableOpacity><Text style={styles.notificationMarkAll}>Mark all as read</Text></TouchableOpacity>
+                    <Animated.View style={[styles.notificationModalContent, { height: modalHeight }, animatedStyle]}>
+                        {/* Gesture detector only on the header area */}
+                        <GestureDetector gesture={gesture}>
+                            <View>
+                                <View style={styles.notificationGrabberContainer}>
+                                    <View style={styles.notificationGrabber} />
+                                </View>
+                                <View style={styles.notificationHeader}>
+                                    <Text style={styles.notificationTitle}>Notifications</Text>
+                                    <TouchableOpacity><Text style={styles.notificationMarkAll}>Mark all as read</Text></TouchableOpacity>
+                                </View>
                             </View>
-                            <ScrollView>
-                                <Text style={styles.notificationSectionTitle}>TODAY</Text>
-                                {notifications.today.map(item => (
-                                    <SwipeableNotification key={item.id} onDismiss={() => onDismiss(item.id, 'today')}>
-                                        <View style={styles.notificationItem}>
-                                            {item.type === 'special_offer' ? (
-                                                <ImageBackground source={{ uri: item.image }} style={styles.notificationImage} imageStyle={{ borderRadius: 10 }}>
-                                                    <View style={styles.notificationOverlay}>
-                                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                            <Text style={styles.specialOfferTag}>SPECIAL OFFER</Text>
-                                                            <Text style={styles.notificationTimeDark}>{item.time}</Text>
-                                                        </View>
-                                                        <Text style={styles.notificationSpecialOfferTitle}>{item.title}</Text>
-                                                        <Text style={styles.notificationSpecialOfferDescription}>{item.description}</Text>
+                        </GestureDetector>
+                        
+                        {/* Separate ScrollView without gesture interference */}
+                        <ScrollView
+                            ref={scrollViewRef}
+                            onScroll={handleScroll}
+                            scrollEventThrottle={16}
+                            showsVerticalScrollIndicator={false}
+                            style={{ flex: 1 }}
+                            contentContainerStyle={{ paddingBottom: 20 }}
+                        >
+                            <Text style={styles.notificationSectionTitle}>TODAY</Text>
+                            {notifications.today.map((item: NotificationItem) => (
+                                <SwipeableNotification key={item.id} onDismiss={() => onDismiss(item.id, 'today')}>
+                                    <View style={styles.notificationItem}>
+                                        {item.type === 'special_offer' ? (
+                                            <ImageBackground source={{ uri: item.image }} style={styles.notificationImage} imageStyle={{ borderRadius: 10 }}>
+                                                <View style={styles.notificationOverlay}>
+                                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                        <Text style={styles.specialOfferTag}>SPECIAL OFFER</Text>
+                                                        <Text style={styles.notificationTimeDark}>{item.time}</Text>
                                                     </View>
-                                                </ImageBackground>
-                                            ) : (
-                                                <View style={[styles.notificationCard, item.type === 'alert' && { backgroundColor: '#E6F6F5' }]}>
-                                                    <View style={styles.notificationIconContainer}><Ionicons name={item.type === 'alert' ? 'bus-outline' : 'gift-outline'} size={24} color={'#000'} /></View>
-                                                    <View style={styles.notificationTextContainer}>
-                                                        <Text style={styles.notificationCardTitle}>{item.title}</Text>
-                                                        <Text style={styles.notificationCardDescription}>{item.description}</Text>
-                                                    </View>
-                                                    <View style={{ alignItems: 'flex-end' }}>
-                                                        <Text style={styles.notificationTime}>{item.time}</Text>
-                                                        {item.isNew && <View style={styles.notificationNewDot} />}
-                                                    </View>
+                                                    <Text style={styles.notificationSpecialOfferTitle}>{item.title}</Text>
+                                                    <Text style={styles.notificationSpecialOfferDescription}>{item.description}</Text>
                                                 </View>
-                                            )}
-                                        </View>
-                                    </SwipeableNotification>
-                                ))}
-                                <Text style={styles.notificationSectionTitle}>LAST 7 DAYS</Text>
-                                {notifications.last7Days.map(item => (
-                                     <SwipeableNotification key={item.id} onDismiss={() => onDismiss(item.id, 'last7Days')}>
-                                        <View style={styles.notificationItem}>
-                                            <View style={[styles.notificationCard, { backgroundColor: '#fff' }]}>
-                                                <View style={styles.notificationIconContainer}><Ionicons name={'checkmark-circle-outline'} size={24} color={'#000'} /></View>
+                                            </ImageBackground>
+                                        ) : (
+                                            <View style={[styles.notificationCard, item.type === 'alert' && { backgroundColor: '#E6F6F5' }]}>
+                                                <View style={styles.notificationIconContainer}><Ionicons name={item.type === 'alert' ? 'bus-outline' : 'gift-outline'} size={24} color={'#000'} /></View>
                                                 <View style={styles.notificationTextContainer}>
                                                     <Text style={styles.notificationCardTitle}>{item.title}</Text>
                                                     <Text style={styles.notificationCardDescription}>{item.description}</Text>
                                                 </View>
-                                                <Text style={styles.notificationTime}>{item.time}</Text>
+                                                <View style={{ alignItems: 'flex-end' }}>
+                                                    <Text style={styles.notificationTime}>{item.time}</Text>
+                                                    {item.isNew && <View style={styles.notificationNewDot} />}
+                                                </View>
                                             </View>
+                                        )}
+                                    </View>
+                                </SwipeableNotification>
+                            ))}
+                            <Text style={styles.notificationSectionTitle}>LAST 7 DAYS</Text>
+                            {notifications.last7Days.map((item: NotificationItem) => (
+                                 <SwipeableNotification key={item.id} onDismiss={() => onDismiss(item.id, 'last7Days')}>
+                                    <View style={styles.notificationItem}>
+                                        <View style={[styles.notificationCard, { backgroundColor: '#fff' }]}>
+                                            <View style={styles.notificationIconContainer}><Ionicons name={'checkmark-circle-outline'} size={24} color={'#000'} /></View>
+                                            <View style={styles.notificationTextContainer}>
+                                                <Text style={styles.notificationCardTitle}>{item.title}</Text>
+                                                <Text style={styles.notificationCardDescription}>{item.description}</Text>
+                                            </View>
+                                            <Text style={styles.notificationTime}>{item.time}</Text>
                                         </View>
-                                    </SwipeableNotification>
-                                ))}
-                            </ScrollView>
-                        </Animated.View>
-                    </GestureDetector>
+                                    </View>
+                                </SwipeableNotification>
+                            ))}
+                        </ScrollView>
+                    </Animated.View>
                 </View>
             </GestureHandlerRootView>
         </Modal>
     );
 };
 
-const initialNotifications = {
+const initialNotifications: NotificationData = {
     today: [
         { id: 1, type: 'alert', title: 'Your Heritage City Tour is arriving', description: 'Driver Michael is 5 minutes away in a White Mercedes Sprinter (ABC-1234).', time: '2m ago', isNew: true },
         { id: 2, type: 'special_offer', title: 'Book Your Dream Wedding Shuttle', description: 'Save 15% on curated bridal fleet bookings this month.', time: '3h ago', image: 'https://images.unsplash.com/photo-1597402518423-72535a0a3a23?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', isNew: true },
@@ -198,18 +268,28 @@ const initialNotifications = {
 const HomeScreen = () => {
     const router = useRouter();
     const { COLORS, FONTS, SIZES } = useTheme();
+    const insets = useSafeAreaInsets();
     const styles = getStyles(COLORS, FONTS, SIZES);
-    const [from, setFrom] = useState('');
-    const [to, setTo] = useState('');
-    const [tripDate, setTripDate] = useState('Select Trip Date');
-    const [showCalendar, setShowCalendar] = useState(false);
-    const [markedDates, setMarkedDates] = useState({});
-    const calendarRef = useRef(null);
-    const [warning, setWarning] = useState('');
-    const [showNotifications, setShowNotifications] = useState(false);
-    const [notifications, setNotifications] = useState(initialNotifications);
+    const [from, setFrom] = useState<string>('');
+    const [to, setTo] = useState<string>('');
+    const [tripDate, setTripDate] = useState<string>('Select Trip Date');
+    const [showCalendar, setShowCalendar] = useState<boolean>(false);
+    const [markedDates, setMarkedDates] = useState<MarkedDates>({});
+    
+    // New state for date range selection
+    const [startDate, setStartDate] = useState<string | null>(null);
+    const [endDate, setEndDate] = useState<string | null>(null);
+    const [isSelectingRange, setIsSelectingRange] = useState<boolean>(true);
+    
+    const calendarRef = useRef<any>(null);
+    const [warning, setWarning] = useState<string>('');
+    const [showNotifications, setShowNotifications] = useState<boolean>(false);
+    const [notifications, setNotifications] = useState<NotificationData>(initialNotifications);
     const calendarModalTranslateY = useSharedValue(0);
     const calendarModalStartY = useSharedValue(0);
+
+    // Track if any modal is open to adjust status bar
+    const isAnyModalOpen = showCalendar || showNotifications;
 
   useEffect(() => {
     if (showCalendar) {
@@ -217,10 +297,10 @@ const HomeScreen = () => {
     }
   }, [showCalendar]);
 
-    const handleDismissNotification = (id, section) => {
+    const handleDismissNotification = (id: number, section: string) => {
         setNotifications(prev => ({
             ...prev,
-            [section]: prev[section].filter(item => item.id !== id)
+            [section]: prev[section as keyof NotificationData].filter((item: NotificationItem) => item.id !== id)
         }));
     };
 
@@ -232,22 +312,88 @@ const HomeScreen = () => {
             setWarning('All input fields are required.');
         } else {
             setWarning('');
-            router.push({ pathname: 'search/results', params: { from, to, tripDate } });
+            router.push({ pathname: '/search/results', params: { from, to, tripDate } });
         }
     };
 
-    const onDayPress = (day) => {
+    // Helper function to generate date range between two dates
+    const generateDateRange = (start: string, end: string) => {
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+        const dates: MarkedDates = {};
+        
+        const currentDate = new Date(startDate);
+        while (currentDate <= endDate) {
+            const dateString = currentDate.toISOString().split('T')[0];
+            const isStart = dateString === start;
+            const isEnd = dateString === end;
+            const isSingleDay = start === end;
+            const isMiddle = !isStart && !isEnd && !isSingleDay;
+            
+            dates[dateString] = {
+                selected: true,
+                color: isMiddle ? '#B3E5E0' : '#00A799', // Light color for middle dates, original for start/end
+                startingDay: isStart || isSingleDay,
+                endingDay: isEnd || isSingleDay,
+            };
+            
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+        
+        return dates;
+    };
+
+    const onDayPress = (day: any) => {
         const { dateString } = day;
-        setMarkedDates({ [dateString]: { selected: true, color: '#00A799', startingDay: true, endingDay: true } });
+        
+        if (!isSelectingRange) {
+            // Single date selection (legacy mode)
+            setMarkedDates({ [dateString]: { selected: true, color: '#00A799', startingDay: true, endingDay: true } });
+            setStartDate(dateString);
+            setEndDate(null);
+            return;
+        }
+
+        // Date range selection logic
+        if (!startDate || (startDate && endDate)) {
+            // Start new selection
+            setStartDate(dateString);
+            setEndDate(null);
+            setMarkedDates({ [dateString]: { selected: true, color: '#00A799', startingDay: true, endingDay: true } });
+        } else if (startDate && !endDate) {
+            // Select end date
+            const start = new Date(startDate);
+            const selected = new Date(dateString);
+            
+            if (selected < start) {
+                // If selected date is before start date, make it the new start date
+                setStartDate(dateString);
+                setEndDate(null);
+                setMarkedDates({ [dateString]: { selected: true, color: '#00A799', startingDay: true, endingDay: true } });
+            } else {
+                // Set as end date and generate range
+                setEndDate(dateString);
+                const rangeMarkedDates = generateDateRange(startDate, dateString);
+                setMarkedDates(rangeMarkedDates);
+            }
+        }
     };
 
     const getDuration = () => {
-        const dates = Object.keys(markedDates).filter(date => markedDates[date].selected);
-        if (dates.length > 0) return formatDate(dates[0]);
-        return 'Please select a date';
+        if (!startDate) return 'Please select dates';
+        
+        if (!endDate || startDate === endDate) {
+            return formatDate(startDate);
+        }
+        
+        const start = formatDate(startDate);
+        const end = formatDate(endDate);
+        const daysBetween = Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 3600 * 24)) + 1;
+        
+        return `${start} - ${end} (${daysBetween} day${daysBetween > 1 ? 's' : ''})`;
     };
 
-    const formatDate = (dateString) => {
+    const formatDate = (dateString: string) => {
         if (!dateString) return 'Select Trip Date';
         const date = new Date(dateString + 'T00:00:00'); // Ensure UTC
         return `${date.toLocaleDateString('en-US', { day: '2-digit', timeZone: 'UTC' })} ${date.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' })}`;
@@ -255,19 +401,29 @@ const HomeScreen = () => {
 
     const applySelection = () => {
         const duration = getDuration();
-        setTripDate(duration !== 'Please select a date' ? duration : 'Select Trip Date');
+        setTripDate(duration !== 'Please select dates' ? duration : 'Select Trip Date');
         setShowCalendar(false);
     };
 
     const clearSelection = () => {
         setMarkedDates({});
+        setStartDate(null);
+        setEndDate(null);
         setTripDate('Select Trip Date');
     };
 
     const selectToday = () => {
         const todayStr = getToday();
+        setStartDate(todayStr);
+        setEndDate(null);
         setMarkedDates({ [todayStr]: { selected: true, color: '#00A799', startingDay: true, endingDay: true } });
         calendarRef.current?.scrollToDay(todayStr, 0, true);
+    };
+
+    // Add toggle function for selection mode
+    const toggleSelectionMode = () => {
+        setIsSelectingRange(!isSelectingRange);
+        clearSelection();
     };
 
     const calendarGesture = Gesture.Pan()
@@ -291,6 +447,18 @@ const HomeScreen = () => {
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
+            <StatusBar style={isAnyModalOpen ? "light" : "dark"} />
+            {isAnyModalOpen && (
+                <View style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: insets.top, // Use actual status bar height
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    zIndex: 999
+                }} />
+            )}
             <View style={{ flex: 1 }}>
                 <ScrollView style={styles.container}>
                     <View style={styles.header}>
@@ -370,14 +538,88 @@ const HomeScreen = () => {
                                     <View style={styles.grabberContainer}><View style={styles.grabber} /></View>
                                     <View style={styles.modalHeader}>
                                         <Text style={styles.modalTitle}>Select Trip Date</Text>
-                                        <Text style={styles.modalSubtitle}>Choose your journey schedule</Text>
+                                        <Text style={styles.modalSubtitle}>
+                                            {isSelectingRange ? 'Choose start and end dates' : 'Choose a single date'}
+                                        </Text>
                                         <TouchableOpacity style={styles.closeButton} onPress={() => setShowCalendar(false)}>
                                             <Ionicons name="close" size={25} color={COLORS.black} />
                                         </TouchableOpacity>
                                     </View>
-                                    <Calendar ref={calendarRef} onDayPress={onDayPress} style={{ marginTop: 15 }} minDate={today} markingType={'period'} markedDates={markedDates} theme={{ backgroundColor: COLORS.white, calendarBackground: COLORS.white, textSectionTitleColor: COLORS.black, selectedDayBackgroundColor: '#00A799', selectedDayTextColor: '#FFFFFF', todayTextColor: '#00A799', dayTextColor: COLORS.black, textDisabledColor: COLORS.gray, dotColor: '#00A799', selectedDotColor: COLORS.white, arrowColor: '#00A799', monthTextColor: COLORS.black }} />
+                                    
+                                    {/* Selection mode toggle */}
+                                    <View style={styles.selectionModeContainer}>
+                                        <TouchableOpacity 
+                                            style={[styles.modeButton, isSelectingRange && styles.activeModeButton]}
+                                            onPress={() => !isSelectingRange && toggleSelectionMode()}
+                                        >
+                                            <Text style={[styles.modeButtonText, isSelectingRange && styles.activeModeButtonText]}>
+                                                Date Range
+                                            </Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity 
+                                            style={[styles.modeButton, !isSelectingRange && styles.activeModeButton]}
+                                            onPress={() => isSelectingRange && toggleSelectionMode()}
+                                        >
+                                            <Text style={[styles.modeButtonText, !isSelectingRange && styles.activeModeButtonText]}>
+                                                Single Date
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </View>
+
+                                    <Calendar 
+                                        ref={calendarRef} 
+                                        onDayPress={onDayPress} 
+                                        style={{ marginTop: 15 }} 
+                                        minDate={today} 
+                                        markingType={'period'} 
+                                        markedDates={markedDates} 
+                                        theme={{ 
+                                            backgroundColor: COLORS.white, 
+                                            calendarBackground: COLORS.white, 
+                                            textSectionTitleColor: COLORS.black, 
+                                            selectedDayBackgroundColor: '#00A799', 
+                                            selectedDayTextColor: '#FFFFFF', 
+                                            todayTextColor: '#00A799', 
+                                            dayTextColor: COLORS.black, 
+                                            textDisabledColor: COLORS.gray, 
+                                            dotColor: '#00A799', 
+                                            selectedDotColor: COLORS.white, 
+                                            arrowColor: '#00A799', 
+                                            monthTextColor: COLORS.black 
+                                        }} 
+                                    />
+                                    
                                     <View style={styles.quickSelectionContainer}>
-                                        <TouchableOpacity style={styles.quickSelectionButton} onPress={selectToday}><Text>Today</Text></TouchableOpacity>
+                                        <TouchableOpacity style={styles.quickSelectionButton} onPress={selectToday}>
+                                            <Text style={styles.quickSelectionButtonText}>Today</Text>
+                                        </TouchableOpacity>
+                                        {isSelectingRange && (
+                                            <>
+                                                <TouchableOpacity style={styles.quickSelectionButton} onPress={() => {
+                                                    const tomorrow = new Date();
+                                                    tomorrow.setDate(tomorrow.getDate() + 1);
+                                                    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+                                                    const dayAfterStr = new Date(tomorrow.getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                                                    setStartDate(tomorrowStr);
+                                                    setEndDate(dayAfterStr);
+                                                    setMarkedDates(generateDateRange(tomorrowStr, dayAfterStr));
+                                                }}>
+                                                    <Text style={styles.quickSelectionButtonText}>2 Days</Text>
+                                                </TouchableOpacity>
+                                                <TouchableOpacity style={styles.quickSelectionButton} onPress={() => {
+                                                    const start = new Date();
+                                                    const end = new Date();
+                                                    end.setDate(start.getDate() + 6);
+                                                    const startStr = start.toISOString().split('T')[0];
+                                                    const endStr = end.toISOString().split('T')[0];
+                                                    setStartDate(startStr);
+                                                    setEndDate(endStr);
+                                                    setMarkedDates(generateDateRange(startStr, endStr));
+                                                }}>
+                                                    <Text style={styles.quickSelectionButtonText}>1 Week</Text>
+                                                </TouchableOpacity>
+                                            </>
+                                        )}
                                     </View>
                                     <View style={styles.durationContainer}>
                                         <View>
@@ -405,7 +647,7 @@ const HomeScreen = () => {
     );
 };
 
-const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
+const getStyles = (COLORS: any, FONTS: any, SIZES: any) => StyleSheet.create({
     container: { flex: 1, backgroundColor: COLORS.lightWhite },
     header: { padding: SIZES.padding, paddingTop: 50, backgroundColor: COLORS.lightWhite },
     headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
@@ -445,6 +687,7 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     closeButton: { position: 'absolute', top: 0, right: 0, zIndex: 1 },
     quickSelectionContainer: { flexDirection: 'row', justifyContent: 'space-around', marginVertical: SIZES.base },
     quickSelectionButton: { paddingHorizontal: 20, paddingVertical: 10, backgroundColor: COLORS.white, borderRadius: 20, borderWidth: 1, borderColor: COLORS.gray },
+    quickSelectionButtonText: { ...FONTS.body4, color: COLORS.black },
     durationContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: SIZES.base, paddingHorizontal: SIZES.padding },
     durationLabel: { ...FONTS.body5, color: COLORS.gray },
     durationText: { ...FONTS.h4, color: COLORS.black, marginTop: 4 },
@@ -474,6 +717,12 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     specialOfferTag: { ...FONTS.body5, color: '#00A799', backgroundColor: COLORS.white, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4, overflow: 'hidden', alignSelf: 'flex-start' },
     notificationSpecialOfferTitle: { ...FONTS.h4, color: COLORS.white, marginTop: SIZES.base },
     notificationSpecialOfferDescription: { ...FONTS.body4, color: COLORS.white, marginTop: 4 },
+    selectionModeContainer: { flexDirection: 'row', justifyContent: 'center', marginVertical: SIZES.base },
+    modeButton: { paddingHorizontal: 20, paddingVertical: 10, backgroundColor: COLORS.white, borderRadius: 20, borderWidth: 1, borderColor: COLORS.gray, marginHorizontal: 5 },
+    activeModeButton: { backgroundColor: '#00A799', borderColor: '#00A799' },
+    modeButtonText: { ...FONTS.body4, color: COLORS.gray },
+    activeModeButtonText: { color: COLORS.white },
+    quickSelectionButtonText: { ...FONTS.body4, color: COLORS.black },
 });
 
 export default HomeScreen;
