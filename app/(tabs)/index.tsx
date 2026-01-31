@@ -156,7 +156,7 @@ const NotificationModal = ({ visible, onClose, notifications, styles, onDismiss 
                                             )}
                                         </View>
                                     </SwipeableNotification>
-                                ))}\
+                                ))}
                                 <Text style={styles.notificationSectionTitle}>LAST 7 DAYS</Text>
                                 {notifications.last7Days.map(item => (
                                      <SwipeableNotification key={item.id} onDismiss={() => onDismiss(item.id, 'last7Days')}>
@@ -171,7 +171,7 @@ const NotificationModal = ({ visible, onClose, notifications, styles, onDismiss 
                                             </View>
                                         </View>
                                     </SwipeableNotification>
-                                ))}\
+                                ))}
                             </ScrollView>
                         </Animated.View>
                     </GestureDetector>
@@ -191,7 +191,7 @@ const initialNotifications = {
         { id: 4, type: 'booking_confirmed', title: 'Your booking is confirmed', description: 'Your booking for the Heritage City Tour on 24th May has been confirmed.', time: '1d ago', isNew: false },
         { id: 5, type: 'booking_confirmed', title: 'Rate your last trip', description: 'Enjoyed your ride with driver Sarah? Let us know how it went.', time: '3d ago', isNew: false },
         { id: 6, type: 'booking_confirmed', title: 'A new vehicle has been added', description: 'The Classic Rolls Royce is now available for booking in your city.', time: '5d ago', isNew: false },
-        { id: 7, type: 'booking_confirmed', title: 'Your account has been secured', description: 'Your password was recently changed. If this wasn\'t you, please secure your account.', time: '7d ago', isNew: false },
+        { id: 7, type: 'booking_confirmed', title: 'Your account has been secured', description: 'Your password was recently changed. If this wasnt you, please secure your account.', time: '7d ago', isNew: false },
     ]
 };
 
@@ -210,6 +210,12 @@ const HomeScreen = () => {
     const [notifications, setNotifications] = useState(initialNotifications);
     const calendarModalTranslateY = useSharedValue(0);
     const calendarModalStartY = useSharedValue(0);
+
+  useEffect(() => {
+    if (showCalendar) {
+      calendarModalTranslateY.value = withSpring(0);
+    }
+  }, [showCalendar]);
 
     const handleDismissNotification = (id, section) => {
         setNotifications(prev => ({
@@ -432,7 +438,7 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     signature: { position: 'absolute', bottom: SIZES.base, left: SIZES.base, backgroundColor: '#00A799', paddingHorizontal: SIZES.base, paddingVertical: 5, borderRadius: 5 },
     signatureText: { ...FONTS.body5, color: COLORS.white },
     modalContainer: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
-    modalContent: { backgroundColor: COLORS.white, borderTopLeftRadius: SIZES.radius * 2, borderTopRightRadius: SIZES.radius * 2, padding: SIZES.padding, height: '90%' },
+    modalContent: { backgroundColor: COLORS.white, borderTopLeftRadius: SIZES.radius * 2, borderTopRightRadius: SIZES.radius * 2, padding: SIZES.padding, height: '80%' },
     modalHeader: { alignItems: 'center', paddingBottom: SIZES.base },
     modalTitle: { ...FONTS.h2, color: COLORS.black },
     modalSubtitle: { ...FONTS.body4, color: COLORS.gray },
