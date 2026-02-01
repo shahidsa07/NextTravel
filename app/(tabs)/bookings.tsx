@@ -169,18 +169,14 @@ const BookingsScreen = () => {
                                             </View>
                                         </View>
                                     </View>
-                                    
-                                    <View style={styles.journeyMeta}>
-                                        <View style={styles.metaDetail}>
-                                            <Ionicons name="time-outline" size={14} color="#00A799" />
-                                            <Text style={styles.metaText}>4 hours journey</Text>
-                                        </View>
-                                        <View style={styles.metaDetail}>
-                                            <Ionicons name="car-sport-outline" size={14} color="#00A799" />
-                                            <Text style={styles.metaText}>Premium Executive</Text>
-                                        </View>
-                                    </View>
                                 </View>
+                            </View>
+                            
+                            {/* Ticket Separator with Cutouts */}
+                            <View style={styles.ticketSeparator}>
+                                <View style={styles.leftCutout} />
+                                <View style={styles.dottedLine} />
+                                <View style={styles.rightCutout} />
                             </View>
                             
                             <View style={styles.cardDetails}>
@@ -366,13 +362,11 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     sectionTitle: { ...FONTS.h5, color: COLORS.gray, marginVertical: SIZES.padding, letterSpacing: 1 },
     nextExperienceCard: { backgroundColor: COLORS.white, borderRadius: 20, marginBottom: SIZES.padding * 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 5 },
     ticketHeader: {
-        backgroundColor: '#F8F9FA',
+        backgroundColor: '#fff',
         paddingHorizontal: SIZES.padding * 1.5,
-        paddingVertical: SIZES.padding,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#E8E8E8',
+        paddingTop: 10
     },
     ticketHeaderTop: {
         flexDirection: 'row',
@@ -426,7 +420,6 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
         color: COLORS.black,
         fontWeight: '700',
         marginTop: 8,
-        marginBottom: 8,
     },
     ticketLocationRow: {
         flexDirection: 'row',
@@ -441,16 +434,10 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     premiumRouteContainer: {
         backgroundColor: '#FFFFFF',
         borderRadius: 16,
-        padding: SIZES.padding,
-        marginTop: SIZES.padding,
+        padding: SIZES.padding * 0.8,
+        marginTop: SIZES.padding * 0.5,
         marginBottom: SIZES.padding * 0.5,
-        borderWidth: 1,
-        borderColor: '#F0F0F0',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-        elevation: 2,
+        width: '100%',
     },
     departureSection: {
         flexDirection: 'row',
@@ -533,6 +520,40 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
         marginLeft: SIZES.base,
         fontWeight: '500',
     },
+    ticketSeparator: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        height: 20,
+        backgroundColor: COLORS.lightWhite,
+        marginVertical: 0,
+        position: 'relative',
+    },
+    leftCutout: {
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        backgroundColor: COLORS.lightWhite,
+        position: 'absolute',
+        left: -10,
+        zIndex: 2,
+    },
+    dottedLine: {
+        flex: 1,
+        height: 1,
+        borderStyle: 'dashed',
+        borderWidth: 1,
+        borderColor: '#D0D0D0',
+        marginHorizontal: 10,
+    },
+    rightCutout: {
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        backgroundColor: COLORS.lightWhite,
+        position: 'absolute',
+        right: -10,
+        zIndex: 2,
+    },
     cardDetails: { padding: SIZES.padding },
     detailsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
     detailItem: { width: '48%', marginBottom: SIZES.padding },
@@ -540,7 +561,7 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     detailTextContainer: { marginLeft: 8 },
     detailLabel: { ...FONTS.body5, color: COLORS.gray },
     detailText: { ...FONTS.h5, color: COLORS.black, marginTop: 4 },
-    separator: { height: 1, backgroundColor: '#1A2B40', marginVertical: SIZES.padding * 0.2 },
+    separator: { height: 1, backgroundColor: '#D0D0D0', marginVertical: SIZES.padding * 0.2 },
     bottomSection: { flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center' },
     bookingInfo: { flex: 1 },
     bookingLabel: { ...FONTS.body5, color: COLORS.gray },
