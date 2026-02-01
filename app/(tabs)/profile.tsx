@@ -41,8 +41,8 @@ const ProfileScreen = () => {
     }
 
     return (
-        <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-            {/* Premium Header */}
+        <View style={styles.container}>
+            {/* Fixed Premium Header */}
             <View style={[styles.headerContainer, { paddingTop: insets.top + 20 }]}>
                 <View style={styles.headerGradient}>
                     <View style={styles.headerContent}>
@@ -77,61 +77,63 @@ const ProfileScreen = () => {
                 </View>
             </View>
 
-            {/* Menu Sections */}
-            <View style={styles.menuContainer}>
-                {Object.keys(menuItems).map(sectionTitle => (
-                    <View key={sectionTitle} style={styles.sectionContainer}>
-                        <Text style={styles.sectionTitle}>{sectionTitle}</Text>
-                        <View style={styles.menuCard}>
-                            {menuItems[sectionTitle].map((item, index) => (
-                                <TouchableOpacity 
-                                    key={item.name} 
-                                    style={[
-                                        styles.menuItem, 
-                                        index === menuItems[sectionTitle].length - 1 && styles.lastMenuItem
-                                    ]} 
-                                    onPress={() => handleMenuItemPress(item.screen)}
-                                    activeOpacity={0.7}
-                                >
-                                    <View style={styles.menuIconContainer}>
-                                        <Ionicons name={item.icon} size={22} color="#00A799" />
-                                    </View>
-                                    <View style={styles.menuTextContainer}>
-                                        <Text style={styles.menuItemTitle}>{item.name}</Text>
-                                        <Text style={styles.menuItemSubtitle}>{item.subtitle}</Text>
-                                    </View>
-                                    {item.badge && (
-                                        <View style={styles.badgeContainer}>
-                                            <Text style={styles.badgeText}>{item.badge}</Text>
+            {/* Scrollable Menu Sections */}
+            <ScrollView style={styles.scrollableContent} showsVerticalScrollIndicator={false}>
+                <View style={styles.menuContainer}>
+                    {Object.keys(menuItems).map(sectionTitle => (
+                        <View key={sectionTitle} style={styles.sectionContainer}>
+                            <Text style={styles.sectionTitle}>{sectionTitle}</Text>
+                            <View style={styles.menuCard}>
+                                {menuItems[sectionTitle].map((item, index) => (
+                                    <TouchableOpacity 
+                                        key={item.name} 
+                                        style={[
+                                            styles.menuItem, 
+                                            index === menuItems[sectionTitle].length - 1 && styles.lastMenuItem
+                                        ]} 
+                                        onPress={() => handleMenuItemPress(item.screen)}
+                                        activeOpacity={0.7}
+                                    >
+                                        <View style={styles.menuIconContainer}>
+                                            <Ionicons name={item.icon} size={22} color="#00A799" />
                                         </View>
-                                    )}
-                                    <Ionicons name="chevron-forward" size={18} color={COLORS.gray} />
-                                </TouchableOpacity>
-                            ))}
+                                        <View style={styles.menuTextContainer}>
+                                            <Text style={styles.menuItemTitle}>{item.name}</Text>
+                                            <Text style={styles.menuItemSubtitle}>{item.subtitle}</Text>
+                                        </View>
+                                        {item.badge && (
+                                            <View style={styles.badgeContainer}>
+                                                <Text style={styles.badgeText}>{item.badge}</Text>
+                                            </View>
+                                        )}
+                                        <Ionicons name="chevron-forward" size={18} color={COLORS.gray} />
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
                         </View>
-                    </View>
-                ))}
-            </View>
+                    ))}
+                </View>
 
-            {/* Premium Actions */}
-            <View style={styles.actionsContainer}>
-                <TouchableOpacity style={styles.emergencyButton}>
-                    <Ionicons name="call" size={20} color="#00A799" />
-                    <Text style={styles.emergencyButtonText}>Emergency Support</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity style={styles.logoutButton}>
-                    <Ionicons name="log-out-outline" size={20} color="#FF4757" />
-                    <Text style={styles.logoutButtonText}>Sign Out</Text>
-                </TouchableOpacity>
-            </View>
+                {/* Premium Actions */}
+                <View style={styles.actionsContainer}>
+                    <TouchableOpacity style={styles.emergencyButton}>
+                        <Ionicons name="call" size={20} color="#00A799" />
+                        <Text style={styles.emergencyButtonText}>Emergency Support</Text>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity style={styles.logoutButton}>
+                        <Ionicons name="log-out-outline" size={20} color="#FF4757" />
+                        <Text style={styles.logoutButtonText}>Sign Out</Text>
+                    </TouchableOpacity>
+                </View>
 
-            {/* Footer */}
-            <View style={styles.footerContainer}>
-                <Text style={styles.versionText}>NextTravel Premium • Version 2.4.0</Text>
-                <Text style={styles.copyrightText}>© 2026 NextTravel. All rights reserved.</Text>
-            </View>
-        </ScrollView>
+                {/* Footer */}
+                <View style={styles.footerContainer}>
+                    <Text style={styles.versionText}>NextTravel Premium • Version 2.4.0</Text>
+                    <Text style={styles.copyrightText}>© 2026 NextTravel. All rights reserved.</Text>
+                </View>
+            </ScrollView>
+        </View>
     );
 };
 
@@ -149,6 +151,7 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 12,
         elevation: 8,
+        zIndex: 1,
     },
     headerGradient: {
         paddingHorizontal: SIZES.padding * 1.5,
@@ -219,8 +222,12 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
         backgroundColor: '#E0E0E0',
         marginHorizontal: 16,
     },
+    scrollableContent: {
+        flex: 1,
+        backgroundColor: COLORS.white,
+    },
     menuContainer: {
-        paddingHorizontal: SIZES.padding * 1,
+        paddingHorizontal: SIZES.padding * 1.1,
         paddingTop: SIZES.padding * 2,
     },
     sectionContainer: {
@@ -276,7 +283,7 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
         color: COLORS.gray,
     },
     badgeContainer: {
-        backgroundColor: '#00A799',
+        backgroundColor: '#F0F9F8',
         borderRadius: 12,
         paddingHorizontal: 10,
         paddingVertical: 4,
@@ -284,7 +291,7 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     },
     badgeText: {
         ...FONTS.body5,
-        color: '#FFFFFF',
+        color: '#00A799',
         fontWeight: '600',
         fontSize: 11,
     },
@@ -304,7 +311,7 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
         borderColor: '#E0F2F1',
     },
     emergencyButtonText: {
-        ...FONTS.body3,
+        ...FONTS.body4,
         color: '#00A799',
         fontWeight: '600',
         marginLeft: 8,
@@ -320,7 +327,7 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
         borderColor: '#FFE5E5',
     },
     logoutButtonText: {
-        ...FONTS.body3,
+        ...FONTS.body4,
         color: '#FF4757',
         fontWeight: '600',
         marginLeft: 8,
