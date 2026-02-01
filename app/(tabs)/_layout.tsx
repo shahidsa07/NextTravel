@@ -31,13 +31,13 @@ export default function TabLayout() {
               width: 50,
               height: 32,
               borderRadius: 16,
-              backgroundColor: focused ? '#00A799' : 'transparent',
-              marginTop: 8,
+              backgroundColor: focused ? 'transparent' : 'transparent',
+              marginTop: 6,
             }}>
               <Ionicons 
                 name={iconName} 
                 size={22} 
-                color={focused ? '#FFFFFF' : color} 
+                color={focused ? '#00A799' : color} 
               />
             </View>
           );
@@ -49,7 +49,7 @@ export default function TabLayout() {
           backgroundColor: '#FFFFFF',
           height: 75 + insets.bottom,
           paddingBottom: insets.bottom,
-          paddingTop: 8,
+          paddingTop: 6,
           paddingHorizontal: 20,
           borderTopWidth: 0,
           elevation: 20,

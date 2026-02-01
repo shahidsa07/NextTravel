@@ -822,7 +822,7 @@ const HomeScreen = () => {
 };
 
 const getStyles = (COLORS: any, FONTS: any, SIZES: any) => StyleSheet.create({
-    container: { flex: 1, backgroundColor: COLORS.lightWhite },
+    container: { flex: 1, backgroundColor: COLORS.white },
     header: { padding: SIZES.padding, paddingTop: 50, backgroundColor: COLORS.lightWhite },
     headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     userInfo: { flexDirection: 'row', alignItems: 'center' },
@@ -832,11 +832,11 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) => StyleSheet.create({
     title1: { ...FONTS.h1, color: COLORS.black, marginTop: SIZES.padding },
     title2: { ...FONTS.h1, color: '#00A799', fontStyle: 'italic' },
     searchContainer: { marginTop: SIZES.padding },
-    inputContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.white, borderRadius: SIZES.radius, paddingHorizontal: SIZES.padding, height: 50, marginBottom: SIZES.base },
+    inputContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F9FAFB', borderRadius: SIZES.radius, paddingHorizontal: SIZES.padding * 0.5, height: 50, marginBottom: SIZES.base },
     inputIcon: { marginRight: SIZES.base },
-    input: { flex: 1, ...FONTS.body3, color: COLORS.black },
+    input: { flex: 1, ...FONTS.body3, color: '#1A2B40', display: 'flex', alignItems: 'center' },
     placeholderText: { ...FONTS.body4, color: COLORS.gray },
-    datePickerContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.white, borderRadius: SIZES.radius, paddingHorizontal: SIZES.padding, height: 50, marginBottom: SIZES.base },
+    datePickerContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F9FAFB', borderRadius: SIZES.radius, paddingHorizontal: SIZES.padding * 0.5, height: 50, marginBottom: SIZES.base },
     exploreButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#1A2B40', borderRadius: SIZES.radius, height: 50 },
     exploreButtonText: { ...FONTS.h4, color: COLORS.white, marginLeft: SIZES.base },
     filters: { flexDirection: 'row', marginTop: SIZES.padding },
