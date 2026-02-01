@@ -155,7 +155,7 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     },
     headerGradient: {
         paddingHorizontal: SIZES.padding * 1.5,
-        paddingBottom: SIZES.padding * 2,
+        paddingBottom: SIZES.padding * 1,
     },
     headerContent: {
         alignItems: 'center',
@@ -186,12 +186,12 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
         ...FONTS.h2,
         color: COLORS.black,
         fontWeight: '700',
-        marginBottom: 4,
+        marginBottom: 2,
     },
     userEmail: {
         ...FONTS.body4,
         color: COLORS.gray,
-        marginBottom: SIZES.padding,
+        marginBottom: 12,
     },
     statsContainer: {
         flexDirection: 'row',
@@ -334,7 +334,7 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     },
     footerContainer: {
         alignItems: 'center',
-        paddingBottom: SIZES.padding * 2,
+        paddingBottom: SIZES.padding * 3.5,
         paddingHorizontal: SIZES.padding * 1.5,
     },
     versionText: {
