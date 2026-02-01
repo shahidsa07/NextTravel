@@ -136,6 +136,50 @@ const BookingsScreen = () => {
                                 <View style={styles.ticketMainInfo}>
                                     <Text style={styles.ticketDate}>FEBRUARY 24, 2026 • 14:30</Text>
                                     <Text style={styles.ticketTitle}>Wedding Shuttle Service</Text>
+                                    
+                                    {/* Premium Route Section */}
+                                    <View style={styles.premiumRouteContainer}>
+                                        <View style={styles.departureSection}>
+                                            <View style={styles.locationIconWrapper}>
+                                                <Ionicons name="ellipse" size={8} color="#00A799" />
+                                            </View>
+                                            <View style={styles.locationDetails}>
+                                                <Text style={styles.locationLabel}>DEPARTURE</Text>
+                                                <Text style={styles.locationName}>Grand Plaza Hotel</Text>
+                                                <Text style={styles.locationAddress}>123 Downtown Avenue, Suite 4B</Text>
+                                            </View>
+                                        </View>
+                                        
+                                        <View style={styles.routeConnector}>
+                                            <View style={styles.routeLine} />
+                                            <View style={styles.routeArrowContainer}>
+                                                <Ionicons name="airplane" size={16} color="#00A799" />
+                                            </View>
+                                            <View style={styles.routeLine} />
+                                        </View>
+                                        
+                                        <View style={styles.destinationSection}>
+                                            <View style={styles.locationIconWrapper}>
+                                                <Ionicons name="location" size={10} color="#00A799" />
+                                            </View>
+                                            <View style={styles.locationDetails}>
+                                                <Text style={styles.locationLabel}>DESTINATION</Text>
+                                                <Text style={styles.locationName}>Rosewood Estate</Text>
+                                                <Text style={styles.locationAddress}>456 Garden Valley Road, Main Entrance</Text>
+                                            </View>
+                                        </View>
+                                    </View>
+                                    
+                                    <View style={styles.journeyMeta}>
+                                        <View style={styles.metaDetail}>
+                                            <Ionicons name="time-outline" size={14} color="#00A799" />
+                                            <Text style={styles.metaText}>4 hours journey</Text>
+                                        </View>
+                                        <View style={styles.metaDetail}>
+                                            <Ionicons name="car-sport-outline" size={14} color="#00A799" />
+                                            <Text style={styles.metaText}>Premium Executive</Text>
+                                        </View>
+                                    </View>
                                 </View>
                             </View>
                             
@@ -392,6 +436,101 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
         ...FONTS.body3,
         color: COLORS.black,
         marginLeft: 6,
+        fontWeight: '500',
+    },
+    premiumRouteContainer: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
+        padding: SIZES.padding,
+        marginTop: SIZES.padding,
+        marginBottom: SIZES.padding * 0.5,
+        borderWidth: 1,
+        borderColor: '#F0F0F0',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    departureSection: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        marginBottom: SIZES.padding * 0.8,
+    },
+    locationIconWrapper: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: '#F0F9F8',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 4,
+    },
+    locationDetails: {
+        flex: 1,
+        marginLeft: SIZES.padding,
+    },
+    locationLabel: {
+        ...FONTS.body5,
+        color: COLORS.gray,
+        fontWeight: '600',
+        letterSpacing: 0.8,
+        marginBottom: 4,
+    },
+    locationName: {
+        ...FONTS.h4,
+        color: COLORS.black,
+        fontWeight: '700',
+        marginBottom: 2,
+    },
+    locationAddress: {
+        ...FONTS.body5,
+        color: COLORS.gray,
+        lineHeight: 18,
+    },
+    routeConnector: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginVertical: SIZES.padding * 0.3,
+        paddingHorizontal: SIZES.padding,
+    },
+    routeLine: {
+        flex: 1,
+        height: 2,
+        backgroundColor: '#E0E0E0',
+    },
+    routeArrowContainer: {
+        backgroundColor: '#F0F9F8',
+        borderRadius: 20,
+        padding: 8,
+        marginHorizontal: SIZES.padding * 0.5,
+    },
+    destinationSection: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        marginTop: SIZES.padding * 0.3,
+    },
+    journeyMeta: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: SIZES.padding,
+        paddingTop: SIZES.padding * 0.8,
+        borderTopWidth: 1,
+        borderTopColor: '#F0F0F0',
+    },
+    metaDetail: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#F8F9FA',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 20,
+    },
+    metaText: {
+        ...FONTS.body5,
+        color: COLORS.gray,
+        marginLeft: SIZES.base,
         fontWeight: '500',
     },
     cardDetails: { padding: SIZES.padding },
