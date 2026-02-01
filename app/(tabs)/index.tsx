@@ -74,6 +74,7 @@ interface MarkedDates {
 }
 
 const Toast = ({ message, onHide }: ToastProps) => {
+    const { COLORS, FONTS, SIZES } = useTheme();
     const opacity = useRef(new RNAnimated.Value(0)).current;
 
     useEffect(() => {
@@ -99,15 +100,27 @@ const Toast = ({ message, onHide }: ToastProps) => {
             style={{
                 opacity,
                 position: 'absolute',
-                bottom: 20,
-                left: 0,
-                right: 0,
+                bottom: 100,
+                left: 20,
+                right: 20,
                 alignItems: 'center',
                 zIndex: 1000,
             }}
         >
-            <View style={{ backgroundColor: 'black', padding: 16, borderRadius: 8 }}>
-                <Text style={{ color: 'white' }}>{message}</Text>
+            <View style={{ 
+                backgroundColor: COLORS.black, 
+                padding: 12, 
+                borderRadius: SIZES.radius,
+                minWidth: '50%',
+            }}>
+                <Text style={{ 
+                    ...FONTS.body3,
+                    fontSize: 12,
+                    color: COLORS.white,
+                    textAlign: 'center',
+                }}>
+                    {message}
+                </Text>
             </View>
         </RNAnimated.View>
     );
@@ -365,11 +378,28 @@ const HomeScreen = () => {
     const notificationPingScale = useSharedValue(1);
     const notificationPingOpacity = useSharedValue(1);
 
+    // Animated status bar overlay opacity
+    const statusBarOverlayOpacity = useSharedValue(0);
+
     // Track if any modal is open to adjust status bar
     const isAnyModalOpen = showCalendar || showNotifications;
 
     // Check if there are unread notifications
     const hasUnreadNotifications = notifications.today.some(item => item.isNew) || notifications.last7Days.some(item => item.isNew);
+
+    // Animate status bar overlay with modal transitions
+    useEffect(() => {
+        if (isAnyModalOpen) {
+            statusBarOverlayOpacity.value = withTiming(1, { duration: 500 });
+        } else {
+            statusBarOverlayOpacity.value = withTiming(0, { duration: 300 });
+        }
+    }, [isAnyModalOpen]);
+
+    // Animated style for status bar overlay
+    const statusBarOverlayStyle = useAnimatedStyle(() => ({
+        opacity: statusBarOverlayOpacity.value,
+    }));
 
     // Start ping animation when there are unread notifications
     useEffect(() => {
@@ -581,7 +611,7 @@ const HomeScreen = () => {
         <GestureHandlerRootView style={{ flex: 1 }}>
             <StatusBar style={isAnyModalOpen ? "light" : "dark"} />
             {isAnyModalOpen && (
-                <View style={{
+                <Animated.View style={[{
                     position: 'absolute',
                     top: 0,
                     left: 0,
@@ -589,7 +619,7 @@ const HomeScreen = () => {
                     height: insets.top, // Use actual status bar height
                     backgroundColor: 'rgba(0,0,0,0.5)',
                     zIndex: 999
-                }} />
+                }, statusBarOverlayStyle]} />
             )}
             <View style={{ flex: 1 }}>
                 <ScrollView style={styles.container}>
