@@ -228,7 +228,7 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     },
     menuContainer: {
         paddingHorizontal: SIZES.padding * 1.1,
-        paddingTop: SIZES.padding * 2,
+        paddingTop: SIZES.padding * 1,
     },
     sectionContainer: {
         marginBottom: SIZES.padding * 2,
@@ -273,9 +273,9 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
         flex: 1,
     },
     menuItemTitle: {
-        ...FONTS.body4,
+        ...FONTS.h5,
         color: COLORS.black,
-        fontWeight: '600',
+        fontWeight: '500',
         marginBottom: 2,
     },
     menuItemSubtitle: {
