@@ -1,8 +1,7 @@
-
+import { useFonts } from 'expo-font';
+import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { Stack } from 'expo-router';
-import { useFonts } from 'expo-font';
 import { ThemeProvider } from '../constants/theme'; // A custom theme provider
 
 export default function RootLayout() {
@@ -20,6 +19,7 @@ export default function RootLayout() {
       <StatusBar style="dark" />
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="ticket" options={{ headerShown: false }} />
         <Stack.Screen name="auth/login" options={{ title: 'Login' }} />
         <Stack.Screen name="services/list" options={{ title: 'Services' }} />
         <Stack.Screen name="services/[id]" options={{ title: 'Service Details' }} />

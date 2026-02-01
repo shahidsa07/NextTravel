@@ -1,4 +1,3 @@
-
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
@@ -101,14 +100,18 @@ const TicketDetailsScreen = () => {
                     </View>
 
                     <TouchableOpacity style={styles.cancelButton}>
+                        <Ionicons name="close-circle-outline" size={20} color="#FF4757" />
                         <Text style={styles.cancelButtonText}>Cancel Booking</Text>
                     </TouchableOpacity>
                 </View>
             </ScrollView>
-            <View style={[styles.footer, { paddingBottom: insets.bottom > 0 ? insets.bottom : SIZES.padding }]}>
+            {/* Premium Footer */}
+            <View style={styles.footer}>
                 <TouchableOpacity style={styles.downloadButton}>
-                    <Ionicons name="download-outline" size={24} color={COLORS.white} />
-                    <Text style={styles.downloadButtonText}>Download PDF</Text>
+                    <View style={styles.downloadIconContainer}>
+                        <Ionicons name="download" size={16} color="#FFFFFF" />
+                    </View>
+                    <Text style={styles.downloadButtonText}>Download Ticket</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -124,6 +127,13 @@ const getStyles = (COLORS, FONTS, SIZES, insets) => StyleSheet.create({
         paddingHorizontal: SIZES.padding,
         backgroundColor: COLORS.white,
         paddingBottom: SIZES.base,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F0F0F0',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        elevation: 8
     },
     headerTitle: {
         ...FONTS.h3,
@@ -138,7 +148,7 @@ const getStyles = (COLORS, FONTS, SIZES, insets) => StyleSheet.create({
     },
     container: {
         padding: SIZES.padding * 1.5,
-        paddingBottom: 150
+        paddingBottom: 110
     },
     ticketCard: {
         backgroundColor: COLORS.white,
@@ -196,9 +206,9 @@ const getStyles = (COLORS, FONTS, SIZES, insets) => StyleSheet.create({
     },
     cutoutLine: {
         borderTopWidth: 1,
-        borderColor: COLORS.lightGray,
+        borderColor: '#D0D0D0',
         borderStyle: 'dashed',
-        flex: 1,
+        width: '90%'
     },
     ticketBottom: {
         padding: SIZES.padding * 1.5,
@@ -275,31 +285,56 @@ const getStyles = (COLORS, FONTS, SIZES, insets) => StyleSheet.create({
         left: 0,
         right: 0,
         backgroundColor: COLORS.white,
-        padding: SIZES.padding,
+        paddingHorizontal: SIZES.padding,
+        paddingVertical: SIZES.padding * 0.8,
+        paddingBottom: insets.bottom + SIZES.padding * 0.8,
         borderTopLeftRadius: SIZES.radius * 2,
         borderTopRightRadius: SIZES.radius * 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 10,
     },
     downloadButton: {
-        backgroundColor: COLORS.primary,
+        backgroundColor: '#00A799',
         flexDirection: 'row',
-        justifyContent: 'center',_
+        justifyContent: 'center',
         alignItems: 'center',
-        padding: SIZES.padding,
-        borderRadius: SIZES.radius * 1.5,
+        paddingVertical: 16,
+        paddingHorizontal: 24,
+        borderRadius: SIZES.radius,
+        flex: 1,
+        shadowColor: '#00A799',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    downloadIconContainer: {
+        marginRight: SIZES.base,
     },
     downloadButtonText: {
         color: COLORS.white,
-        ...FONTS.h4,
-        marginLeft: SIZES.base,
+        ...FONTS.body4,
+        fontWeight: '600',
     },
     cancelButton: {
+        flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#FFF5F5',
+        paddingVertical: 16,
+        borderRadius: SIZES.radius,
+        borderWidth: 1,
+        borderColor: '#FFE5E5',
         marginTop: SIZES.padding,
     },
     cancelButtonText: {
-        color: COLORS.danger,
-        ...FONTS.h5,
-        fontWeight: '600'
+        ...FONTS.body4,
+        color: '#FF4757',
+        fontWeight: '600',
+        marginLeft: 8,
     },
 });
 

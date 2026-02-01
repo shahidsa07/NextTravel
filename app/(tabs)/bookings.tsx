@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
     ScrollView,
@@ -11,6 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../constants/theme';
 
 const BookingsScreen = () => {
+    const router = useRouter();
     const { COLORS, FONTS, SIZES } = useTheme();
     const insets = useSafeAreaInsets();
     const styles = getStyles(COLORS, FONTS, SIZES);
@@ -255,7 +257,7 @@ const BookingsScreen = () => {
                                             <Ionicons name="share-outline" size={16} color="#00A799" />
                                             <Text style={styles.secondaryButtonText}>Share</Text>
                                         </TouchableOpacity>
-                                        <TouchableOpacity style={styles.primaryButton}>
+                                        <TouchableOpacity style={styles.primaryButton} onPress={() => router.push('/ticket')}>
                                             <Ionicons name="ticket" size={16} color={COLORS.white} />
                                             <Text style={styles.primaryButtonText}>View Ticket</Text>
                                         </TouchableOpacity>
