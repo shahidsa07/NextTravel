@@ -1,8 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
-    Image,
-    ImageBackground,
     ScrollView,
     StyleSheet,
     Text,
@@ -124,30 +122,22 @@ const BookingsScreen = () => {
                         
                         {/* Premium Next Experience Card */}
                         <View style={styles.nextExperienceCard}>
-                            <ImageBackground
-                                source={{ uri: 'https://images.unsplash.com/photo-1597402518423-72535a0a3a23?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' }}
-                                style={styles.heroImage}
-                                imageStyle={{ borderTopLeftRadius: 20, borderTopRightRadius: 20 }}>
-                                <View style={styles.heroOverlay}>
-                                    <View style={styles.heroHeader}>
-                                        <View style={styles.confirmedBadge}>
-                                            <Ionicons name="checkmark-circle" size={14} color="#FFFFFF" />
-                                            <Text style={styles.confirmedText}>CONFIRMED</Text>
-                                        </View>
-                                        <View style={styles.priorityBadge}>
-                                            <Ionicons name="diamond" size={12} color="#00A799" />
-                                            <Text style={styles.priorityText}>PRIORITY</Text>
-                                        </View>
+                            <View style={styles.ticketHeader}>
+                                <View style={styles.ticketHeaderTop}>
+                                    <View style={styles.confirmedBadge}>
+                                        <Ionicons name="checkmark-circle" size={14} color="#FFFFFF" />
+                                        <Text style={styles.confirmedText}>CONFIRMED</Text>
                                     </View>
-                                    <View style={styles.heroFooter}>
-                                        <Text style={styles.heroDate}>FEBRUARY 24, 2026 • 14:30</Text>
-                                        <Text style={styles.heroTitle}>Wedding Shuttle Service</Text>
-                                        <Text style={styles.heroLocation}>
-                                            <Ionicons name="location" size={14} color="#FFFFFF" /> Grand Plaza to Rosewood Estate
-                                        </Text>
+                                    <View style={styles.priorityBadge}>
+                                        <Ionicons name="diamond" size={12} color="#00A799" />
+                                        <Text style={styles.priorityText}>PRIORITY</Text>
                                     </View>
                                 </View>
-                            </ImageBackground>
+                                <View style={styles.ticketMainInfo}>
+                                    <Text style={styles.ticketDate}>FEBRUARY 24, 2026 • 14:30</Text>
+                                    <Text style={styles.ticketTitle}>Wedding Shuttle Service</Text>
+                                </View>
+                            </View>
                             
                             <View style={styles.cardDetails}>
                                 <View style={styles.detailsGrid}>
@@ -194,11 +184,22 @@ const BookingsScreen = () => {
 
                                 <View style={styles.separator} />
                                 
-                                <View style={styles.bottomSection}>
-                                    <View style={styles.bookingInfo}>
-                                        <Text style={styles.bookingLabel}>BOOKING REFERENCE</Text>
-                                        <Text style={styles.bookingId}>#CL-882941</Text>
+                                {/* Ticket Stub Section */}
+                                <View style={styles.ticketStub}>
+                                    <View style={styles.stubDetailsRow}>
+                                    <View style={styles.bookingReferenceRow}>
+                                        <Text style={styles.stubLabel}>BOOKING REFERENCE</Text>
+                                        <Text style={styles.stubValue}>#CL-882941</Text>
                                     </View>
+                                        <View style={styles.stubRight}>
+                                            <View style={styles.qrCodePlaceholder}>
+                                                <Ionicons name="qr-code" size={24} color="#00A799" />
+                                            </View>
+                                        </View>
+                                    </View>
+                                </View>
+
+                                <View style={styles.bottomSection}>
                                     <View style={styles.actionButtons}>
                                         <TouchableOpacity style={styles.secondaryButton}>
                                             <Ionicons name="settings-outline" size={16} color="#00A799" />
@@ -218,7 +219,6 @@ const BookingsScreen = () => {
                         {/* Premium Trip Cards */}
                         {otherTrips.map(trip => (
                             <TouchableOpacity key={trip.id} style={styles.tripCard} activeOpacity={0.8}>
-                                <Image source={{ uri: trip.image }} style={styles.tripImage} />
                                 <View style={styles.tripContent}>
                                     <View style={styles.tripHeader}>
                                         <Text style={styles.tripTitle}>{trip.title}</Text>
@@ -251,7 +251,6 @@ const BookingsScreen = () => {
                         
                         {pastTrips.map(trip => (
                             <TouchableOpacity key={trip.id} style={styles.tripCard} activeOpacity={0.8}>
-                                <Image source={{ uri: trip.image }} style={styles.tripImage} />
                                 <View style={styles.tripContent}>
                                     <View style={styles.tripHeader}>
                                         <Text style={styles.tripTitle}>{trip.title}</Text>
@@ -318,21 +317,83 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     notificationDot: { backgroundColor: '#1F2937', borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2, marginLeft: 8 },
     notificationCount: { ...FONTS.body5, color: COLORS.white, fontWeight: 'bold' },
     historyIndicator: { marginLeft: 8 },
-    scrollContent: { paddingHorizontal: SIZES.padding * 1.5, paddingVertical: SIZES.padding * 1.5, marginBottom: SIZES.padding * 4 },
+    scrollContent: { paddingHorizontal: SIZES.padding * 1.5, paddingVertical: SIZES.padding * 0.5, marginBottom: SIZES.padding * 4 },
     contentContainer: { paddingBottom: SIZES.padding * 2 },
     sectionTitle: { ...FONTS.h5, color: COLORS.gray, marginVertical: SIZES.padding, letterSpacing: 1 },
     nextExperienceCard: { backgroundColor: COLORS.white, borderRadius: 20, marginBottom: SIZES.padding * 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 5 },
-    heroImage: { height: 220, justifyContent: 'flex-end' },
-    heroOverlay: { backgroundColor: 'rgba(0,0,0,0.4)', padding: SIZES.padding, borderTopLeftRadius: 20, borderTopRightRadius: 20 },
-    heroHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    confirmedBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#00A799', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6 },
-    confirmedText: { ...FONTS.body5, color: COLORS.white, fontWeight: 'bold', marginLeft: 4 },
-    priorityBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.white, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 },
-    priorityText: { ...FONTS.body5, color: '#00A799', fontWeight: 'bold', marginLeft: 4 },
-    heroFooter: { marginTop: 80 },
-    heroDate: { ...FONTS.body4, color: COLORS.white },
-    heroTitle: { ...FONTS.h1, color: COLORS.white, fontWeight: 'bold', marginTop: 4 },
-    heroLocation: { ...FONTS.body4, color: COLORS.white, marginTop: 4, flexDirection: 'row', alignItems: 'center' },
+    ticketHeader: {
+        backgroundColor: '#F8F9FA',
+        paddingHorizontal: SIZES.padding * 1.5,
+        paddingVertical: SIZES.padding,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: '#E8E8E8',
+    },
+    ticketHeaderTop: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: SIZES.padding,
+    },
+    confirmedBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#00A799',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+    },
+    confirmedText: {
+        ...FONTS.body5,
+        color: COLORS.white,
+        fontWeight: '700',
+        marginLeft: 4,
+        letterSpacing: 0.5,
+    },
+    priorityBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: '#E0F2F1',
+    },
+    priorityText: {
+        ...FONTS.body5,
+        color: '#00A799',
+        fontWeight: '700',
+        marginLeft: 4,
+        letterSpacing: 0.5,
+    },
+    ticketMainInfo: {
+        alignItems: 'flex-start',
+    },
+    ticketDate: {
+        ...FONTS.body4,
+        color: COLORS.gray,
+        fontWeight: '600',
+        letterSpacing: 0.5,
+    },
+    ticketTitle: {
+        ...FONTS.h2,
+        color: COLORS.black,
+        fontWeight: '700',
+        marginTop: 8,
+        marginBottom: 8,
+    },
+    ticketLocationRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    ticketLocation: {
+        ...FONTS.body3,
+        color: COLORS.black,
+        marginLeft: 6,
+        fontWeight: '500',
+    },
     cardDetails: { padding: SIZES.padding },
     detailsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
     detailItem: { width: '48%', marginBottom: SIZES.padding },
@@ -340,8 +401,8 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     detailTextContainer: { marginLeft: 8 },
     detailLabel: { ...FONTS.body5, color: COLORS.gray },
     detailText: { ...FONTS.h5, color: COLORS.black, marginTop: 4 },
-    separator: { height: 1, backgroundColor: COLORS.lightGray, marginVertical: SIZES.padding },
-    bottomSection: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    separator: { height: 1, backgroundColor: '#1A2B40', marginVertical: SIZES.padding * 0.2 },
+    bottomSection: { flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center' },
     bookingInfo: { flex: 1 },
     bookingLabel: { ...FONTS.body5, color: COLORS.gray },
     bookingId: { ...FONTS.h4, color: COLORS.black, fontWeight: 'bold', marginTop: 4 },
@@ -365,6 +426,14 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     ratingContainer: { flexDirection: 'row', alignItems: 'center' },
     completedBadge: { backgroundColor: '#00A799', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 },
     completedText: { ...FONTS.body5, color: COLORS.white, fontWeight: 'bold' },
+    ticketStub: { marginTop: SIZES.padding * 0.5 },
+    bookingReferenceRow: { flexDirection: 'column', justifyContent: 'space-between', marginBottom: SIZES.base },
+    stubLabel: { ...FONTS.body5, color: COLORS.gray },
+    stubValue: { ...FONTS.h5, color: COLORS.black, fontWeight: 'bold' },
+    stubDetailsRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    stubLeft: { flex: 1 },
+    stubRight: { alignItems: 'flex-end' },
+    qrCodePlaceholder: { backgroundColor: COLORS.lightGray, padding: 12, borderRadius: SIZES.radius },
 });
 
 export default BookingsScreen;
