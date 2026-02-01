@@ -1,9 +1,8 @@
-'''
+
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import {
-    Image,
     ScrollView,
     StyleSheet,
     Text,
@@ -43,7 +42,7 @@ const ProfileScreen = () => {
         <ScrollView style={styles.container}>
             <View style={styles.header}>
                 <View style={styles.platinumMemberContainer}>
-                    <Ionicons name="ribbon-outline" size={16} color={COLORS.secondary} />
+                    <Ionicons name="ribbon-outline" size={16} color={'#00A799'} />
                     <Text style={styles.platinumMemberText}>PLATINUM MEMBER</Text>
                 </View>
                 <Text style={styles.userName}>Alex Johnson</Text>
@@ -56,7 +55,7 @@ const ProfileScreen = () => {
                     <View style={styles.menuCard}>
                         {menuItems[sectionTitle].map((item, index) => (
                             <TouchableOpacity key={item.name} style={[styles.menuItem, index === menuItems[sectionTitle].length - 1 && styles.lastMenuItem]} onPress={() => handleMenuItemPress(item.screen)}>
-                                <Ionicons name={item.icon} size={24} color={COLORS.primary} />
+                                <Ionicons name={item.icon} size={24} color={'#00A799'} />
                                 <Text style={styles.menuItemText}>{item.name}</Text>
                                 {item.badge && <View style={styles.badgeContainer}><Text style={styles.badgeText}>{item.badge}</Text></View>}
                                 <Ionicons name="chevron-forward-outline" size={20} color={COLORS.gray} />
@@ -67,7 +66,7 @@ const ProfileScreen = () => {
             ))}
 
             <TouchableOpacity style={styles.logoutButton}>
-                <Ionicons name="log-out-outline" size={24} color={COLORS.danger} />
+                <Ionicons name="log-out-outline" size={24} color={'#FF4136'} />
                 <Text style={styles.logoutButtonText}>Log Out</Text>
             </TouchableOpacity>
 
@@ -79,33 +78,33 @@ const ProfileScreen = () => {
 const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: COLORS.lightWhite,
+        backgroundColor: '#F3F4F6',
     },
     header: {
         backgroundColor: COLORS.white,
         padding: SIZES.padding * 2,
         paddingTop: 60,
         alignItems: 'flex-start',
-        borderBottomLeftRadius: SIZES.radius * 2,
-        borderBottomRightRadius: SIZES.radius * 2,
     },
     platinumMemberContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: COLORS.lightGray,
+        backgroundColor: '#E6F6F5',
         paddingVertical: SIZES.base / 2,
         paddingHorizontal: SIZES.base,
         borderRadius: SIZES.radius,
     },
     platinumMemberText: {
         ...FONTS.h6,
-        color: COLORS.secondary,
+        color: '#00A799',
         marginLeft: SIZES.base / 2,
     },
     userName: {
         ...FONTS.h1,
         color: COLORS.black,
         marginTop: SIZES.padding,
+        fontSize: 32,
+        fontWeight: 'bold',
     },
     userEmail: {
         ...FONTS.body4,
@@ -117,19 +116,20 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
         marginTop: SIZES.padding * 2,
     },
     sectionTitle: {
-        ...FONTS.h5,
+        ...FONTS.body4,
         color: COLORS.gray,
         marginBottom: SIZES.base,
+        letterSpacing: 1,
     },
     menuCard: {
         backgroundColor: COLORS.white,
         borderRadius: SIZES.radius,
-        paddingVertical: SIZES.base,
+        paddingVertical: SIZES.base / 2,
+        paddingHorizontal: SIZES.padding,
     },
     menuItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: SIZES.padding,
         paddingVertical: SIZES.padding,
         borderBottomWidth: 1,
         borderBottomColor: COLORS.lightGray,
@@ -142,38 +142,45 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
         color: COLORS.black,
         marginLeft: SIZES.padding,
         flex: 1,
+        fontSize: 16
     },
     badgeContainer: {
         backgroundColor: '#E6F6F5',
-        borderRadius: SIZES.radius,
+        borderRadius: SIZES.radius / 2,
         paddingHorizontal: SIZES.base,
         paddingVertical: 4,
+        marginRight: SIZES.base,
     },
     badgeText: {
         ...FONTS.body5,
         color: '#00A799',
+        fontSize: 12,
+        fontWeight: 'bold',
     },
     logoutButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#FFF0F0',
-        margin: SIZES.padding * 2,
+        backgroundColor: '#FFF1F0',
+        marginHorizontal: SIZES.padding * 2,
+        marginTop: SIZES.padding,
         padding: SIZES.padding,
         borderRadius: SIZES.radius,
     },
     logoutButtonText: {
         ...FONTS.h4,
-        color: COLORS.danger,
+        color: '#FF4136',
         marginLeft: SIZES.base,
+        fontSize: 16,
+        fontWeight: '600',
     },
     versionText: {
         ...FONTS.body5,
         color: COLORS.gray,
         textAlign: 'center',
-        marginBottom: SIZES.padding * 2,
+        marginVertical: SIZES.padding * 2,
+        letterSpacing: 1,
     },
 });
 
 export default ProfileScreen;
-'''
