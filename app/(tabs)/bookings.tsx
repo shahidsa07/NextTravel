@@ -660,7 +660,7 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     detailLabel: { ...FONTS.body5, color: COLORS.gray },
     detailText: { ...FONTS.h5, color: COLORS.black, marginTop: 4, fontWeight: '500' },
     separator: { height: 1, backgroundColor: '#D0D0D0', marginVertical: SIZES.padding * 0.2 },
-    bottomSection: { flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center' },
+    bottomSection: { flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center', paddingTop: SIZES.padding },
     bookingInfo: { flex: 1 },
     bookingLabel: { ...FONTS.body5, color: COLORS.gray },
     bookingId: { ...FONTS.h4, color: COLORS.black, fontWeight: 'bold', marginTop: 4 },
