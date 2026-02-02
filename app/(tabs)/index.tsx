@@ -25,6 +25,7 @@ import Animated, {
   withTiming
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '../../constants/theme';
 
 interface NotificationItem {
@@ -361,6 +362,7 @@ const HomeScreen = () => {
     const [tripDate, setTripDate] = useState<string>('Select Trip Date');
     const [showCalendar, setShowCalendar] = useState<boolean>(false);
     const [markedDates, setMarkedDates] = useState<MarkedDates>({});
+    const [activeServiceType, setActiveServiceType] = useState<string>('Trip');
     
     // New state for date range selection
     const [startDate, setStartDate] = useState<string | null>(null);
@@ -626,7 +628,6 @@ const HomeScreen = () => {
                     <View style={styles.header}>
                         <View style={styles.headerTop}>
                             <View style={styles.userInfo}>
-                                <Image source={{ uri: 'https://randomuser.me/api/portraits/men/32.jpg' }} style={styles.avatar} />
                                 <View>
                                     <Text style={styles.welcomeText}>WELCOME</Text>
                                     <Text style={styles.userName}>Alex Johnson</Text>
@@ -641,6 +642,60 @@ const HomeScreen = () => {
                         </View>
                         <Text style={styles.title1}>Exquisite Journeys</Text>
                         <Text style={styles.title2}>Awaits Your Presence</Text>
+                        
+                        {/* Service Type Toggle */}
+                        <View style={styles.serviceTypeContainer}>
+                            <View style={styles.serviceTypeWrapper}>
+                                <TouchableOpacity
+                                    style={[styles.serviceTypeTab, activeServiceType === 'Trip' && styles.activeServiceTypeTab]}
+                                    onPress={() => setActiveServiceType('Trip')}
+                                    activeOpacity={0.8}>
+                                    <Text style={[styles.serviceTypeText, activeServiceType === 'Trip' && styles.activeServiceTypeText]}>
+                                        Trip
+                                    </Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    style={[styles.serviceTypeTab, activeServiceType === 'Travel Packages' && styles.activeServiceTypeTab]}
+                                    onPress={() => setActiveServiceType('Travel Packages')}
+                                    activeOpacity={0.8}>
+                                    <Text style={[styles.serviceTypeText, activeServiceType === 'Travel Packages' && styles.activeServiceTypeText]}>
+                                        Travel Packages
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+
+                        {/* Dynamic Service Header */}
+                        <View style={styles.serviceHeader}>
+                            <View style={styles.serviceIconContainer}>
+                                {activeServiceType === 'Trip' ? (
+                                    <Ionicons 
+                                        name="bus" 
+                                        size={24} 
+                                        color="#00A799" 
+                                    />
+                                ) : (
+                                    <MaterialCommunityIcons 
+                                        name="island" 
+                                        size={28} 
+                                        color="#00A799" 
+                                    />
+                                )}
+                            </View>
+                            <View style={styles.serviceHeaderContent}>
+                                <Text style={styles.serviceHeaderTitle}>
+                                    {activeServiceType === 'Trip' ? 'Book Your Trip' : 'Discover Travel Packages'}
+                                </Text>
+                                <Text style={styles.serviceHeaderSubtitle}>
+                                    {activeServiceType === 'Trip' 
+                                        ? 'Choose your destination and travel in luxury' 
+                                        : 'Curated experiences for unforgettable memories'
+                                    }
+                                </Text>
+                            </View>
+                        </View>
+
                         <View style={styles.searchContainer}>
                             <View style={styles.inputContainer}>
                                 <Ionicons name="location-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
@@ -826,7 +881,6 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) => StyleSheet.create({
     header: { padding: SIZES.padding, paddingTop: 50, backgroundColor: COLORS.lightWhite },
     headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     userInfo: { flexDirection: 'row', alignItems: 'center' },
-    avatar: { width: 40, height: 40, borderRadius: 20, marginRight: SIZES.base },
     welcomeText: { ...FONTS.body5, color: COLORS.gray },
     userName: { ...FONTS.h4, color: COLORS.black },
     title1: { ...FONTS.h1, color: COLORS.black, marginTop: SIZES.padding },
@@ -879,8 +933,19 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) => StyleSheet.create({
     notificationSectionTitle: { ...FONTS.h5, color: COLORS.gray, marginVertical: SIZES.base },
     notificationItem: { marginBottom: SIZES.base, backgroundColor: 'white', borderRadius: 10, overflow: 'hidden' },
     notificationCard: { flexDirection: 'row', alignItems: 'center', padding: SIZES.base, borderRadius: SIZES.radius },
-    notificationIconContainer: { width: 40, height: 40, borderRadius: 20, backgroundColor: COLORS.white, justifyContent: 'center', alignItems: 'center', marginRight: SIZES.base },
-    notificationTextContainer: { flex: 1 },
+    notificationIconContainer: { 
+        width: 40, 
+        height: 40, 
+        borderRadius: 20, 
+        backgroundColor: COLORS.white, 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        marginRight: SIZES.base 
+    },
+    notificationTextContainer: { 
+        flex: 1, 
+        marginLeft: SIZES.base 
+    },
     notificationCardTitle: { ...FONTS.h5, color: COLORS.black },
     notificationCardDescription: { ...FONTS.body5, color: COLORS.gray },
     notificationTime: { ...FONTS.body5, color: COLORS.gray, marginLeft: SIZES.base },
@@ -900,6 +965,77 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) => StyleSheet.create({
     quickSelectionButtonText: { ...FONTS.body4, color: COLORS.black },
     notificationIconContainer: { position: 'relative' },
     notificationIndicator: { position: 'absolute', top: 0, right: 1, width: 10, height: 10, borderRadius: 5, borderColor: '#fff', backgroundColor: '#00A799', borderWidth: 2 },
+    serviceTypeContainer: { 
+        marginTop: SIZES.padding, 
+        marginBottom: SIZES.base 
+    },
+    serviceTypeWrapper: { 
+        flexDirection: 'row', 
+        backgroundColor: '#F8F8FA', 
+        borderRadius: SIZES.radius, 
+        padding: 4 
+    },
+    serviceTypeTab: { 
+        flex: 1, 
+        paddingVertical: 10, 
+        borderRadius: SIZES.radius - 4, 
+        alignItems: 'center' 
+    },
+    activeServiceTypeTab: { 
+        backgroundColor: COLORS.white,
+    },
+    serviceTypeText: { 
+        ...FONTS.body4, 
+        color: COLORS.gray 
+    },
+    activeServiceTypeText: { 
+        ...FONTS.h5, 
+        color: COLORS.black, 
+        fontWeight: '700' 
+    },
+    serviceHeader: { 
+        alignItems: 'center', 
+        marginTop: SIZES.padding,
+        marginBottom: SIZES.base 
+    },
+    serviceIconContainer: { 
+        width: 50, 
+        height: 50, 
+        borderRadius: 25, 
+        backgroundColor: '#E6F6F5', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        marginBottom: SIZES.base 
+    },
+    serviceHeaderContent: { 
+        alignItems: 'center' 
+    },
+    serviceHeaderTitle: { 
+        ...FONTS.h3, 
+        color: COLORS.black,
+        textAlign: 'center',
+        marginBottom: 4
+    },
+    serviceHeaderSubtitle: { 
+        ...FONTS.body4, 
+        color: COLORS.gray, 
+        textAlign: 'center',
+        lineHeight: 20
+    },
+    serviceStatusIndicator: { 
+        marginTop: SIZES.base 
+    },
+    statusDot: { 
+        width: 10, 
+        height: 10, 
+        borderRadius: 5 
+    },
+    tripDot: { 
+        backgroundColor: '#00A799' 
+    },
+    packageDot: { 
+        backgroundColor: '#FFD700' 
+    },
 });
 
 export default HomeScreen;

@@ -1,4 +1,3 @@
-
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
@@ -95,7 +94,7 @@ const SearchResultsScreen = () => {
             </View>
         </View>
         <TouchableOpacity style={styles.filterIconButton}>
-          <Ionicons name="filter" size={24} color={COLORS.black} />
+          <Ionicons name="filter" size={16} color={COLORS.black} />
         </TouchableOpacity>
       </View>
 
@@ -134,7 +133,7 @@ const SearchResultsScreen = () => {
 const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.lightWhite,
+    backgroundColor: COLORS.white,
   },
   header: {
     flexDirection: 'row',
@@ -142,7 +141,16 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     justifyContent: 'space-between',
     padding: SIZES.padding,
     paddingTop: 50,
-    backgroundColor: COLORS.lightWhite
+    backgroundColor: COLORS.white,
+    zIndex: 1,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
+    paddingBottom: SIZES.base
   },
   summaryContainer: {
     flex: 1,
@@ -171,12 +179,13 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
   },
   filtersContainer: {
     paddingVertical: SIZES.base,
-    paddingLeft: SIZES.padding,
+    justifyContent: 'space-evenly',
     backgroundColor: COLORS.lightWhite,
   },
   filterButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: SIZES.base,
     paddingHorizontal: SIZES.padding,
     borderRadius: 20,

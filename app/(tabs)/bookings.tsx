@@ -165,7 +165,7 @@ const BookingsScreen = () => {
                                         <View style={styles.routeConnector}>
                                             <View style={styles.routeLine} />
                                             <View style={styles.routeArrowContainer}>
-                                                <Ionicons name="airplane" size={16} color="#00A799" />
+                                                <Ionicons name="bus" size={16} color="#00A799" />
                                             </View>
                                             <View style={styles.routeLine} />
                                         </View>
@@ -205,7 +205,7 @@ const BookingsScreen = () => {
 
                                     <View style={styles.detailItem}>
                                         <View style={styles.detailIconContainer}>
-                                            <Ionicons name="car-sport" size={18} color={'#00A799'} />
+                                            <Ionicons name="bus" size={18} color={'#00A799'} />
                                         </View>
                                         <View style={styles.detailTextContainer}>
                                             <Text style={styles.detailLabel}>VEHICLE CLASS</Text>
@@ -308,7 +308,7 @@ const BookingsScreen = () => {
                                     <View style={styles.tripDetailRow}>
                                         <View style={styles.tripDetailItem}>
                                             <View style={styles.tripDetailIcon}>
-                                                <Ionicons name="car-sport" size={16} color="#00A799" />
+                                                <Ionicons name="bus" size={16} color="#00A799" />
                                             </View>
                                             <View style={styles.tripDetailContent}>
                                                 <Text style={styles.tripDetailLabel}>VEHICLE</Text>
@@ -390,7 +390,7 @@ const BookingsScreen = () => {
                                     <View style={styles.tripDetailRow}>
                                         <View style={styles.tripDetailItem}>
                                             <View style={styles.tripDetailIcon}>
-                                                <Ionicons name="car-sport" size={16} color="#00A799" />
+                                                <Ionicons name="bus" size={16} color="#00A799" />
                                             </View>
                                             <View style={styles.tripDetailContent}>
                                                 <Text style={styles.tripDetailLabel}>VEHICLE</Text>
