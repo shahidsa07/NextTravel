@@ -31,7 +31,7 @@ const SearchResultsScreen = () => {
   const router = useRouter();
   const { COLORS, FONTS, SIZES } = useTheme();
   const styles = getStyles(COLORS, FONTS, SIZES);
-  const { to, departureDate } = useLocalSearchParams();
+  const { to, from, tripDate } = useLocalSearchParams();
 
   const renderVehicleItem = ({ item }) => (
     <View style={styles.card}>
@@ -87,10 +87,10 @@ const SearchResultsScreen = () => {
           <Ionicons name="arrow-back" size={24} color={COLORS.black} />
         </TouchableOpacity>
         <View style={styles.summaryContainer}>
-            <MaterialIcons name="article" size={24} color={COLORS.gray} />
+            <MaterialIcons name="map" size={26} color={COLORS.gray} />
             <View style={{marginLeft: SIZES.base}}>
-                <Text style={styles.summaryLabel}>SEARCH SUMMARY</Text>
-                <Text style={styles.summaryText}>{to} • {departureDate}</Text>
+                <Text style={styles.routeText}>{from} → {to}</Text>
+                <Text style={styles.tripDateText}>{tripDate}</Text>
             </View>
         </View>
         <TouchableOpacity style={styles.filterIconButton}>
@@ -158,7 +158,7 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: SIZES.base,
-    marginLeft: SIZES.padding
+    paddingLeft: 0
   },
   summaryLabel: {
     ...FONTS.body5,
@@ -167,6 +167,14 @@ const getStyles = (COLORS, FONTS, SIZES) => StyleSheet.create({
   summaryText: {
     ...FONTS.h4,
     color: COLORS.black,
+  },
+  routeText: {
+    ...FONTS.h4,
+    color: COLORS.black,
+  },
+  tripDateText: {
+    ...FONTS.body5,
+    color: COLORS.gray,
   },
   filterIconButton: {
       backgroundColor: COLORS.white,
