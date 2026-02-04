@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState } from 'react';
 import { Dimensions } from 'react-native';
 
@@ -15,7 +14,9 @@ export const COLORS = {
   black: '#171717',
   white: '#FFFFFF',
   background: '#F4F4F4',
+  lightWhite: '#FAFAFA',
   gray: '#a9a9a9',
+  gray2: '#E0E0E0',
 };
 
 export const darkCOLORS = {
