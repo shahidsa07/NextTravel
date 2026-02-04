@@ -854,11 +854,11 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) => StyleSheet.create({
   title1: { ...FONTS.h1, color: COLORS.black, marginTop: SIZES.padding },
   title2: { ...FONTS.h1, color: '#00A799', fontStyle: 'italic' },
   searchContainer: { marginTop: SIZES.padding },
-  inputContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f2f2f7', borderRadius: SIZES.radius, paddingHorizontal: SIZES.padding * 0.5, height: 50, marginBottom: SIZES.base },
+  inputContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f2f2f7', borderRadius: SIZES.radius, paddingHorizontal: SIZES.padding * 0.5, height: 50, marginBottom: SIZES.base, borderWidth: 1, borderColor: COLORS.gray2 || '#E0E0E0' },
   inputIcon: { marginRight: SIZES.base },
   input: { flex: 1, ...FONTS.body3, color: '#1A2B40', display: 'flex', alignItems: 'center' },
   placeholderText: { ...FONTS.body4, color: COLORS.gray },
-  datePickerContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f2f2f7', borderRadius: SIZES.radius, paddingHorizontal: SIZES.padding * 0.5, height: 50, marginBottom: SIZES.base },
+  datePickerContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f2f2f7', borderRadius: SIZES.radius, paddingHorizontal: SIZES.padding * 0.5, height: 50, marginBottom: SIZES.base, borderWidth: 1, borderColor: COLORS.gray2 || '#E0E0E0' },
   exploreButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#1A2B40', borderRadius: SIZES.radius, height: 50 },
   exploreButtonText: { ...FONTS.h4, color: COLORS.white, marginLeft: SIZES.base },
   filters: { flexDirection: 'row', marginTop: SIZES.padding },
@@ -941,7 +941,8 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) => StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#f2f2f7',
     borderRadius: SIZES.radius,
-    padding: 4
+    padding: 4,
+    
   },
   serviceTypeTab: {
     flex: 1,

@@ -7,6 +7,7 @@ import { useTheme } from '../../constants/theme';
 
 interface AppliedFilters {
   vehicleType?: string[];
+  capacity?: string;
   priceRange?: {
     min: number;
     max: number;
@@ -72,6 +73,12 @@ const SearchResultsScreen = () => {
     let count = 0;
     if (appliedFilters.vehicleType && appliedFilters.vehicleType.length > 0) {
       count += appliedFilters.vehicleType.length;
+    }
+    if (appliedFilters.capacity) {
+      count += 1;
+    }
+    if (appliedFilters.priceRange && (appliedFilters.priceRange.min !== 100 || appliedFilters.priceRange.max !== 1000)) {
+      count += 1;
     }
     if (appliedFilters.seats && appliedFilters.seats.length > 0) {
       count += appliedFilters.seats.length;

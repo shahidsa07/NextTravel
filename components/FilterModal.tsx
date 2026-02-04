@@ -14,8 +14,8 @@ import Animated, {
     useSharedValue,
     withTiming
 } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../constants/theme';
+import RangeSlider from './RangeSlider';
 
 interface FilterOption {
   id: string;
@@ -37,8 +37,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
   appliedFilters = {},
 }) => {
   const { COLORS, FONTS, SIZES } = useTheme();
-  const insets = useSafeAreaInsets();
-  const styles = getStyles(COLORS, FONTS, SIZES, insets);
+  const styles = getStyles(COLORS, FONTS, SIZES);
 
   const [scrollOffset, setScrollOffset] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
@@ -53,6 +52,20 @@ const FilterModal: React.FC<FilterModalProps> = ({
     { id: 'minibus', label: 'Minibus', selected: false },
     { id: 'standard', label: 'Standard', selected: false },
   ]);
+
+  // Capacity options - only one can be selected
+  const [capacityOptions, setCapacityOptions] = useState<FilterOption[]>([
+    { id: '1-10', label: '1-10', selected: false },
+    { id: '11-20', label: '11-20', selected: false },
+    { id: '21-50', label: '21-50', selected: false },
+    { id: '50+', label: '50+', selected: false },
+  ]);
+
+  // Price range state
+  const [priceRange, setPriceRange] = useState({
+    min: 100,
+    max: 1000,
+  });
 
   const modalHeight = '70%';
 
@@ -98,17 +111,35 @@ const FilterModal: React.FC<FilterModalProps> = ({
     setVehicleTypeOptions(updatedOptions);
   };
 
+  const selectCapacity = (optionId: string) => {
+    const updatedOptions = capacityOptions.map(option => ({
+      ...option,
+      selected: option.id === optionId,
+    }));
+    setCapacityOptions(updatedOptions);
+  };
+
   const clearAllFilters = () => {
-    const clearedOptions = vehicleTypeOptions.map(option => ({
+    const clearedVehicleOptions = vehicleTypeOptions.map(option => ({
       ...option,
       selected: false,
     }));
-    setVehicleTypeOptions(clearedOptions);
+    setVehicleTypeOptions(clearedVehicleOptions);
+    
+    const clearedCapacityOptions = capacityOptions.map(option => ({
+      ...option,
+      selected: false,
+    }));
+    setCapacityOptions(clearedCapacityOptions);
+    
+    setPriceRange({ min: 100, max: 1000 });
   };
 
   const handleApply = () => {
     const appliedFilters = {
       vehicleType: vehicleTypeOptions.filter(opt => opt.selected).map(opt => opt.id),
+      capacity: capacityOptions.find(opt => opt.selected)?.id || null,
+      priceRange: priceRange,
     };
     onApply(appliedFilters);
     onClose();
@@ -152,7 +183,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
                     <TouchableOpacity
                       key={option.id}
                       style={[
-                        styles.optionButton,
+                        styles.vehicleOptionButton,
                         option.selected && styles.selectedOption
                       ]}
                       onPress={() => toggleVehicleType(option.id)}
@@ -165,6 +196,59 @@ const FilterModal: React.FC<FilterModalProps> = ({
                       </Text>
                     </TouchableOpacity>
                   ))}
+                </View>
+              </View>
+
+              {/* Capacity Section */}
+              <View style={styles.filterSection}>
+                <View style={styles.sectionHeader}>
+                  <Text style={styles.sectionTitle}>Capacity</Text>
+                </View>
+                
+                <View style={styles.optionsContainer}>
+                  {capacityOptions.map(option => (
+                    <TouchableOpacity
+                      key={option.id}
+                      style={[
+                        styles.capacityOptionButton,
+                        option.selected && styles.selectedCapacityOption
+                      ]}
+                      onPress={() => selectCapacity(option.id)}
+                    >
+                      <Text style={[
+                        styles.optionText,
+                        option.selected && styles.selectedCapacityOptionText
+                      ]}>
+                        {option.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              {/* Price Range Section */}
+              <View style={styles.filterSection}>
+                <View style={styles.sectionHeader}>
+                  <Text style={styles.sectionTitle}>Price Range</Text>
+                </View>
+                
+                <View style={styles.priceRangeContainer}>
+                  <View style={styles.priceLabelsContainer}>
+                    <Text style={styles.priceLabel}>Min: ${priceRange.min}</Text>
+                    <Text style={styles.priceLabel}>Max: ${priceRange.max}</Text>
+                  </View>
+                  
+                  <View style={styles.rangeSliderContainer}>
+                    <RangeSlider
+                      min={50}
+                      max={2000}
+                      minValue={priceRange.min}
+                      maxValue={priceRange.max}
+                      onValueChange={(min, max) => setPriceRange({ min, max })}
+                      step={10}
+                      width={280}
+                    />
+                  </View>
                 </View>
               </View>
             </ScrollView>
@@ -181,7 +265,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
   );
 };
 
-const getStyles = (COLORS: any, FONTS: any, SIZES: any, insets: any) =>
+const getStyles = (COLORS: any, FONTS: any, SIZES: any) =>
   StyleSheet.create({
     modalContainer: {
       flex: 1,
@@ -229,6 +313,7 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any, insets: any) =>
     scrollContainer: {
       flex: 1,
       paddingHorizontal: SIZES.padding,
+      marginBottom: SIZES.padding * 2,
     },
     filterSection: {
       marginBottom: SIZES.padding * 1.5,
@@ -248,9 +333,9 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any, insets: any) =>
     optionsContainer: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: SIZES.base,
+      gap: SIZES.base * 1.5,
     },
-    optionButton: {
+    vehicleOptionButton: {
       flexDirection: 'row',
       alignItems: 'center',
       paddingHorizontal: SIZES.padding,
@@ -260,6 +345,17 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any, insets: any) =>
       borderColor: COLORS.gray2 || '#E0E0E0',
       backgroundColor: COLORS.white,
       minWidth: 80,
+      justifyContent: 'center',
+    },
+    capacityOptionButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: SIZES.base + 2,
+      borderRadius: SIZES.radius,
+      borderWidth: 1,
+      borderColor: COLORS.gray2 || '#E0E0E0',
+      backgroundColor: COLORS.white,
+      paddingHorizontal: SIZES.padding * 0.5,
       justifyContent: 'center',
     },
     selectedOption: {
@@ -275,6 +371,40 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any, insets: any) =>
     selectedOptionText: {
       color: COLORS.primary,
     },
+    selectedCapacityOption: {
+      borderColor: COLORS.primary,
+      backgroundColor: COLORS.primary,
+      borderWidth: 2,
+      shadowColor: COLORS.primary,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+      elevation: 4,
+    },
+    selectedCapacityOptionText: {
+      color: COLORS.white,
+    },
+    priceRangeContainer: {
+      paddingHorizontal: SIZES.base,
+    },
+    priceLabelsContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: SIZES.padding,
+      paddingHorizontal: SIZES.base,
+    },
+    priceLabel: {
+      ...FONTS.body4,
+      color: COLORS.black,
+      fontWeight: 'bold',
+      color: '#4B5563',
+    },
+    rangeSliderContainer: {
+      paddingVertical: SIZES.base,
+      width: '100%',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
     footer: {
         position: 'absolute',
         bottom: 0,
@@ -283,7 +413,7 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any, insets: any) =>
         backgroundColor: COLORS.white,
         paddingHorizontal: SIZES.padding,
         paddingVertical: SIZES.padding * 0.8,
-        paddingBottom: insets.bottom + SIZES.padding * 0.8,
+        paddingBottom: SIZES.padding * 0.8,
         borderTopLeftRadius: SIZES.radius * 2,
         borderTopRightRadius: SIZES.radius * 2,
         shadowColor: '#000',
