@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
 import {
     Modal,
@@ -45,6 +46,50 @@ const FilterModal: React.FC<FilterModalProps> = ({
   const translateY = useSharedValue(0);
   const startY = useSharedValue(0);
 
+  // Sort By options - only one can be selected
+  const [sortOptions, setSortOptions] = useState<FilterOption[]>([
+    { id: 'relevance', label: 'Relevance', selected: true },
+    { id: 'price-low-high', label: 'Price - Low to High', selected: false },
+    { id: 'price-high-low', label: 'Price - High to Low', selected: false },
+    { id: 'best-rated', label: 'Best Rated', selected: false },
+  ]);
+
+  // Initialize filter options based on appliedFilters prop
+  useEffect(() => {
+    if (appliedFilters) {
+      // Sync vehicle type options
+      setVehicleTypeOptions(prev => prev.map(option => ({
+        ...option,
+        selected: appliedFilters.vehicleType?.includes(option.id) || false
+      })));
+
+      // Sync capacity options
+      setCapacityOptions(prev => prev.map(option => ({
+        ...option,
+        selected: option.id === appliedFilters.capacity || false
+      })));
+
+      // Sync amenities options
+      setAmenitiesOptions(prev => prev.map(option => ({
+        ...option,
+        selected: appliedFilters.amenities?.includes(option.id) || false
+      })));
+
+      // Sync price range
+      if (appliedFilters.priceRange) {
+        setPriceRange(appliedFilters.priceRange);
+      }
+
+      // Sync sort options
+      if (appliedFilters.sortBy) {
+        setSortOptions(prev => prev.map(option => ({
+          ...option,
+          selected: option.id === appliedFilters.sortBy || (option.id === 'relevance' && !appliedFilters.sortBy)
+        })));
+      }
+    }
+  }, [appliedFilters, visible]);
+
   // For now, only Vehicle Type category
   const [vehicleTypeOptions, setVehicleTypeOptions] = useState<FilterOption[]>([
     { id: 'luxury', label: 'Luxury', selected: false },
@@ -67,11 +112,23 @@ const FilterModal: React.FC<FilterModalProps> = ({
     max: 1000,
   });
 
-  const modalHeight = '70%';
+  // Amenities options - multiple can be selected
+  const [amenitiesOptions, setAmenitiesOptions] = useState<FilterOption[]>([
+    { id: 'wifi', label: 'WiFi', selected: false },
+    { id: 'ac', label: 'AC', selected: false },
+    { id: 'non-ac', label: 'Non-AC', selected: false },
+    { id: 'semi-sleeper', label: 'Semi-Sleeper', selected: false },
+    { id: 'seater', label: 'Seater', selected: false },
+  ]);
+
+  const modalHeight = '80%';
 
   useEffect(() => {
     if (visible) {
       translateY.value = withTiming(0);
+      setScrollOffset(0);
+    } else {
+      // Reset scroll offset when modal closes
       setScrollOffset(0);
     }
   }, [visible, translateY]);
@@ -82,13 +139,17 @@ const FilterModal: React.FC<FilterModalProps> = ({
       startY.value = translateY.value;
     })
     .onUpdate((event) => {
-      if (scrollOffset <= 0 && event.translationY > 0) {
+      // Allow dismissal if at top of scroll OR if dragging down from any position
+      if (scrollOffset <= 5 && event.translationY > 0) {
         translateY.value = Math.max(0, startY.value + event.translationY);
       }
     })
-    .onEnd(() => {
-      if (scrollOffset <= 0 && translateY.value > 100) {
-        runOnJS(onClose)();
+    .onEnd((event) => {
+      // Close modal if dragged down significantly from the top
+      if (scrollOffset <= 5 && translateY.value > 80) {
+        translateY.value = withTiming(500, { duration: 300 }, () => {
+          runOnJS(onClose)();
+        });
       } else {
         translateY.value = withTiming(0);
       }
@@ -100,6 +161,14 @@ const FilterModal: React.FC<FilterModalProps> = ({
 
   const handleScroll = (event: any) => {
     setScrollOffset(event.nativeEvent.contentOffset.y);
+  };
+
+  const selectSort = (optionId: string) => {
+    const updatedOptions = sortOptions.map(option => ({
+      ...option,
+      selected: option.id === optionId,
+    }));
+    setSortOptions(updatedOptions);
   };
 
   const toggleVehicleType = (optionId: string) => {
@@ -119,7 +188,22 @@ const FilterModal: React.FC<FilterModalProps> = ({
     setCapacityOptions(updatedOptions);
   };
 
+  const toggleAmenity = (optionId: string) => {
+    const updatedOptions = amenitiesOptions.map(option =>
+      option.id === optionId
+        ? { ...option, selected: !option.selected }
+        : option
+    );
+    setAmenitiesOptions(updatedOptions);
+  };
+
   const clearAllFilters = () => {
+    const clearedSortOptions = sortOptions.map(option => ({
+      ...option,
+      selected: option.id === 'relevance',
+    }));
+    setSortOptions(clearedSortOptions);
+    
     const clearedVehicleOptions = vehicleTypeOptions.map(option => ({
       ...option,
       selected: false,
@@ -132,14 +216,22 @@ const FilterModal: React.FC<FilterModalProps> = ({
     }));
     setCapacityOptions(clearedCapacityOptions);
     
+    const clearedAmenitiesOptions = amenitiesOptions.map(option => ({
+      ...option,
+      selected: false,
+    }));
+    setAmenitiesOptions(clearedAmenitiesOptions);
+    
     setPriceRange({ min: 100, max: 1000 });
   };
 
   const handleApply = () => {
     const appliedFilters = {
+      sortBy: sortOptions.find(opt => opt.selected)?.id || 'relevance',
       vehicleType: vehicleTypeOptions.filter(opt => opt.selected).map(opt => opt.id),
       capacity: capacityOptions.find(opt => opt.selected)?.id || null,
       priceRange: priceRange,
+      amenities: amenitiesOptions.filter(opt => opt.selected).map(opt => opt.id),
     };
     onApply(appliedFilters);
     onClose();
@@ -148,7 +240,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
   return (
     <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onClose}>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <View style={styles.modalContainer}>
+        <View style={[styles.modalContainer]}>
           <Animated.View style={[styles.filterModalContent, { height: modalHeight }, animatedStyle]}>
             <GestureDetector gesture={gesture}>
               <View>
@@ -172,6 +264,33 @@ const FilterModal: React.FC<FilterModalProps> = ({
               style={styles.scrollContainer}
               contentContainerStyle={{ paddingBottom: 20 }}
             >
+              {/* Sort By Section */}
+              <View style={styles.filterSection}>
+                <View style={styles.sectionHeader}>
+                  <Text style={styles.sectionTitle}>Sort By</Text>
+                </View>
+                
+                <View style={styles.optionsContainer}>
+                  {sortOptions.map(option => (
+                    <TouchableOpacity
+                      key={option.id}
+                      style={[
+                        styles.capacityOptionButton,
+                        option.selected && styles.selectedCapacityOption
+                      ]}
+                      onPress={() => selectSort(option.id)}
+                    >
+                      <Text style={[
+                        styles.optionText,
+                        option.selected && styles.selectedCapacityOptionText
+                      ]}>
+                        {option.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
               {/* Vehicle Type Section */}
               <View style={styles.filterSection}>
                 <View style={styles.sectionHeader}>
@@ -251,6 +370,63 @@ const FilterModal: React.FC<FilterModalProps> = ({
                   </View>
                 </View>
               </View>
+
+              {/* Amenities Section */}
+              <View style={styles.filterSection}>
+                <View style={styles.sectionHeader}>
+                  <Text style={styles.sectionTitle}>Amenities</Text>
+                </View>
+                
+                <View style={styles.amenitiesContainer}>
+                  {amenitiesOptions.map(option => {
+                    const getAmenityIcon = (id: string) => {
+                      switch (id) {
+                        case 'wifi':
+                          return 'wifi';
+                        case 'ac':
+                          return 'snow';
+                        case 'non-ac':
+                          return 'thermometer-outline';
+                        case 'semi-sleeper':
+                          return 'bed-outline';
+                        case 'seater':
+                          return 'person-outline';
+                        default:
+                          return 'checkmark-circle-outline';
+                      }
+                    };
+
+                    return (
+                      <TouchableOpacity
+                        key={option.id}
+                        style={styles.amenityItem}
+                        onPress={() => toggleAmenity(option.id)}
+                      >
+                        <View style={styles.amenityContent}>
+                          <View style={styles.iconCard}>
+                            <Ionicons 
+                              name={getAmenityIcon(option.id)} 
+                              size={18} 
+                              color={COLORS.primary} 
+                            />
+                          </View>
+                          <Text style={styles.amenityLabel}>{option.label}</Text>
+                          <View
+                            style={[
+                              styles.checkbox,
+                              option.selected && styles.checkedBox,
+                            ]}
+                          >
+                            {option.selected && (
+                              <Text style={styles.checkmark}>✓</Text>
+                            )}
+                          </View>
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
             </ScrollView>
 
             <View style={styles.footer}>
@@ -295,7 +471,6 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) =>
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      marginBottom: SIZES.padding,
       borderBottomWidth: 0.5,
       paddingHorizontal: SIZES.padding,
       paddingVertical: SIZES.base,
@@ -313,7 +488,8 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) =>
     scrollContainer: {
       flex: 1,
       paddingHorizontal: SIZES.padding,
-      marginBottom: SIZES.padding * 2,
+      marginBottom: SIZES.padding * 3,
+      paddingTop: SIZES.padding
     },
     filterSection: {
       marginBottom: SIZES.padding * 1.5,
@@ -390,20 +566,79 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) =>
     priceLabelsContainer: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      marginBottom: SIZES.padding,
+      marginBottom: SIZES.base,
       paddingHorizontal: SIZES.base,
     },
     priceLabel: {
       ...FONTS.body4,
-      color: COLORS.black,
-      fontWeight: 'bold',
       color: '#4B5563',
+      fontWeight: 'bold',
     },
     rangeSliderContainer: {
-      paddingVertical: SIZES.base,
       width: '100%',
       justifyContent: 'center',
       alignItems: 'center',
+    },
+    amenitiesContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: SIZES.base,
+    },
+    amenityItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      width: '100%',
+      paddingVertical: SIZES.base,
+    },
+    amenityContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      flex: 1,
+      paddingHorizontal: SIZES.base,
+    },
+    iconCard: {
+      width: 36,
+      height: 36,
+      borderRadius: 8,
+      backgroundColor: COLORS.lightWhite || '#F8F9FA',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: SIZES.padding,
+      borderWidth: 1,
+      borderColor: COLORS.gray2 || '#E0E0E0',
+    },
+    amenityIcon: {
+      marginRight: SIZES.base,
+    },
+    checkboxContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    checkbox: {
+      width: 25,
+      height: 25,
+      borderWidth: 1.5,
+      borderColor: COLORS.gray2 || '#E0E0E0',
+      borderRadius: 4,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: COLORS.white,
+    },
+    checkedBox: {
+      backgroundColor: COLORS.primary,
+      borderColor: COLORS.primary,
+    },
+    checkmark: {
+      color: COLORS.white,
+      fontSize: 12,
+      fontWeight: 'bold',
+    },
+    amenityLabel: {
+      ...FONTS.body4,
+      color: COLORS.black,
+      fontWeight: '500',
+      flex: 1,
     },
     footer: {
         position: 'absolute',

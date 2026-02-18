@@ -1,7 +1,14 @@
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { StatusBar } from 'expo-status-bar';
+import React, { useEffect, useState } from 'react';
 import { FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming
+} from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FilterModal from '../../components/FilterModal';
 import { useTheme } from '../../constants/theme';
 
@@ -57,10 +64,100 @@ const SearchResultsScreen = () => {
   const { COLORS, FONTS, SIZES } = useTheme();
   const styles = getStyles(COLORS, FONTS, SIZES);
   const { to, from, tripDate } = useLocalSearchParams();
+  const insets = useSafeAreaInsets();
   
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<AppliedFilters>({});
   const [filteredVehicles, setFilteredVehicles] = useState<VehicleItem[]>(mockVehicles);
+
+  // Quick filter options that sync with FilterModal
+  const [quickFilters, setQuickFilters] = useState({
+    wifi: false,
+    ac: false,
+    luxury: false,
+    highCapacity: false, // 40+ seats
+    bestRated: false, // 4.5+ rating
+  });
+
+  // Animated status bar overlay opacity
+  const statusBarOverlayOpacity = useSharedValue(0);
+
+  // Animate status bar overlay with modal transitions
+  useEffect(() => {
+    if (filterModalVisible) {
+      statusBarOverlayOpacity.value = withTiming(1, { duration: 500 });
+    } else {
+      statusBarOverlayOpacity.value = withTiming(0, { duration: 300 });
+    }
+  }, [filterModalVisible]);
+
+  // Animated style for status bar overlay
+  const statusBarOverlayStyle = useAnimatedStyle(() => ({
+    opacity: statusBarOverlayOpacity.value,
+  }));
+
+  // Toggle quick filters and sync with FilterModal
+  const toggleQuickFilter = (filterType: keyof typeof quickFilters) => {
+    setQuickFilters(prev => {
+      const newFilters = { ...prev, [filterType]: !prev[filterType] };
+      
+      // Sync with appliedFilters for FilterModal
+      const updatedAppliedFilters = { ...appliedFilters };
+      
+      if (filterType === 'wifi') {
+        const amenities = updatedAppliedFilters.amenities || [];
+        if (newFilters.wifi) {
+          if (!amenities.includes('wifi')) amenities.push('wifi');
+        } else {
+          const index = amenities.indexOf('wifi');
+          if (index > -1) amenities.splice(index, 1);
+        }
+        updatedAppliedFilters.amenities = amenities;
+      }
+      
+      if (filterType === 'ac') {
+        const amenities = updatedAppliedFilters.amenities || [];
+        if (newFilters.ac) {
+          if (!amenities.includes('ac')) amenities.push('ac');
+        } else {
+          const index = amenities.indexOf('ac');
+          if (index > -1) amenities.splice(index, 1);
+        }
+        updatedAppliedFilters.amenities = amenities;
+      }
+      
+      if (filterType === 'luxury') {
+        const vehicleTypes = updatedAppliedFilters.vehicleType || [];
+        if (newFilters.luxury) {
+          if (!vehicleTypes.includes('luxury')) vehicleTypes.push('luxury');
+        } else {
+          const index = vehicleTypes.indexOf('luxury');
+          if (index > -1) vehicleTypes.splice(index, 1);
+        }
+        updatedAppliedFilters.vehicleType = vehicleTypes;
+      }
+      
+      if (filterType === 'highCapacity') {
+        updatedAppliedFilters.capacity = newFilters.highCapacity ? '50+' : '';
+      }
+      
+      setAppliedFilters(updatedAppliedFilters);
+      return newFilters;
+    });
+  };
+
+  // Sync quick filters with applied filters when modal closes
+  useEffect(() => {
+    if (!filterModalVisible) {
+      setQuickFilters({
+        wifi: appliedFilters.amenities?.includes('wifi') || false,
+        ac: appliedFilters.amenities?.includes('ac') || false,
+        luxury: appliedFilters.vehicleType?.includes('luxury') || false,
+        highCapacity: appliedFilters.capacity === '50+' || false,
+        bestRated: false, // This could be based on a future rating filter
+      });
+    }
+  }, [filterModalVisible, appliedFilters]);
 
   const handleFilterApply = (filters: AppliedFilters) => {
     setAppliedFilters(filters);
@@ -71,27 +168,34 @@ const SearchResultsScreen = () => {
 
   const getActiveFilterCount = () => {
     let count = 0;
+    
+    // Count vehicle types
     if (appliedFilters.vehicleType && appliedFilters.vehicleType.length > 0) {
       count += appliedFilters.vehicleType.length;
     }
-    if (appliedFilters.capacity) {
+    
+    // Count capacity (only if not empty string)
+    if (appliedFilters.capacity && appliedFilters.capacity.trim() !== '') {
       count += 1;
     }
-    if (appliedFilters.priceRange && (appliedFilters.priceRange.min !== 100 || appliedFilters.priceRange.max !== 1000)) {
+    
+    // Count price range (only if different from default)
+    if (appliedFilters.priceRange && 
+        (appliedFilters.priceRange.min !== 100 || appliedFilters.priceRange.max !== 1000)) {
       count += 1;
     }
-    if (appliedFilters.seats && appliedFilters.seats.length > 0) {
-      count += appliedFilters.seats.length;
-    }
+    
+    // Count amenities
     if (appliedFilters.amenities && appliedFilters.amenities.length > 0) {
       count += appliedFilters.amenities.length;
     }
-    if (appliedFilters.rating && appliedFilters.rating.length > 0) {
-      count += appliedFilters.rating.length;
-    }
-    if (appliedFilters.availability) {
-      count += 1;
-    }
+    
+    // Don't count seats or rating as they're not implemented yet
+    // Remove these unused filter counts:
+    // - seats is not used in the current filter system
+    // - rating is not implemented yet
+    // - availability is not implemented yet
+    
     return count;
   };
 
@@ -143,6 +247,18 @@ const SearchResultsScreen = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar style={filterModalVisible ? "light" : "dark"} />
+      {filterModalVisible && (
+        <Animated.View style={[{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: insets.top,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          zIndex: 999
+        }, statusBarOverlayStyle]} />
+      )}
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
@@ -169,23 +285,70 @@ const SearchResultsScreen = () => {
       </View>
 
       <View style={styles.filtersContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <ScrollView style={styles.filterScrollContainer} horizontal showsHorizontalScrollIndicator={false}>
           <TouchableOpacity 
-            style={[styles.filterButton, styles.activeFilter]}
-            onPress={() => setFilterModalVisible(true)}
+            style={[styles.filterButton, quickFilters.wifi && styles.activeFilter]}
+            onPress={() => toggleQuickFilter('wifi')}
           >
-            <Text style={[styles.filterButtonText, { color: COLORS.white }]}>
-              FILTERS {getActiveFilterCount() > 0 && `(${getActiveFilterCount()})`}
-            </Text>
+            <Ionicons 
+              name="wifi" 
+              size={14} 
+              color={quickFilters.wifi ? COLORS.black : COLORS.gray} 
+              style={{ marginRight: 4 }}
+            />
+            <Text style={[styles.filterButtonText, quickFilters.wifi && { color: COLORS.black }]}>WiFi</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.filterButton}>
-            <Text style={styles.filterButtonText}>LUXURY</Text>
+          
+          <TouchableOpacity 
+            style={[styles.filterButton, quickFilters.ac && styles.activeFilter]}
+            onPress={() => toggleQuickFilter('ac')}
+          >
+            <Ionicons 
+              name="snow" 
+              size={14} 
+              color={quickFilters.ac ? COLORS.black : COLORS.gray} 
+              style={{ marginRight: 4 }}
+            />
+            <Text style={[styles.filterButtonText, quickFilters.ac && { color: COLORS.black }]}>AC</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.filterButton}>
-            <Text style={styles.filterButtonText}>EXECUTIVE</Text>
+          
+          <TouchableOpacity 
+            style={[styles.filterButton, quickFilters.luxury && styles.activeFilter]}
+            onPress={() => toggleQuickFilter('luxury')}
+          >
+            <Ionicons 
+              name="diamond" 
+              size={14} 
+              color={quickFilters.luxury ? COLORS.black : COLORS.gray} 
+              style={{ marginRight: 4 }}
+            />
+            <Text style={[styles.filterButtonText, quickFilters.luxury && { color: COLORS.black }]}>Luxury</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.filterButton}>
-            <Text style={styles.filterButtonText}>40+ SEATS</Text>
+          
+          <TouchableOpacity 
+            style={[styles.filterButton, quickFilters.highCapacity && styles.activeFilter]}
+            onPress={() => toggleQuickFilter('highCapacity')}
+          >
+            <Ionicons 
+              name="people" 
+              size={14} 
+              color={quickFilters.highCapacity ? COLORS.black : COLORS.gray} 
+              style={{ marginRight: 4 }}
+            />
+            <Text style={[styles.filterButtonText, quickFilters.highCapacity && { color: COLORS.black }]}>50+ Seats</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={[styles.filterButton, quickFilters.bestRated && styles.activeFilter]}
+            onPress={() => toggleQuickFilter('bestRated')}
+          >
+            <Ionicons 
+              name="star" 
+              size={14} 
+              color={quickFilters.bestRated ? COLORS.black : COLORS.gray} 
+              style={{ marginRight: 4 }}
+            />
+            <Text style={[styles.filterButtonText, quickFilters.bestRated && { color: COLORS.black }]}>Top Rated</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>
@@ -292,9 +455,13 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) => StyleSheet.create({
     borderRadius: 20,
     backgroundColor: COLORS.white,
     marginRight: SIZES.base,
+    borderWidth: 1,
+    borderColor: COLORS.gray2 || '#E0E0E0',
   },
   activeFilter: {
-    backgroundColor: COLORS.black,
+    backgroundColor: COLORS.white,
+    borderColor: COLORS.black,
+    borderWidth: 2,
   },
   filterButtonText: {
     ...FONTS.body4,
@@ -421,6 +588,9 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) => StyleSheet.create({
     ...FONTS.h4,
     color: COLORS.white,
   },
+  filterScrollContainer: {
+    paddingHorizontal: SIZES.base * 2,
+  }
 });
 
 export default SearchResultsScreen;
