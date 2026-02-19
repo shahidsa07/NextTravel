@@ -1,19 +1,19 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-    Modal,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, {
-    runOnJS,
-    useAnimatedStyle,
-    useSharedValue,
-    withTiming
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming
 } from 'react-native-reanimated';
 import { useTheme } from '../constants/theme';
 import RangeSlider from './RangeSlider';
@@ -291,6 +291,9 @@ const FilterModal: React.FC<FilterModalProps> = ({
                 </View>
               </View>
 
+              {/* Separator Line */}
+              <View style={styles.sectionSeparator} />
+
               {/* Vehicle Type Section */}
               <View style={styles.filterSection}>
                 <View style={styles.sectionHeader}>
@@ -317,6 +320,9 @@ const FilterModal: React.FC<FilterModalProps> = ({
                   ))}
                 </View>
               </View>
+
+              {/* Separator Line */}
+              <View style={styles.sectionSeparator} />
 
               {/* Capacity Section */}
               <View style={styles.filterSection}>
@@ -345,6 +351,9 @@ const FilterModal: React.FC<FilterModalProps> = ({
                 </View>
               </View>
 
+              {/* Separator Line */}
+              <View style={styles.sectionSeparator} />
+
               {/* Price Range Section */}
               <View style={styles.filterSection}>
                 <View style={styles.sectionHeader}>
@@ -370,6 +379,9 @@ const FilterModal: React.FC<FilterModalProps> = ({
                   </View>
                 </View>
               </View>
+
+              {/* Separator Line */}
+              <View style={styles.sectionSeparator} />
 
               {/* Amenities Section */}
               <View style={styles.filterSection}>
@@ -501,7 +513,7 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) =>
     },
     sectionTitle: {
       ...FONTS.h4,
-      color: COLORS.gray,
+      color: COLORS.black,
       fontWeight: 'bold',
       letterSpacing: 2,
       textTransform: 'uppercase',
@@ -541,7 +553,7 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) =>
     },
     optionText: {
       ...FONTS.body4,
-      color: '#4B5563',
+      color: COLORS.black,
       fontWeight: '500',
     },
     selectedOptionText: {
@@ -639,6 +651,13 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) =>
       color: COLORS.black,
       fontWeight: '500',
       flex: 1,
+    },
+    sectionSeparator: {
+      height: 1,
+      backgroundColor: COLORS.gray2 || '#E0E0E0',
+      width: '100%',
+      alignSelf: 'center',
+      marginVertical: SIZES.padding,
     },
     footer: {
         position: 'absolute',

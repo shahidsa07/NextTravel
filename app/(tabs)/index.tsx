@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef, useState } from 'react';
@@ -624,7 +625,12 @@ const HomeScreen = () => {
       )}
       <View style={{ flex: 1 }}>
         <ScrollView style={styles.container}>
-          <View style={styles.bgCardLayoutDesign}></View>
+          <LinearGradient
+            colors={['rgba(230, 246, 245, 1)', '#63C7BD']}
+            start={{ x: 1, y: 0 }}
+            end={{ x: 2, y: 2 }}
+            style={styles.bgCardLayoutDesign}
+          />
           <View style={styles.header}>
             <View style={styles.headerTop}>
               <View style={styles.userInfo}>
@@ -907,15 +913,6 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) => StyleSheet.create({
   notificationSectionTitle: { ...FONTS.h5, color: COLORS.gray, marginVertical: SIZES.base },
   notificationItem: { marginBottom: SIZES.base, backgroundColor: 'white', borderRadius: 10, overflow: 'hidden' },
   notificationCard: { flexDirection: 'row', alignItems: 'center', padding: SIZES.base, borderRadius: SIZES.radius },
-  notificationIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: COLORS.white,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: SIZES.base
-  },
   notificationTextContainer: {
     flex: 1,
     marginLeft: SIZES.base
@@ -936,7 +933,6 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) => StyleSheet.create({
   activeModeButton: { backgroundColor: '#00A799', borderColor: '#00A799' },
   modeButtonText: { ...FONTS.body4, color: COLORS.gray },
   activeModeButtonText: { color: COLORS.white },
-  notificationIconContainer: { position: 'relative' },
   notificationIndicator: { position: 'absolute', top: 0, right: 1, width: 10, height: 10, borderRadius: 5, borderColor: '#fff', backgroundColor: '#00A799', borderWidth: 2 },
   serviceTypeContainer: {
     marginBottom: SIZES.base
@@ -1116,7 +1112,6 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) => StyleSheet.create({
     left: 0,
     right: 0,
     height: '70%',
-    backgroundColor: 'linear-gradient(90deg,rgba(230, 246, 245, 1) 0%, rgba(0, 167, 153, 1) 40%)',
     borderBottomLeftRadius: SIZES.radius * 2,
     borderBottomRightRadius: SIZES.radius * 2,
     zIndex: 10
