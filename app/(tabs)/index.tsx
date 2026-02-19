@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef, useState } from 'react';
@@ -24,7 +25,6 @@ import Animated, {
   withTiming
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '../../constants/theme';
 
 interface NotificationItem {
@@ -624,6 +624,7 @@ const HomeScreen = () => {
       )}
       <View style={{ flex: 1 }}>
         <ScrollView style={styles.container}>
+          <View style={styles.bgCardLayoutDesign}></View>
           <View style={styles.header}>
             <View style={styles.headerTop}>
               <View style={styles.userInfo}>
@@ -642,76 +643,80 @@ const HomeScreen = () => {
             <Text style={styles.title1}>Exquisite Journeys</Text>
             <Text style={styles.title2}>Awaits Your Presence</Text>
 
-            {/* Service Type Toggle */}
-            <View style={styles.serviceTypeContainer}>
-              <View style={styles.serviceTypeWrapper}>
-                <TouchableOpacity
-                  style={[styles.serviceTypeTab, activeServiceType === 'Trip' && styles.activeServiceTypeTab]}
-                  onPress={() => setActiveServiceType('Trip')}
-                  activeOpacity={0.8}>
-                  <Text style={[styles.serviceTypeText, activeServiceType === 'Trip' && styles.activeServiceTypeText]}>
-                    Trip
+            {/* Card Container for Service Selection and Search */}
+            <View style={styles.cardContainer}>
+              {/* Service Type Toggle */}
+              <View style={styles.serviceTypeContainer}>
+                <View style={styles.serviceTypeWrapper}>
+                  <TouchableOpacity
+                    style={[styles.serviceTypeTab, activeServiceType === 'Trip' && styles.activeServiceTypeTab]}
+                    onPress={() => setActiveServiceType('Trip')}
+                    activeOpacity={0.8}>
+                    <Text style={[styles.serviceTypeText, activeServiceType === 'Trip' && styles.activeServiceTypeText]}>
+                      Trip
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.serviceTypeTab, activeServiceType === 'Travel Packages' && styles.activeServiceTypeTab]}
+                    onPress={() => setActiveServiceType('Travel Packages')}
+                    activeOpacity={0.8}>
+                    <Text style={[styles.serviceTypeText, activeServiceType === 'Travel Packages' && styles.activeServiceTypeText]}>
+                      Travel Packages
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Dynamic Service Header */}
+              <View style={styles.serviceHeader}>
+                <View style={styles.serviceIconContainer}>
+                  {activeServiceType === 'Trip' ? (
+                    <Ionicons
+                      name="bus"
+                      size={24}
+                      color="#00A799"
+                    />
+                  ) : (
+                    <MaterialCommunityIcons
+                      name="island"
+                      size={28}
+                      color="#00A799"
+                    />
+                  )}
+                </View>
+                <View style={styles.serviceHeaderContent}>
+                  <Text style={styles.serviceHeaderTitle}>
+                    {activeServiceType === 'Trip' ? 'Book Your Trip' : 'Discover Travel Packages'}
                   </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.serviceTypeTab, activeServiceType === 'Travel Packages' && styles.activeServiceTypeTab]}
-                  onPress={() => setActiveServiceType('Travel Packages')}
-                  activeOpacity={0.8}>
-                  <Text style={[styles.serviceTypeText, activeServiceType === 'Travel Packages' && styles.activeServiceTypeText]}>
-                    Travel Packages
+                  <Text style={styles.serviceHeaderSubtitle}>
+                    {activeServiceType === 'Trip'
+                      ? 'Choose your destination and travel in luxury'
+                      : 'Curated experiences for unforgettable memories'
+                    }
                   </Text>
+                </View>
+              </View>
+
+              {/* Search Container */}
+              <View style={styles.searchContainer}>
+                <View style={styles.inputContainer}>
+                  <Ionicons name="location-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
+                  <TextInput style={styles.input} placeholder="From where?" placeholderTextColor={COLORS.gray} value={from} onChangeText={setFrom} />
+                </View>
+                <View style={styles.inputContainer}>
+                  <Ionicons name="location-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
+                  <TextInput style={styles.input} placeholder="Where would you like to go?" placeholderTextColor={COLORS.gray} value={to} onChangeText={setTo} />
+                </View>
+                <TouchableOpacity onPress={() => setShowCalendar(true)} style={styles.datePickerContainer}>
+                  <Ionicons name="calendar-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
+                  <Text style={[styles.input, tripDate === 'Select Trip Date' && styles.placeholderText]}>{tripDate}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.exploreButton} onPress={handleSearch}>
+                  <Ionicons name="search-outline" size={24} color={COLORS.white} />
+                  <Text style={styles.exploreButtonText}>Explore</Text>
                 </TouchableOpacity>
               </View>
-            </View>
-
-            {/* Dynamic Service Header */}
-            <View style={styles.serviceHeader}>
-              <View style={styles.serviceIconContainer}>
-                {activeServiceType === 'Trip' ? (
-                  <Ionicons
-                    name="bus"
-                    size={24}
-                    color="#00A799"
-                  />
-                ) : (
-                  <MaterialCommunityIcons
-                    name="island"
-                    size={28}
-                    color="#00A799"
-                  />
-                )}
-              </View>
-              <View style={styles.serviceHeaderContent}>
-                <Text style={styles.serviceHeaderTitle}>
-                  {activeServiceType === 'Trip' ? 'Book Your Trip' : 'Discover Travel Packages'}
-                </Text>
-                <Text style={styles.serviceHeaderSubtitle}>
-                  {activeServiceType === 'Trip'
-                    ? 'Choose your destination and travel in luxury'
-                    : 'Curated experiences for unforgettable memories'
-                  }
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.searchContainer}>
-              <View style={styles.inputContainer}>
-                <Ionicons name="location-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
-                <TextInput style={styles.input} placeholder="From where?" placeholderTextColor={COLORS.gray} value={from} onChangeText={setFrom} />
-              </View>
-              <View style={styles.inputContainer}>
-                <Ionicons name="location-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
-                <TextInput style={styles.input} placeholder="Where would you like to go?" placeholderTextColor={COLORS.gray} value={to} onChangeText={setTo} />
-              </View>
-              <TouchableOpacity onPress={() => setShowCalendar(true)} style={styles.datePickerContainer}>
-                <Ionicons name="calendar-outline" size={24} color={COLORS.gray} style={styles.inputIcon} />
-                <Text style={[styles.input, tripDate === 'Select Trip Date' && styles.placeholderText]}>{tripDate}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.exploreButton} onPress={handleSearch}>
-                <Ionicons name="search-outline" size={24} color={COLORS.white} />
-                <Text style={styles.exploreButtonText}>Explore</Text>
-              </TouchableOpacity>
             </View>
           </View>
         </ScrollView>
@@ -755,7 +760,6 @@ const HomeScreen = () => {
                   </View>
 
                   <Calendar
-                    ref={calendarRef}
                     onDayPress={onDayPress}
                     style={{ marginTop: 15 }}
                     minDate={today}
@@ -846,17 +850,19 @@ const HomeScreen = () => {
 
 const getStyles = (COLORS: any, FONTS: any, SIZES: any) => StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.white },
-  header: { padding: SIZES.padding, paddingTop: 50, backgroundColor: COLORS.lightWhite },
-  headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  userInfo: { flexDirection: 'row', alignItems: 'center' },
-  welcomeText: { ...FONTS.body5, color: COLORS.gray },
-  userName: { ...FONTS.h4, color: COLORS.black },
-  title1: { ...FONTS.h1, color: COLORS.black, marginTop: SIZES.padding },
-  title2: { ...FONTS.h1, color: '#00A799', fontStyle: 'italic' },
-  searchContainer: { marginTop: SIZES.padding },
+  header: { padding: SIZES.padding, paddingTop: 50, backgroundColor: COLORS.white },
+  headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', zIndex: 20 },
+  userInfo: { flexDirection: 'row', alignItems: 'center', zIndex: 20 },
+  welcomeText: { ...FONTS.body5, color: COLORS.black, zIndex: 20 },
+  userName: { ...FONTS.h4, color: COLORS.primary },
+  title1: { ...FONTS.h1, color: COLORS.black, marginTop: SIZES.padding, zIndex: 20 },
+  title2: { ...FONTS.h1, color: '#00A799', fontStyle: 'italic', zIndex: 20 },
+  searchContainer: { 
+    marginTop: SIZES.padding 
+  },
   inputContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f2f2f7', borderRadius: SIZES.radius, paddingHorizontal: SIZES.padding * 0.5, height: 50, marginBottom: SIZES.base, borderWidth: 1, borderColor: COLORS.gray2 || '#E0E0E0' },
   inputIcon: { marginRight: SIZES.base },
-  input: { flex: 1, ...FONTS.body3, color: '#1A2B40', display: 'flex', alignItems: 'center' },
+  input: { flex: 1, ...FONTS.body4, color: '#1A2B40', display: 'flex', alignItems: 'center' },
   placeholderText: { ...FONTS.body4, color: COLORS.gray },
   datePickerContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f2f2f7', borderRadius: SIZES.radius, paddingHorizontal: SIZES.padding * 0.5, height: 50, marginBottom: SIZES.base, borderWidth: 1, borderColor: COLORS.gray2 || '#E0E0E0' },
   exploreButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#1A2B40', borderRadius: SIZES.radius, height: 50 },
@@ -930,11 +936,9 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) => StyleSheet.create({
   activeModeButton: { backgroundColor: '#00A799', borderColor: '#00A799' },
   modeButtonText: { ...FONTS.body4, color: COLORS.gray },
   activeModeButtonText: { color: COLORS.white },
-  quickSelectionButtonText: { ...FONTS.body4, color: COLORS.black },
   notificationIconContainer: { position: 'relative' },
   notificationIndicator: { position: 'absolute', top: 0, right: 1, width: 10, height: 10, borderRadius: 5, borderColor: '#fff', backgroundColor: '#00A799', borderWidth: 2 },
   serviceTypeContainer: {
-    marginTop: SIZES.padding,
     marginBottom: SIZES.base
   },
   serviceTypeWrapper: {
@@ -942,7 +946,6 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) => StyleSheet.create({
     backgroundColor: '#f2f2f7',
     borderRadius: SIZES.radius,
     padding: 4,
-    
   },
   serviceTypeTab: {
     flex: 1,
@@ -964,7 +967,7 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) => StyleSheet.create({
   },
   serviceHeader: {
     alignItems: 'center',
-    marginTop: SIZES.padding,
+    marginTop: SIZES.base,
     marginBottom: SIZES.base
   },
   serviceIconContainer: {
@@ -1093,6 +1096,31 @@ const getStyles = (COLORS: any, FONTS: any, SIZES: any) => StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
   },
+  cardContainer: {
+    backgroundColor: COLORS.white,
+    marginHorizontal: SIZES.base * 0.5,
+    marginTop: SIZES.padding,
+    borderRadius: SIZES.radius * 1.5,
+    padding: SIZES.padding,
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    gap: SIZES.base,
+    zIndex: 20
+  },
+  bgCardLayoutDesign: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '70%',
+    backgroundColor: 'linear-gradient(90deg,rgba(230, 246, 245, 1) 0%, rgba(0, 167, 153, 1) 40%)',
+    borderBottomLeftRadius: SIZES.radius * 2,
+    borderBottomRightRadius: SIZES.radius * 2,
+    zIndex: 10
+  }
 });
 
 export default HomeScreen;
